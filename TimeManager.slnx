@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="TimeManager.Backend/TimeManager.Backend.csproj" />
+  <Project Path="TimeManager.Frontend/TimeManager.Frontend.Client/TimeManager.Frontend.Client.csproj" />
+  <Project Path="TimeManager.Frontend/TimeManager.Frontend/TimeManager.Frontend.csproj" />
+</Solution>

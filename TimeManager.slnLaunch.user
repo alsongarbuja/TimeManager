@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "TimeManager.Backend\\TimeManager.Backend.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "TimeManager.Frontend\\TimeManager.Frontend\\TimeManager.Frontend.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

@@ -1,4 +1,4 @@
-using TimeManager.Frontend.Client.Pages;
+//using TimeManager.Frontend.Client.Pages;
 using TimeManager.Frontend.Components;
 
 var builder = WebApplication.CreateBuilder(args);

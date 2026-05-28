@@ -1,8 +1,11 @@
+using TimeManager.Backend.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -15,6 +18,15 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader();
     });
 });
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var serverVersion = ServerVersion.AutoDetect(connectionString);
+
+builder.Services.AddDbContext<HrmsDbContext>(options =>
+    options.UseMySql(connectionString, serverVersion));
+
+//builder.Services.AddDbContext<HrmsDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultServer")));
 
 var app = builder.Build();
 

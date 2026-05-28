@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Models.Device_Management;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.Models.Organization_Management;
 using TimeManager.Backend.Models.Punch_Management;
@@ -26,5 +27,8 @@ namespace TimeManager.Backend.Data
         // Punch Management Models
         public DbSet<PayPeriod> PayPeriod { get; set; }
         public DbSet<PunchEntry> PunchEntry { get; set; }
+
+        // Device Management Models
+        public DbSet<Kiosk> Kiosk { get; set; }
     }
 }

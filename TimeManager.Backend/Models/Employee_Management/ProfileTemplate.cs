@@ -34,6 +34,6 @@ namespace TimeManager.Backend.Models.Employee_Management
         [ForeignKey("UnitId")]
         public virtual Unit Unit { get; set; } = null!;
 
-        public virtual JobProfile? JobProfile { get; set; }
+        public virtual ICollection<JobProfile> JobProfile { get; set; } = [];
     }
 }

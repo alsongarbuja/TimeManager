@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TimeManager.Backend.Models.Punch_Management;
 
 namespace TimeManager.Backend.Models.Employee_Management
 {
@@ -17,5 +18,7 @@ namespace TimeManager.Backend.Models.Employee_Management
 
         [ForeignKey("EmployeeId")]
         public virtual Employee Employee { get; set; } = null!;
+
+        public virtual ICollection<PunchEntry> PunchEntry { get; set; } = [];
     }
 }

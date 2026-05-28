@@ -7,11 +7,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TimeManager.Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class EmployeeType : Migration
+    public partial class InitialMySQLScehma : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("MySql:CharSet", "utf8mb4");
+
             migrationBuilder.CreateTable(
                 name: "Department",
                 columns: table => new
@@ -26,6 +29,27 @@ namespace TimeManager.Backend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Department", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Employee",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    UniqueId = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FirstName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LastName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Email = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Employee", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -60,6 +84,21 @@ namespace TimeManager.Backend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PayFrequency", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "PayPeriod",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayPeriod", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -160,9 +199,9 @@ namespace TimeManager.Backend.Migrations
                 {
                     table.PrimaryKey("PK_JobProfile", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_JobProfile_Employees_EmployeeId",
+                        name: "FK_JobProfile_Employee_EmployeeId",
                         column: x => x.EmployeeId,
-                        principalTable: "Employees",
+                        principalTable: "Employee",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -174,35 +213,52 @@ namespace TimeManager.Backend.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
+            migrationBuilder.CreateTable(
+                name: "PunchEntry",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    ClockIn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ClockOut = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    JobProfileId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PunchEntry", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PunchEntry_JobProfile_JobProfileId",
+                        column: x => x.JobProfileId,
+                        principalTable: "JobProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
             migrationBuilder.CreateIndex(
                 name: "IX_JobProfile_EmployeeId",
                 table: "JobProfile",
-                column: "EmployeeId",
-                unique: true);
+                column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JobProfile_ProfileTemplateId",
                 table: "JobProfile",
-                column: "ProfileTemplateId",
-                unique: true);
+                column: "ProfileTemplateId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProfileTemplate_EmployeeTypeId",
                 table: "ProfileTemplate",
-                column: "EmployeeTypeId",
-                unique: true);
+                column: "EmployeeTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProfileTemplate_PayFrequencyId",
                 table: "ProfileTemplate",
-                column: "PayFrequencyId",
-                unique: true);
+                column: "PayFrequencyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProfileTemplate_RoleId",
                 table: "ProfileTemplate",
-                column: "RoleId",
-                unique: true);
+                column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProfileTemplate_UnitId",
@@ -211,17 +267,30 @@ namespace TimeManager.Backend.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_PunchEntry_JobProfileId",
+                table: "PunchEntry",
+                column: "JobProfileId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Unit_DepartmentId",
                 table: "Unit",
-                column: "DepartmentId",
-                unique: true);
+                column: "DepartmentId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "PayPeriod");
+
+            migrationBuilder.DropTable(
+                name: "PunchEntry");
+
+            migrationBuilder.DropTable(
                 name: "JobProfile");
+
+            migrationBuilder.DropTable(
+                name: "Employee");
 
             migrationBuilder.DropTable(
                 name: "ProfileTemplate");

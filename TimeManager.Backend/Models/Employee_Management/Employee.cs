@@ -19,6 +19,6 @@ namespace TimeManager.Backend.Models.Employee_Management
         [StringLength(50)]
         public required string Email { get; set; }
 
-        public virtual JobProfile? JobProfile { get; set; }
+        public virtual ICollection<JobProfile> JobProfile { get; set; } = [];
     }
 }

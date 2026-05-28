@@ -12,8 +12,8 @@ using TimeManager.Backend.Data;
 namespace TimeManager.Backend.Migrations
 {
     [DbContext(typeof(HrmsDbContext))]
-    [Migration("20260528190538_EmployeeType")]
-    partial class EmployeeType
+    [Migration("20260528192814_InitialMySQLScehma")]
+    partial class InitialMySQLScehma
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,7 +55,7 @@ namespace TimeManager.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Employees");
+                    b.ToTable("Employee");
                 });
 
             modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.EmployeeType", b =>
@@ -96,11 +96,9 @@ namespace TimeManager.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId")
-                        .IsUnique();
+                    b.HasIndex("EmployeeId");
 
-                    b.HasIndex("ProfileTemplateId")
-                        .IsUnique();
+                    b.HasIndex("ProfileTemplateId");
 
                     b.ToTable("JobProfile");
                 });
@@ -155,14 +153,11 @@ namespace TimeManager.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeTypeId")
-                        .IsUnique();
+                    b.HasIndex("EmployeeTypeId");
 
-                    b.HasIndex("PayFrequencyId")
-                        .IsUnique();
+                    b.HasIndex("PayFrequencyId");
 
-                    b.HasIndex("RoleId")
-                        .IsUnique();
+                    b.HasIndex("RoleId");
 
                     b.HasIndex("UnitId")
                         .IsUnique();
@@ -236,23 +231,65 @@ namespace TimeManager.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DepartmentId")
-                        .IsUnique();
+                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Unit");
+                });
+
+            modelBuilder.Entity("TimeManager.Backend.Models.Punch_Management.PayPeriod", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PayPeriod");
+                });
+
+            modelBuilder.Entity("TimeManager.Backend.Models.Punch_Management.PunchEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ClockIn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("ClockOut")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("JobProfileId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobProfileId");
+
+                    b.ToTable("PunchEntry");
                 });
 
             modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.JobProfile", b =>
                 {
                     b.HasOne("TimeManager.Backend.Models.Employee_Management.Employee", "Employee")
-                        .WithOne("JobProfile")
-                        .HasForeignKey("TimeManager.Backend.Models.Employee_Management.JobProfile", "EmployeeId")
+                        .WithMany("JobProfile")
+                        .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TimeManager.Backend.Models.Employee_Management.ProfileTemplate", "ProfileTemplate")
-                        .WithOne("JobProfile")
-                        .HasForeignKey("TimeManager.Backend.Models.Employee_Management.JobProfile", "ProfileTemplateId")
+                        .WithMany("JobProfile")
+                        .HasForeignKey("ProfileTemplateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -264,20 +301,20 @@ namespace TimeManager.Backend.Migrations
             modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.ProfileTemplate", b =>
                 {
                     b.HasOne("TimeManager.Backend.Models.Employee_Management.EmployeeType", "EmployeeType")
-                        .WithOne("ProfileTemplate")
-                        .HasForeignKey("TimeManager.Backend.Models.Employee_Management.ProfileTemplate", "EmployeeTypeId")
+                        .WithMany("ProfileTemplate")
+                        .HasForeignKey("EmployeeTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TimeManager.Backend.Models.Employee_Management.PayFrequency", "PayFrequency")
-                        .WithOne("ProfileTemplate")
-                        .HasForeignKey("TimeManager.Backend.Models.Employee_Management.ProfileTemplate", "PayFrequencyId")
+                        .WithMany("ProfileTemplate")
+                        .HasForeignKey("PayFrequencyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TimeManager.Backend.Models.Employee_Management.Role", "Role")
-                        .WithOne("ProfileTemplate")
-                        .HasForeignKey("TimeManager.Backend.Models.Employee_Management.ProfileTemplate", "RoleId")
+                        .WithMany("ProfileTemplate")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -299,12 +336,23 @@ namespace TimeManager.Backend.Migrations
             modelBuilder.Entity("TimeManager.Backend.Models.Organization_Management.Unit", b =>
                 {
                     b.HasOne("TimeManager.Backend.Models.Organization_Management.Department", "Department")
-                        .WithOne("Unit")
-                        .HasForeignKey("TimeManager.Backend.Models.Organization_Management.Unit", "DepartmentId")
+                        .WithMany("Unit")
+                        .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("TimeManager.Backend.Models.Punch_Management.PunchEntry", b =>
+                {
+                    b.HasOne("TimeManager.Backend.Models.Employee_Management.JobProfile", "JobProfile")
+                        .WithMany("PunchEntry")
+                        .HasForeignKey("JobProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobProfile");
                 });
 
             modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.Employee", b =>
@@ -315,6 +363,11 @@ namespace TimeManager.Backend.Migrations
             modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.EmployeeType", b =>
                 {
                     b.Navigation("ProfileTemplate");
+                });
+
+            modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.JobProfile", b =>
+                {
+                    b.Navigation("PunchEntry");
                 });
 
             modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.PayFrequency", b =>

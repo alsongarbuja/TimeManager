@@ -13,6 +13,6 @@ namespace TimeManager.Backend.Models.Organization_Management
         [StringLength(100)]
         public string? Description { get; set; }
 
-        public virtual Unit? Unit { get; set; }
+        public virtual ICollection<Unit> Unit { get; set; } = [];
     }
 }

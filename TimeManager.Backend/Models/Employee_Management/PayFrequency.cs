@@ -13,6 +13,6 @@ namespace TimeManager.Backend.Models.Employee_Management
         [StringLength(100)]
         public string? Description { get; set; }
 
-        public virtual ProfileTemplate? ProfileTemplate { get; set; }
+        public virtual ICollection<ProfileTemplate> ProfileTemplate { get; set; } = [];
     }
 }

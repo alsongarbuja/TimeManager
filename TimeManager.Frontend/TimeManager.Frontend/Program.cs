@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveWebAssemblyComponents();
+    .AddInteractiveServerComponents();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7263/") });
 
 var app = builder.Build();
@@ -28,7 +28,7 @@ app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
-    .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(TimeManager.Frontend.Client._Imports).Assembly);
+    .AddInteractiveServerRenderMode();
+    //.AddAdditionalAssemblies(typeof(TimeManager.Frontend.Client._Imports).Assembly);
 
 app.Run();

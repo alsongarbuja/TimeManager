@@ -1,7 +1,81 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@using TimeManager.Frontend.Components.Shared
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
 
 <PageTitle>Home</PageTitle>
 
-<div class="flex items-center justify-center h-screen w-full">
-    <h1 class="text-3xl font-bold">Welcome Back</h1>
+<div class="h-screen flex flex-col justify-center px-8 bg-gray-200">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 class="text-center text-3xl font-extrabold tracking-tight text-gray-900">
+            Welcome back
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+            Please sign in to your account
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow-sm border border-gray-100 sm:rounded-xl sm:px-10">
+            <EditForm Model="@loginDto" FormName="LoginUserForm" OnValidSubmit="Login" class="space-y-6">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-red-600 mb-4" />
+
+                @if (!String.IsNullOrEmpty(@Error))
+                {   
+                <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded">
+                    <div class="flex">
+                        <div class="text-sm text-red-700">
+                            <p>@Error</p>
+                        </div>
+                    </div>
+                </div>
+                }
+
+                <Input @bind-Value="loginDto.Username" Required Label="User ID / Username" Name="username" Placeholder="Enter your user ID" />
+                <Input @bind-Value="loginDto.Password" Required Type="password" Label="Password" Name="password" Placeholder="Enter your password" />
+
+                <Button Text="Submit" Loading="@isLoading" Disabled="@isLoading" Type="submit" Classes="py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-150" />
+            </EditForm>
+        </div>
+    </div>
 </div>
+
+@code {
+    private bool isLoading = false;
+    private string? Error;
+
+    public LoginDto loginDto { get; set; } = new LoginDto();
+
+    private async Task Login()
+    {
+        isLoading = true;
+        try
+        {
+            HttpResponseMessage responseMessage = await Http.PostAsJsonAsync("/api/auth/simpletestlogin", loginDto);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/app/dashboard");
+            } else
+            {
+                Error = "Incorrect User Id or Password";
+            }
+        } catch (Exception ex)
+        {
+            Error = ex.Message;
+            Console.WriteLine(ex);
+        } finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public class LoginDto
+    {
+        public string Username { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+}

@@ -1,0 +1,14 @@
+﻿@page "/app/employee-type"
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Employee Type</PageTitle>
+
+<ListWrapper 
+    Title="Employee Type"
+    Subtitle="Manage the employee type"
+    Headers="@headers"
+    />
+
+@code {
+    private string[] headers { get; set; } = ["Name", "Description"];
+}

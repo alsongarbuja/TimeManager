@@ -1,0 +1,32 @@
+﻿@page "/app/department/edit/{id:int}"
+@using TimeManager.Frontend.Components.Shared
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Edit Department</PageTitle>
+
+<FormWrapper Title="Edit Department"
+             Subtitle="Update the department data"
+             BackUrl="/app/department"
+             Model="@departmentModel">
+    <Input @bind-Value="departmentModel.Name" Label="Name" Name="name" Placeholder="Enter a name" />
+    <Input @bind-Value="departmentModel.Description" Label="Description" Name="description" Placeholder="Enter a descrption" Required="false" />
+</FormWrapper>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private DepartmentModel departmentModel = new();
+
+    private Task HandleSubmit()
+    {
+        Console.WriteLine("Submitting...");
+        return Task.CompletedTask;
+    }
+
+    private Task Cancel()
+    {
+        Console.WriteLine("Cancelling...");
+        return Task.CompletedTask;
+    }
+}

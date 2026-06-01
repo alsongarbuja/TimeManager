@@ -1,0 +1,14 @@
+﻿@page "/app/profile-template"
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Profile Template</PageTitle>
+
+<ListWrapper 
+    Title="Profile Template"
+    Subtitle="Manage the profile templates"
+    Headers="@headers"
+    />
+
+@code {
+    private string[] headers { get; set; } = ["Employee Type", "Pay Frequency", "Role"];
+}

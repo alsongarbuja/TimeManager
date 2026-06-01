@@ -1,0 +1,14 @@
+﻿@page "/app/job-profile"
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Job Profile</PageTitle>
+
+<ListWrapper 
+    Title="Job Profile"
+    Subtitle="Manage the job profiles"
+    Headers="@headers"
+    />
+
+@code {
+    private string[] headers { get; set; } = ["Employee", "Profile Template"];
+}

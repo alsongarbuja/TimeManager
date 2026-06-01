@@ -1,0 +1,14 @@
+﻿@page "/app/employee"
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Employee</PageTitle>
+
+<ListWrapper 
+    Title="Employee"
+    Subtitle="Manage the employee"
+    Headers="@headers"
+    />
+
+@code {
+    private string[] headers { get; set; } = ["First Name", "Last Name", "Email", "SO-ID"];
+}

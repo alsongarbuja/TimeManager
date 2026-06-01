@@ -1,0 +1,15 @@
+﻿@page "/app/unit"
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Unit</PageTitle>
+
+<ListWrapper 
+    Title="Unit"
+    Subtitle="Manage the units"
+    Headers="@headers"
+    CreateUrl="/app/unit/create "
+    />
+
+@code {
+    private string[] headers { get; set; } = ["Name", "Index", "Department"];
+}

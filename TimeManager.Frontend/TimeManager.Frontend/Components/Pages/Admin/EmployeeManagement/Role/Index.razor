@@ -1,0 +1,14 @@
+﻿@page "/app/role"
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Role</PageTitle>
+
+<ListWrapper 
+    Title="Role"
+    Subtitle="Manage the roles"
+    Headers="@headers"
+    />
+
+@code {
+    private string[] headers { get; set; } = ["Name", "Description"];
+}

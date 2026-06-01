@@ -1,0 +1,30 @@
+﻿@page "/app/unit/create"
+@using TimeManager.Frontend.Components.Shared
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Create Unit</PageTitle>
+
+<FormWrapper Title="Create Unit"
+             Subtitle="Add new unit to the system"
+             BackUrl="/app/unit"
+             Model="@unitModel">
+    <Input @bind-Value="unitModel.Name" Label="Name" Name="name" Placeholder="Enter a name" />
+    <Input @bind-Value="unitModel.Index" Label="Index" Type="number" Name="index" Placeholder="Enter an index" />
+    <Input @bind-Value="unitModel.Description" Label="Description" Name="description" Placeholder="Enter a descrption" Required="false" />
+</FormWrapper>
+
+@code {
+    private UnitModel unitModel = new();
+
+    private Task HandleSubmit()
+    {
+        Console.WriteLine("Submitting...");
+        return Task.CompletedTask;
+    }
+
+    private Task Cancel()
+    {
+        Console.WriteLine("Cancelling...");
+        return Task.CompletedTask;
+    }
+}

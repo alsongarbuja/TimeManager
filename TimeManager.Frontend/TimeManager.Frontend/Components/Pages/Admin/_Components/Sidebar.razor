@@ -5,7 +5,7 @@
             <span class="text-sm font-bold tracking-widest uppercase">Time Clock</span>
         </div>
         <nav class="space-y-6">
-            <div>
+            @* <div>
                 <ul class="space-y-1">
                     <li>
                         <SidebarNav 
@@ -15,7 +15,69 @@
                             />
                     </li>
                 </ul>
+            </div> *@
+            
+             @* Crud for all the tables in the database for testing *@
+            <div>
+                <span class="px-3 text-xxs font-semibold uppercase tracking-wider text-neutral-500 block mb-2">Time Track</span>
+                <ul class="space-y-1">
+                    <li>
+                        <SidebarNav Text="Department"
+                                    Url="/app/department"
+                                    IconClass="ri-time-line" />
+                    </li>
+                    <li>
+                        <SidebarNav Text="Unit"
+                                    Url="/app/unit"
+                                    IconClass="ri-list-check" />
+                    </li>
+
+                    <li>
+                        <SidebarNav Text="Kiosk"
+                                    Url="/app/kiosk"
+                                    IconClass="ri-time-line" />
+                    </li>
+                    <li>
+                        <SidebarNav Text="Employee"
+                                    Url="/app/employee"
+                                    IconClass="ri-list-check" />
+                    </li>
+
+                    <li>
+                        <SidebarNav Text="Employee Type"
+                                    Url="/app/employee-type"
+                                    IconClass="ri-time-line" />
+                    </li>
+                    <li>
+                        <SidebarNav Text="Pay Frequency"
+                                    Url="/app/pay-frequency"
+                                    IconClass="ri-list-check" />
+                    </li>
+
+                    <li>
+                        <SidebarNav Text="Role"
+                                    Url="/app/role"
+                                    IconClass="ri-time-line" />
+                    </li>
+                    <li>
+                        <SidebarNav Text="Profile Template"
+                                    Url="/app/profile-template"
+                                    IconClass="ri-list-check" />
+                    </li>
+
+                    <li>
+                        <SidebarNav Text="Job Profile"
+                                    Url="/app/job-profile"
+                                    IconClass="ri-time-line" />
+                    </li>
+                    <li>
+                        <SidebarNav Text="Pay Period"
+                                    Url="/app/pay-period"
+                                    IconClass="ri-list-check" />
+                    </li>
+                </ul>
             </div>
+
             @* @if (request.role.name != "Manager") *@
             <div>
                 <span class="px-3 text-xxs font-semibold uppercase tracking-wider text-neutral-500 block mb-2">Time Track</span>

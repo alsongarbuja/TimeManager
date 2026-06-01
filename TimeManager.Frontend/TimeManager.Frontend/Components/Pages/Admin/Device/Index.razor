@@ -1,0 +1,15 @@
+﻿@page "/app/kiosk"
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Unit</PageTitle>
+
+<ListWrapper 
+    Title="Kiosk"
+    Subtitle="Manage the devices"
+    Headers="@headers"
+    />
+
+@code {
+    private string[] headers { get; set; } = ["Name", "Department"];
+}
+

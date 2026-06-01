@@ -1,0 +1,15 @@
+﻿@page "/app/department"
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Department</PageTitle>
+
+<ListWrapper 
+    Title="Department"
+    Headers="@departments"
+    Subtitle="Manage the Departments"
+    CreateUrl="/app/department/create"
+    />
+
+@code {
+    private string[] departments { get; set; } = ["Name"];
+}

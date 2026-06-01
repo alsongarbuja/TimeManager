@@ -1,0 +1,15 @@
+﻿@page "/app/pay-frequency"
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Pay Frequency</PageTitle>
+
+<ListWrapper 
+    Title="Pay Frequency"
+    Subtitle="Manage the pay frequencies"
+    Headers="@headers"
+    />
+
+@code {
+    private string[] headers { get; set; } = ["Name", "Description"];
+}
+

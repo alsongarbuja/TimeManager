@@ -1,0 +1,14 @@
+﻿@inject NavigationManager Navigation
+
+<a href="@Url" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors @(IsActive ? "bg-white text-black font-semibold" : "text-neutral-400 hover:text-white hover:bg-neutral-900 font-medium")">
+    <i class="@IconClass w-5 text-center"></i>
+    <span>@Text</span>
+</a>
+
+@code {
+    [Parameter] public required string Url { get; set; }
+    [Parameter] public required string Text { get; set; }
+    [Parameter] public required string IconClass { get; set; }
+
+    private bool IsActive => Navigation.ToBaseRelativePath(Navigation.Uri).Equals(Url.TrimStart('/'), StringComparison.OrdinalIgnoreCase);
+}

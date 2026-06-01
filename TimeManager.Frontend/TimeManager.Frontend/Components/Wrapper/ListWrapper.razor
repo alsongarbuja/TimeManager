@@ -1,0 +1,64 @@
+﻿<div class="min-h-screen">
+    <div class="mx-auto max-w-7xl">
+
+        <!-- Header -->
+        <div class="mb-8 flex items-start justify-between">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight text-black">
+                    @Title
+                </h1>
+
+                <p class="mt-2 text-sm text-gray-500">
+                    @Subtitle
+                </p>
+            </div>
+
+            <a href="@CreateUrl"
+               class="inline-flex items-center rounded-xl bg-black px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-800">
+                Create
+            </a>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+
+                    <thead class="bg-gray-50">
+                        <tr>
+                            @foreach (var header in Headers)
+                            {
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                    @header
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        <tr>
+                            <td colspan="@Headers.Length"
+                                class="px-6 py-16 text-center text-sm text-gray-400">
+                                No data available
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [Parameter] public required string Title { get; set; }
+
+    [Parameter]
+    public string Subtitle { get; set; }
+        = "Manage and review your data.";
+
+    [Parameter] public required string[] Headers { get; set; }
+
+    [Parameter] public string CreateUrl { get; set; } = "#";
+}

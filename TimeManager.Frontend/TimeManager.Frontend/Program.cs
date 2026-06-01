@@ -1,12 +1,21 @@
 //using TimeManager.Frontend.Client.Pages;
+using Microsoft.AspNetCore.Components.Authorization;
 using TimeManager.Frontend.Components;
+using TimeManager.Frontend.State;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Adding scope to connect with backend
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7263/") });
+
+// Adding authentication and authorization
+builder.Services.AddAuthorizationCore();
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<AuthenticationStateProvider, BackendAuthenticationStateProvider>();
 
 var app = builder.Build();
 

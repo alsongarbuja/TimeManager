@@ -1,5 +1,6 @@
 using TimeManager.Backend.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,39 @@ builder.Services.AddDbContext<HrmsDbContext>(options =>
 //builder.Services.AddDbContext<HrmsDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultServer")));
 
+builder.Services.AddIdentityCore<IdentityUser>(options =>
+{
+    options.Password.RequiredLength = 5;
+    options.Password.RequireNonAlphanumeric = false;
+    options.User.RequireUniqueEmail = true;
+    options.Lockout.MaxFailedAccessAttempts = 5;
+})
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<HrmsDbContext>()
+    .AddDefaultTokenProviders()
+    .AddApiEndpoints();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Require Admin", policy => policy.RequireRole("Admin"))
+    .AddPolicy("CanPublish", policy => policy.RequireClaim("permission", "publish"));
+
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+//builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
+//    .AddCookie(IdentityConstants.ApplicationScheme, options =>
+//    {
+//        options.Cookie.HttpOnly = true;
+//        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+//        options.Cookie.SameSite = SameSiteMode.Strict;
+
+//        options.Events.OnRedirectToLogin = context =>
+//        {
+//            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+//            return Task.CompletedTask;
+//        };
+//    });
+
+//builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,7 +73,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowBlazor");
+app.UseAuthentication();
 app.UseAuthorization();
+
+//app.MapGroup("/auth").MapIdentityApi<IdentityUser>();
 
 app.MapControllers();
 

@@ -36,17 +36,17 @@
                 <div class="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-6">
 
                     <Button 
-                        Text="Cancel"
                         Type="button"
-                            Classes="rounded-xl border border-gray-300 px-5 py-2.5 text-sm font-medium text-black hover:bg-gray-50"            />
+                        HandleClick="OnCancel"
+                            Classes="rounded-xl border border-gray-300 px-5 py-2.5 text-sm font-medium text-black hover:bg-gray-50">
+                            Cancel</Button>
 
                     <Button 
-                        Text="Save"
                         Type="submit"
                         Classes="rounded-xl bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
                         Loading="@Loading"
                         Disabled="@Loading"
-                        />
+                        >Save</Button>
 
                   @*   <button type="button"
                             class=""

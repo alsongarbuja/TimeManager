@@ -41,7 +41,13 @@
                 <Input @bind-Value="loginDto.Username" Required Label="User ID / Username" Name="username" Placeholder="Enter your user ID" />
                 <Input @bind-Value="loginDto.Password" Required Type="password" Label="Password" Name="password" Placeholder="Enter your password" />
 
-                <Button Text="Submit" Loading="@isLoading" Disabled="@isLoading" Type="submit" Classes="py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-150" />
+                <Button 
+                    Loading="@isLoading" 
+                    Disabled="@isLoading" 
+                    Type="submit" 
+                    Classes="py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-150">
+                    Submit
+                   </Button>
             </EditForm>
         </div>
     </div>

@@ -1,6 +1,7 @@
 ﻿@page "/app/department"
 
 @inject HttpClient Http
+@inject NavigationManager Navigation
 
 @using TimeManager.Frontend.Components.Shared
 @using TimeManager.Frontend.Components.Wrapper
@@ -16,18 +17,23 @@
 >
     @foreach (var data in departmentModels)
     {
+        var currentId = data.Id;
         <tr>
             <td class="px-6 py-4 text-left">@data.Name</td>
             <td class="px-6 py-4 text-truncate">@data.Description</td>
             <td class="px-6 py-4 flex items-center gap-2">
                 <Button 
-                    Text="Edit"
+                        Type="button"
+                        Classes="bg-red-500 text-white rounded-md w-fit" >
+                        <i class="ri-delete-bin-7-line"></i>
+                        </Button>
+                <Button 
                     Type="button"
                     Classes="bg-blue-500 text-white rounded-md w-fit"
-                    />
-                <Button Text="Delete"
-                        Type="button"
-                        Classes="bg-red-500 text-white rounded-md w-fit" />
+                    HandleClick="()=>NavigateToEdit(currentId)"
+                    >
+                    <i class="ri-edit-line"></i>
+                    </Button>
             </td>
         </tr>
     }
@@ -46,6 +52,13 @@
         {
             Console.WriteLine(ex);
         }
+    }
+
+    // TODO: fix this navigation
+    public void NavigateToEdit(int id)
+    {
+        Console.WriteLine(id);
+        Navigation.NavigateTo("/app/department/edit/{id}");
     }
 
     private bool isEmpty => departmentModels.Length == 0;

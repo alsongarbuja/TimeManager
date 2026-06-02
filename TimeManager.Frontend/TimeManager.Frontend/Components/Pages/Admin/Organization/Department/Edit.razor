@@ -1,4 +1,7 @@
 ﻿@page "/app/department/edit/{id:int}"
+
+@inject HttpClient Http
+
 @using TimeManager.Frontend.Components.Shared
 @using TimeManager.Frontend.Components.Wrapper
 
@@ -8,20 +11,57 @@
              Subtitle="Update the department data"
              BackUrl="/app/department"
              Model="@departmentModel">
+    @if (!String.IsNullOrEmpty(Message))
+    {
+        <span class="text-green-500">@Message</span>
+    }
+    @if (!String.IsNullOrEmpty(ErrorMessage))
+    {
+        <span class="text-red-500">@ErrorMessage</span>
+    }
     <Input @bind-Value="departmentModel.Name" Label="Name" Name="name" Placeholder="Enter a name" />
     <Input @bind-Value="departmentModel.Description" Label="Description" Name="description" Placeholder="Enter a descrption" Required="false" />
 </FormWrapper>
 
 @code {
+    private string ErrorMessage = "";
+    private string Message = "";
+    private bool isLoading = false;
+
     [Parameter]
     public int Id { get; set; }
 
     private DepartmentModel departmentModel = new();
 
-    private Task HandleSubmit()
+    private async Task HandleSubmit()
     {
-        Console.WriteLine("Submitting...");
-        return Task.CompletedTask;
+        isLoading = true;
+        ErrorMessage = "";
+        Message = "";
+
+        try
+        {
+            HttpResponseMessage res = await Http.PatchAsJsonAsync($"api/department/{Id}", departmentModel);
+
+            if (res.IsSuccessStatusCode)
+            {
+                Message = "Succefully updated the department";
+            }
+            else
+            {
+                var problemDetails = await res.Content.ReadFromJsonAsync<System.Text.Json.Nodes.JsonObject>();
+                ErrorMessage = problemDetails?["detail"]?.ToString() ?? "An error occured while saving.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            ErrorMessage = "Could not connect to Server.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private Task Cancel()

@@ -1,4 +1,8 @@
 ﻿@page "/app/department"
+
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Shared
 @using TimeManager.Frontend.Components.Wrapper
 
 <PageTitle>Department</PageTitle>
@@ -8,8 +12,41 @@
     Headers="@departments"
     Subtitle="Manage the Departments"
     CreateUrl="/app/department/create"
-    />
+    isEmpty="isEmpty"
+>
+    @foreach (var data in departmentModels)
+    {
+        <tr>
+            <td class="px-6 py-4 text-left">@data.Name</td>
+            <td class="px-6 py-4 text-truncate">@data.Description</td>
+            <td class="px-6 py-4 flex items-center gap-2">
+                <Button 
+                    Text="Edit"
+                    Type="button"
+                    Classes="bg-blue-500 text-white rounded-md w-fit"
+                    />
+                <Button Text="Delete"
+                        Type="button"
+                        Classes="bg-red-500 text-white rounded-md w-fit" />
+            </td>
+        </tr>
+    }
+    </ListWrapper>
 
 @code {
-    private string[] departments { get; set; } = ["Name"];
+    private string[] departments { get; set; } = ["Name", "Description"];
+    private DepartmentModel[] departmentModels = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            departmentModels = await Http.GetFromJsonAsync<DepartmentModel[]>("api/department");
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private bool isEmpty => departmentModels.Length == 0;
 }

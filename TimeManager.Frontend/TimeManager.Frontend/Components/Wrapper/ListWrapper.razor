@@ -19,7 +19,6 @@
             </a>
         </div>
 
-        <!-- Table -->
         <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -32,16 +31,28 @@
                                     @header
                                 </th>
                             }
+                            @if (hasAction)
+                            {
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                    Action
+                                </th>
+                            }
                         </tr>
                     </thead>
 
                     <tbody class="divide-y divide-gray-100 bg-white">
-                        <tr>
-                            <td colspan="@Headers.Length"
-                                class="px-6 py-16 text-center text-sm text-gray-400">
-                                No data available
-                            </td>
-                        </tr>
+                        @if (isEmpty)
+                        {
+                            <tr>
+                                <td colspan="@Headers.Length"
+                                    class="px-6 py-16 text-center text-sm text-gray-400">
+                                    No data available
+                                </td>
+                            </tr>
+                        } else
+                        {
+                            @ChildContent
+                        }
                     </tbody>
 
                 </table>
@@ -61,4 +72,10 @@
     [Parameter] public required string[] Headers { get; set; }
 
     [Parameter] public string CreateUrl { get; set; } = "#";
+
+    [Parameter] public bool isEmpty { get; set; } = false;
+
+    [Parameter] public bool hasAction { get; set; } = true;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
 }

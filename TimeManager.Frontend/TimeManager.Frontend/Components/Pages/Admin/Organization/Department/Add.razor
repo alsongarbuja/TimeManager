@@ -1,6 +1,10 @@
 ﻿@page "/app/department/create"
+
+@rendermode InteractiveServer
+
 @using TimeManager.Frontend.Components.Shared
 @using TimeManager.Frontend.Components.Wrapper
+@inject HttpClient Http
 
 <PageTitle>Create Department</PageTitle>
 
@@ -9,19 +13,56 @@
     Subtitle="Add new department to the system"
     BackUrl="/app/department"
     Model="@departmentModel"
-
+    FormName="DepartmentAddForm"
+    OnSubmit="@HandleSubmit"
+    OnCancel="@Cancel"
+    Loading="@isLoading"
 >
-    <Input @bind-Value="departmentModel.Name" Label="Name" Name="name" Placeholder="Enter a name" />
-    <Input @bind-Value="departmentModel.Description" Label="Description" Name="description" Placeholder="Enter a descrption" Required="false" />
+    @if (!String.IsNullOrEmpty(Message))
+    {
+        <span class="text-green-500">@Message</span>
+    }
+    @if (!String.IsNullOrEmpty(ErrorMessage))
+    {
+        <span class="text-red-500">@ErrorMessage</span>
+    }
+    <Input @bind-Value="departmentModel.Name" Label="Name" Name="Name" Placeholder="Enter a name" />
+    <Input @bind-Value="departmentModel.Description" Label="Description" Name="Description" Placeholder="Enter a descrption" Required="false" />
 </FormWrapper>
 
 @code {
+    private string ErrorMessage = "";
+    private string Message = "";
+    private bool isLoading = false;
     private DepartmentModel departmentModel = new ();
 
-    private Task HandleSubmit()
+    private async Task HandleSubmit()
     {
-        Console.WriteLine("Submitting...");
-        return Task.CompletedTask;
+        isLoading = true;
+        ErrorMessage = "";
+        Message = "";
+
+        try
+        {
+            HttpResponseMessage res = await Http.PostAsJsonAsync("api/department", departmentModel);
+
+            if (res.IsSuccessStatusCode)
+            {
+                Message = "Succefully created the department";
+            }
+            else
+            {
+                var problemDetails = await res.Content.ReadFromJsonAsync<System.Text.Json.Nodes.JsonObject>();
+                ErrorMessage = problemDetails?["detail"]?.ToString() ?? "An error occured while saving.";
+            }
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            ErrorMessage = "Could not connect to Server.";
+        } finally
+        {
+            isLoading = false;
+        }
     }
 
     private Task Cancel()

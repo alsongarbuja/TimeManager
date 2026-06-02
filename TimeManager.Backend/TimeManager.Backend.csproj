@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\EmployeeManagement\Dto\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

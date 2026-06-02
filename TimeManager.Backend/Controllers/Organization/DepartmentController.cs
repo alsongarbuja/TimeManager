@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using TimeManager.Backend.Controllers.Organization.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Organization_Management;
@@ -44,10 +43,6 @@ namespace TimeManager.Backend.Controllers.Organization
         [HttpPost]
         public async Task<ActionResult<Department>> CreateDepartment([FromBody] DepartmentDto departmentDto)
         {
-            Debug.WriteLine("Hello in the server");
-            Debug.WriteLine("Test");
-            Debug.WriteLine(departmentDto.Name);
-
             var data = _context.Department.Add(new Department { Name = departmentDto.Name, Description = departmentDto.Description });
 
             await _context.SaveChangesAsync();

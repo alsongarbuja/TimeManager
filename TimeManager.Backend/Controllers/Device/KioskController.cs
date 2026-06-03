@@ -4,7 +4,7 @@ using TimeManager.Backend.Controllers.Device.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Device_Management;
 
-namespace TimeManager.Backend.Controllers.Organization
+namespace TimeManager.Backend.Controllers.Device
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -20,12 +20,12 @@ namespace TimeManager.Backend.Controllers.Organization
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Kiosk>>> GetKiosks()
         {
-            var data = _context.Kiosk.ToListAsync();
+            var data = await _context.Kiosk.ToListAsync();
             return data;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Kiosk>> GetKioskById(int id)
+        public async Task<ActionResult<Kiosk>> GetKiosk(int id)
         {
             var kiosk = await _context.Kiosk.FindAsync(id);
 
@@ -49,13 +49,13 @@ namespace TimeManager.Backend.Controllers.Organization
             });
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetKioskById), new { id = data.Entity.Id }, data.Entity);
+            return CreatedAtAction(nameof(GetKiosk), new { id = data.Entity.Id }, data.Entity);
         }
 
         [HttpPatch("{id}")]
         public async Task<ActionResult<Kiosk>> UpdateKiosk(int id, [FromBody] KioskDto kioskDto)
         {
-            var kiosk = await GetKioskById(id);
+            var kiosk = await GetKiosk(id);
 
             if (kiosk == null)
             {

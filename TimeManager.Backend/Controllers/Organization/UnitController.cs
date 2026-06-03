@@ -20,12 +20,12 @@ namespace TimeManager.Backend.Controllers.Organization
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Unit>>> GetUnits()
         {
-            var data = _context.Unit.ToListAsync();
+            var data = await _context.Unit.ToListAsync();
             return data;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Unit>> GetUnitById(int id)
+        public async Task<ActionResult<Unit>> GetUnit(int id)
         {
             var unit = await _context.Unit.FindAsync(id);
 
@@ -48,13 +48,13 @@ namespace TimeManager.Backend.Controllers.Organization
             });
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUnitById), new { id = data.Entity.Id }, data.Entity);
+            return CreatedAtAction(nameof(GetUnit), new { id = data.Entity.Id }, data.Entity);
         }
 
         [HttpPatch("{id}")]
         public async Task<ActionResult<Unit>> UpdateUnit(int id, [FromBody] UnitDto unitDto)
         {
-            var unit = await GetUnitById(id);
+            var unit = await GetUnit(id);
 
             if (unit == null)
             {
@@ -70,7 +70,7 @@ namespace TimeManager.Backend.Controllers.Organization
         //[HttpDelete("{id}")]
         //public async void DeleteUnit(int id)
         //{
-        //    var unit = await GetUnitById(id);
+        //    var unit = await GetUnit(id);
         //    Unit? value = unit.Value;
 
         //    if (value == null)

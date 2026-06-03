@@ -1,0 +1,13 @@
+﻿.btn {
+    border-radius: 5px;
+    padding: .5em 1em;  
+    display: flex;
+    align-items: center; 
+    gap: 4px; 
+    justify-content: center; 
+    cursor: pointer; 
+}
+
+.btn:disabled {
+    cursor: not-allowed;
+}

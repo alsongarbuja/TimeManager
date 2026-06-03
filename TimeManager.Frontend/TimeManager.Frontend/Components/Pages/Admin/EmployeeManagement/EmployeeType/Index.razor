@@ -1,14 +1,57 @@
 ﻿@page "/app/employee-type"
+
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Shared
 @using TimeManager.Frontend.Components.Wrapper
 
 <PageTitle>Employee Type</PageTitle>
 
 <ListWrapper 
     Title="Employee Type"
-    Subtitle="Manage the employee type"
+    Subtitle="Manage the employee types"
     Headers="@headers"
-    />
+    isEmpty="isEmpty"
+    CreateUrl="/app/employee-type/create"
+  >  
+    @foreach(var e in employeeTypes)
+    {
+        <tr>
+            <td class="px-6 py-4">@e.Name</td>
+            <td class="px-6 py-4 text-truncate">@e.Description</td>
+            <td class="px-6 py-4 flex items-center gap-2">
+                <Button 
+                        Type="button"
+                        Classes="bg-red-500 text-white rounded-md w-fit" >
+                        <i class="ri-delete-bin-7-line"></i>
+                        </Button>
+                <Button 
+                    Type="button"
+                    Classes="bg-blue-500 text-white rounded-md w-fit"
+                   
+                    >
+                    <i class="ri-edit-line"></i>
+                    </Button>
+            </td>
+        </tr>
+    }
+    </ListWrapper>
 
 @code {
     private string[] headers { get; set; } = ["Name", "Description"];
+    private EmployeeTypeModel[] employeeTypes = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            employeeTypes = await Http.GetFromJsonAsync<EmployeeTypeModel[]>("api/employeetype");
+        } catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private bool isEmpty => employeeTypes.Length == 0;
 }
+

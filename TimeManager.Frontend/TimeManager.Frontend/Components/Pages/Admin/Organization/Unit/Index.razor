@@ -1,4 +1,8 @@
 ﻿@page "/app/unit"
+
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Shared
 @using TimeManager.Frontend.Components.Wrapper
 
 <PageTitle>Unit</PageTitle>
@@ -7,9 +11,49 @@
     Title="Unit"
     Subtitle="Manage the units"
     Headers="@headers"
-    CreateUrl="/app/unit/create "
-    />
+    CreateUrl="/app/unit/create"
+    isEmpty="isEmpty"
+>
+    @foreach (var data in unitModels)
+    {
+        var currentId = data.Id;
+        <tr>
+            <td class="px-6 py-4 text-left">@data.Name</td>
+            <td class="px-6 py-4">@data.Index</td>
+            <td class="px-6 py-4">@data.Department?.Name</td>
+            <td class="px-6 py-4 flex items-center gap-2">
+                <Button 
+                        Type="button"
+                        Classes="bg-red-500 text-white rounded-md w-fit" >
+                        <i class="ri-delete-bin-7-line"></i>
+                        </Button>
+                <Button 
+                    Type="button"
+                    Classes="bg-blue-500 text-white rounded-md w-fit"
+                   
+                    >
+                    <i class="ri-edit-line"></i>
+                    </Button>
+            </td>
+        </tr>
+    }
+
+</ListWrapper>
 
 @code {
     private string[] headers { get; set; } = ["Name", "Index", "Department"];
+    private UnitModel[] unitModels = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            unitModels = await Http.GetFromJsonAsync<UnitModel[]>("/api/unit");
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private bool isEmpty => unitModels.Length == 0;
 }

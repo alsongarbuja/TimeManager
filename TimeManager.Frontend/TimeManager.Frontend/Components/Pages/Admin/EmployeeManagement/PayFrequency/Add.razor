@@ -1,0 +1,73 @@
+﻿@page "/app/pay-frequency/create"
+
+@rendermode InteractiveServer
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Shared
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Pay Frequency - Add</PageTitle>
+
+<FormWrapper Title="Create Pay Frequency"
+             Subtitle="Add pay frequency to the system"
+             BackUrl="/app/pay-frequency"
+             FormName="PayFrequencyAddForm"
+             Model="@payFrequency"
+             OnSubmit="HandleSubmit"
+             OnCancel="Cancel"
+             Loading="@isLoading">
+    @if (!String.IsNullOrEmpty(message))
+    {
+        <span class="text-green-500">@message</span>
+    }
+    @if (!String.IsNullOrEmpty(errorMessage))
+    {
+        <span class="text-red-500">@errorMessage</span>
+    }
+    <Input @bind-Value="payFrequency.Name" Name="Name" Label="Name" Placeholder="Give the device a name" />
+    <Input @bind-Value="payFrequency.Description" Required="false" Name="Description" Label="Description" Placeholder="Give it a descriptive info" />
+</FormWrapper>
+
+@code {
+    private string message = "";
+    private string errorMessage = "";
+    private bool isLoading = false;
+    private PayFrequencyModel payFrequency = new();
+
+    private async Task HandleSubmit()
+    {
+        isLoading = true;
+        message = "";
+        errorMessage = "";
+
+        try
+        {
+            HttpResponseMessage responseMessage = await Http.PostAsJsonAsync("api/payfrequency", payFrequency);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                message = "Sucessfully created the pay frequency";
+            }
+            else
+            {
+                var problemDetails = await responseMessage.Content.ReadFromJsonAsync<System.Text.Json.Nodes.JsonObject>();
+                errorMessage = problemDetails?["detail"]?.ToString() ?? "An unexpected error occured";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = ex.Message;
+            // errorMessage = "Exeption occured";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private Task Cancel()
+    {
+        return Task.CompletedTask;
+    }
+}

@@ -1,0 +1,100 @@
+﻿@page "/app/kiosk/create"
+
+@rendermode InteractiveServer
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Shared
+@using TimeManager.Frontend.Components.Wrapper
+@using TimeManager.Frontend.Components.Pages.Admin.Device
+@using TimeManager.Frontend.Components.Pages.Admin.Organization.Department
+
+<PageTitle>Kiosk - Add</PageTitle>
+
+<FormWrapper
+    Title="Create Kiosk"
+    Subtitle="Add kiosk/devices to the department"
+    BackUrl="/app/kiosk"    
+    FormName="KioskAddForm"
+    Model="@deviceModel"
+    OnSubmit="HandleSubmit"
+    OnCancel="Cancel"
+    Loading="@isLoading"
+>
+    @if (!String.IsNullOrEmpty(message))
+    {
+        <span class="text-green-500">@message</span>
+    }
+    @if (!String.IsNullOrEmpty(errorMessage))
+    {
+        <span class="text-red-500">@errorMessage</span>
+    }
+    <Input @bind-Value="deviceModel.Name" Name="Name" Label="Name" Placeholder="Give the device a name" />
+    <Input @bind-Value="deviceModel.AllowedIPAddress" Name="AllowedIPAddress" Label="IP Address" Placeholder="Allowed only from this IP Address" />
+    <Select
+        Label="Department"
+        Name="DepartmentId"
+        Placeholder="Select the related department"
+        @bind-Value="deviceModel.DepartmentId"    
+    >
+        @foreach(var dep in departments)
+        {
+            <option value="@dep.Id">@dep.Name</option>
+        }
+    </Select>
+    <Input @bind-Value="deviceModel.Description" Required="false" Name="Description" Label="Description" Placeholder="Give it a descriptive info" />
+</FormWrapper>
+
+@code {
+    private string message = "";
+    private string errorMessage = "";
+    private bool isLoading = false;
+    private DeviceModel deviceModel = new();
+    private DepartmentModel[] departments = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            departments = await Http.GetFromJsonAsync<DepartmentModel[]>("/api/department");
+            deviceModel.DepartmentId = departments[0].Id;
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = "Error loading departments";
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isLoading = true;
+        message = "";
+        errorMessage = "";
+
+        try
+        {
+            HttpResponseMessage responseMessage = await Http.PostAsJsonAsync("api/kiosk", deviceModel);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                message = "Sucessfully created the device";
+            } else
+            {
+                var problemDetails = await responseMessage.Content.ReadFromJsonAsync<System.Text.Json.Nodes.JsonObject>();
+                errorMessage = problemDetails?["detail"]?.ToString() ?? "An unexpected error occured";
+            }
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = ex.Message;
+            // errorMessage = "Exeption occured";
+        } finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private Task Cancel()
+    {
+        return Task.CompletedTask;
+    }
+}

@@ -1,14 +1,52 @@
 ﻿@page "/app/role"
+
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Shared
 @using TimeManager.Frontend.Components.Wrapper
 
 <PageTitle>Role</PageTitle>
 
-<ListWrapper 
-    Title="Role"
-    Subtitle="Manage the roles"
-    Headers="@headers"
-    />
+<ListWrapper Title="Role"
+             Subtitle="Manage the roles"
+             Headers="@headers"
+             isEmpty="isEmpty"
+             CreateUrl="/app/role/create">
+    @foreach (var r in roles)
+    {
+        <tr>
+            <td class="px-6 py-4">@r.Name</td>
+            <td class="px-6 py-4 text-truncate">@r.Description</td>
+            <td class="px-6 py-4 flex items-center gap-2">
+                <Button Type="button"
+                        Classes="bg-red-500 text-white rounded-md w-fit">
+                    <i class="ri-delete-bin-7-line"></i>
+                </Button>
+                <Button Type="button"
+                        Classes="bg-blue-500 text-white rounded-md w-fit">
+                    <i class="ri-edit-line"></i>
+                </Button>
+            </td>
+        </tr>
+    }
+</ListWrapper>
 
 @code {
     private string[] headers { get; set; } = ["Name", "Description"];
+    private RoleModel[] roles = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            roles = await Http.GetFromJsonAsync<RoleModel[]>("api/role");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private bool isEmpty => roles.Length == 0;
 }
+

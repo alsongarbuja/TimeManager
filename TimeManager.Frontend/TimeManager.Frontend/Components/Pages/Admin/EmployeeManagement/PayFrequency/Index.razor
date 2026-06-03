@@ -1,15 +1,52 @@
 ﻿@page "/app/pay-frequency"
+
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Shared
 @using TimeManager.Frontend.Components.Wrapper
 
 <PageTitle>Pay Frequency</PageTitle>
 
-<ListWrapper 
-    Title="Pay Frequency"
-    Subtitle="Manage the pay frequencies"
-    Headers="@headers"
-    />
+<ListWrapper Title="Pay Frequency"
+             Subtitle="Manage the pay frequencies"
+             Headers="@headers"
+             isEmpty="isEmpty"
+             CreateUrl="/app/pay-frequency/create">
+    @foreach (var pf in payFrequencies)
+    {
+        <tr>
+            <td class="px-6 py-4">@pf.Name</td>
+            <td class="px-6 py-4 text-truncate">@pf.Description</td>
+            <td class="px-6 py-4 flex items-center gap-2">
+                <Button Type="button"
+                        Classes="bg-red-500 text-white rounded-md w-fit">
+                    <i class="ri-delete-bin-7-line"></i>
+                </Button>
+                <Button Type="button"
+                        Classes="bg-blue-500 text-white rounded-md w-fit">
+                    <i class="ri-edit-line"></i>
+                </Button>
+            </td>
+        </tr>
+    }
+</ListWrapper>
 
 @code {
     private string[] headers { get; set; } = ["Name", "Description"];
+    private PayFrequencyModel[] payFrequencies = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            payFrequencies = await Http.GetFromJsonAsync<PayFrequencyModel[]>("api/payfrequency");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private bool isEmpty => payFrequencies.Length == 0;
 }
 

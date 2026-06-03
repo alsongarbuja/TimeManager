@@ -11,6 +11,12 @@
 
             <div>
                 <h1 class="text-3xl font-bold tracking-tight text-black">
+                    @if (!isEdit)
+                    {
+                        @("Create ")
+                    } else {
+                        @("Edit ")
+                    }
                     @Title
                 </h1>
 
@@ -25,9 +31,18 @@
 
         <div class="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
 
-            <EditForm Model="@Model" OnValidSubmit="OnSubmit" FormName="@FormName">
+            <EditForm Model="@Model" OnValidSubmit="Submit" FormName="@FormName">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
+
+                @if (!String.IsNullOrEmpty(message))
+                {
+                    <span class="text-green-500 mb-4">@message</span>
+                }
+                @if (!String.IsNullOrEmpty(errorMessage))
+                {
+                    <span class="text-red-500 mb-4">@errorMessage</span>
+                }
 
                 <div class="space-y-6">
                     @ChildContent
@@ -44,21 +59,9 @@
                     <Button 
                         Type="submit"
                         Classes="rounded-xl bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
-                        Loading="@Loading"
-                        Disabled="@Loading"
+                        Loading="@isLoading"
+                        Disabled="@isLoading"
                         >Save</Button>
-
-                  @*   <button type="button"
-                            class=""
-                            @onclick="OnCancel">
-                        Cancel
-                    </button> *@
-
-                    @* <button type="submit"
-                            class="">
-                        Save
-                    </button> *@
-
                 </div>
 
             </EditForm>
@@ -69,7 +72,12 @@
 </div>
 
 @code {
+    private string message = "";
+    private string errorMessage = "";
+    private bool isLoading = false;
+
     [Parameter] public required string Title { get; set; }
+    [Parameter] public required bool isEdit { get; set; } = false;
 
     [Parameter]
     public string Subtitle { get; set; }
@@ -81,11 +89,35 @@
 
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
-    [Parameter] public EventCallback OnSubmit { get; set; }
+    [Parameter] public Func<Task<string>>? OnSubmit { get; set; }
 
     [Parameter] public EventCallback OnCancel { get; set; }
 
     [Parameter] public string? FormName { get; set; }
 
-    [Parameter] public bool Loading { get; set; } = false;
+
+    private async Task Submit()
+    {
+        isLoading = true;
+        message = "";
+        errorMessage = "";
+
+        try
+        {  
+            if (OnSubmit != null)
+            {
+                string err = await OnSubmit.Invoke();
+
+                if (string.IsNullOrEmpty(err))
+                {
+                    message = $"Succefully submitted {Title}";
+                } else {
+                    errorMessage = err;
+                }
+            }
+        } finally
+        {
+            isLoading = false;
+        }
+    }
 }

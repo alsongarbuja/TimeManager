@@ -2,7 +2,7 @@
 
 @inject HttpClient Http
 
-@using TimeManager.Frontend.Components.Shared
+@using TimeManager.Frontend.Components.Pages.Admin._Components
 @using TimeManager.Frontend.Components.Wrapper
 
 <PageTitle>Kiosk</PageTitle>
@@ -20,20 +20,9 @@
             <td class="px-6 py-4">@d.Name</td>
             <td class="px-6 py-4">@d.AllowedIPAddress</td>
             <td class="px-6 py-4">@d.Department?.Name</td>
-            <td class="px-6 py-4 flex items-center gap-2">
-                <Button 
-                        Type="button"
-                        Classes="bg-red-500 text-white rounded-md w-fit" >
-                        <i class="ri-delete-bin-7-line"></i>
-                        </Button>
-                <Button 
-                    Type="button"
-                    Classes="bg-blue-500 text-white rounded-md w-fit"
-                   
-                    >
-                    <i class="ri-edit-line"></i>
-                    </Button>
-            </td>
+            <ActionTD 
+                Url="/app/kiosk/edit/1"
+             />
         </tr>
     }
     </ListWrapper>

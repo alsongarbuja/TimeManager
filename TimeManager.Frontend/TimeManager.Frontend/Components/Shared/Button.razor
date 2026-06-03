@@ -3,8 +3,7 @@
    id="@Id"
    class="rounded-sm p-2 w-full flex items-center gap-2 justify-center cursor-pointer disabled:cursor-not-allowed @Classes"
     disabled="@Disabled"
-    @onclick="HandleClick"
-    @onclose:stopPropagation="true"
+    @onclick="OnClickHandler"
 >
     @if (@Loading)
     {
@@ -32,4 +31,14 @@
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
     [Parameter] public EventCallback HandleClick { get; set; }
+
+    private async Task OnClickHandler(MouseEventArgs e)
+    {
+        if (Disabled || Loading) return;
+
+        if (HandleClick.HasDelegate)
+        {
+            await HandleClick.InvokeAsync(e);
+        }
+    }
 }

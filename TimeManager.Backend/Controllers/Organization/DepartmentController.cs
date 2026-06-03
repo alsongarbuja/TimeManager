@@ -11,9 +11,12 @@ namespace TimeManager.Backend.Controllers.Organization
     public class DepartmentController: ControllerBase
     {
         private readonly HrmsDbContext _context;
+        private readonly ILogger<DepartmentController> _logger;
 
-        public DepartmentController(HrmsDbContext context) {
+        public DepartmentController(HrmsDbContext context, ILogger<DepartmentController> logger)
+        {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -26,7 +29,7 @@ namespace TimeManager.Backend.Controllers.Organization
         [HttpGet("{id}")]
         public async Task<ActionResult<Department>> GetDepartment(int id)
         {
-           var department = await _context.Department.FindAsync(id);
+           var department = await GetDepartmentById(id);
 
             if (department == null)
             {
@@ -52,15 +55,17 @@ namespace TimeManager.Backend.Controllers.Organization
 
         [HttpPatch("{id}")]
         public async Task<ActionResult<Department>> UpdateDepartment(int id, [FromBody] DepartmentDto departmentDto) { 
-            var department = await GetDepartment(id);
+            var department = await GetDepartmentById(id);
 
             if (department == null)
             {
-                return NotFound(new { message = $"Product with ID {id} does not exist." });
+                return NotFound(new { message = $"Department with ID {id} does not exist." });
             }
 
-            _context.Entry(departmentDto).State = EntityState.Modified;
+            _logger.LogInformation(department.Description);
+            _logger.LogInformation(departmentDto.Description);
 
+            _context.Entry(department).CurrentValues.SetValues(departmentDto);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -81,5 +86,11 @@ namespace TimeManager.Backend.Controllers.Organization
 
         //    return NoContent();
         //}
+
+        private async Task<Department?> GetDepartmentById(int id)
+        {
+            Department? d = await _context.Department.FindAsync(id);
+            return d;
+        }
     }
 }

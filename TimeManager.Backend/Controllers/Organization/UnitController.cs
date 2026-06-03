@@ -20,7 +20,14 @@ namespace TimeManager.Backend.Controllers.Organization
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Unit>>> GetUnits()
         {
-            var data = await _context.Unit.ToListAsync();
+            var data = await _context.Unit.Select(u => new Unit
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Description = u.Description,
+                Index = u.Index,
+                Department = u.Department,
+            }).ToListAsync();
             return data;
         }
 
@@ -44,6 +51,7 @@ namespace TimeManager.Backend.Controllers.Organization
             {
                 Name = unitDto.Name,
                 Description = unitDto.Description,
+                Index = unitDto.Index,
                 DepartmentId = unitDto.DepartmentId,
             });
             await _context.SaveChangesAsync();

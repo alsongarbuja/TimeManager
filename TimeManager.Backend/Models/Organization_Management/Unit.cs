@@ -9,13 +9,18 @@ namespace TimeManager.Backend.Models.Organization_Management
         [Key]
         public int Id { get; set; }
 
-        [StringLength(50)]
-        public required string Name { get; set; }
+        [Required(ErrorMessage = "Name is required")]
+        [StringLength(50, ErrorMessage = "Name cannot exceed 50 characters")]
+        public string Name { get; set; } = string.Empty;
 
-        [StringLength(100)]
+        [Required(ErrorMessage = "Index is required")]
+        public int Index { get; set; }
+
+        [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
         public string? Description { get; set; }
 
-        public required int DepartmentId { get; set; }
+        [Required(ErrorMessage = "Department Id is required")]
+        public int DepartmentId { get; set; }
 
         [ForeignKey("DepartmentId")]
         public virtual Department Department { get; set; } = null!;

@@ -1,0 +1,28 @@
+﻿@inject NavigationManager Navigation
+
+@using TimeManager.Frontend.Components.Shared
+
+<td class="px-6 py-4 flex items-center gap-4">
+    @ChildContent
+    
+    @if(hasDelete)
+    {
+        <Button Type="button" Classes="bg-red-500 text-white rounded-md w-fit" >
+            <i class="ri-delete-bin-7-line"></i>
+        </Button>
+    }
+
+    @if(hasEdit)
+    {
+        <a href="@Url" class="bg-blue-500 text-white rounded-md w-fit px-4 py-2">
+            <i class="ri-edit-line"></i>
+        </a>
+    }
+</td>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool hasDelete { get; set; } = true;
+    [Parameter] public bool hasEdit { get; set; } = true;
+    [Parameter] public required string Url { get; set; }
+}

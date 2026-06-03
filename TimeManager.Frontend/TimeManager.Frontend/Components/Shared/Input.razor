@@ -30,25 +30,40 @@
 </div>
 
 @code {
-        [Parameter] public string Id { get; set; } = Guid.NewGuid().ToString();
-        [Parameter] public required string Name { get; set; }
-        [Parameter] public string Label { get; set; } = "";
-        [Parameter] public string Type { get; set; } = "text";
-        [Parameter] public string Placeholder { get; set; } = "";
-        [Parameter] public TValue? Value { get; set; }
-        [Parameter] public EventCallback<TValue> ValueChanged { get; set; }
-        [Parameter] public bool Required { get; set; } = true;
-        [Parameter] public string? Error { get; set; } = null;
+    [Parameter] public string Id { get; set; } = Guid.NewGuid().ToString();
+    [Parameter] public required string Name { get; set; }
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string Type { get; set; } = "text";
+    [Parameter] public string Placeholder { get; set; } = "";
+    [Parameter] public TValue? Value { get; set; }
+    [Parameter] public EventCallback<TValue> ValueChanged { get; set; }
+    [Parameter] public bool Required { get; set; } = true;
+    [Parameter] public string? Error { get; set; } = null;
 
     private async Task ValueChangedHandler(ChangeEventArgs e)
     {
         var valueAsString = e.Value?.ToString();
 
+        if (typeof(TValue) == typeof(System.Net.IPAddress))
+        {
+            if(System.Net.IPAddress.TryParse(valueAsString, out var ip))
+            {
+                await ValueChanged.InvokeAsync((TValue)(object)ip);
+            } else if (string.IsNullOrEmpty(valueAsString))
+            {
+                await ValueChanged.InvokeAsync(default);
+            }
+            return;
+        }
+
         if (BindConverter.TryConvertTo<TValue>(valueAsString, 
             System.Globalization.CultureInfo.CurrentCulture, 
             out var parsedValue))
-            {
+        {
             await ValueChanged.InvokeAsync(parsedValue);
+        } else
+        {
+            await ValueChanged.InvokeAsync(default);
         }
     }
 }

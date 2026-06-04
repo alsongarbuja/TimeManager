@@ -17,9 +17,9 @@
     @foreach (var data in departmentModels)
     {
         var currentId = data.Id;
-        <tr>
-            <td class="px-6 py-4 text-left">@data.Name</td>
-            <td class="px-6 py-4 text-truncate">@data.Description</td>
+        <tr class="table-row">
+            <td class="table-cell">@data.Name</td>
+            <td class="table-cell table-cell-desc">@data.Description</td>
             <ActionTD Url="@($"/app/department/edit/{data.Id}")"          />
         </tr>
     }

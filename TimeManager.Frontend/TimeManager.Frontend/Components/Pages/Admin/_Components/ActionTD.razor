@@ -2,19 +2,19 @@
 
 @using TimeManager.Frontend.Components.Shared
 
-<td class="px-6 py-4 flex items-center gap-4">
+<td class="table-actions">
     @ChildContent
     
     @if(hasDelete)
     {
-        <Button Type="button" Classes="bg-red-500 text-white rounded-md w-fit" >
+        <Button Type="button" Classes="btn-action-delete" >
             <i class="ri-delete-bin-7-line"></i>
         </Button>
     }
 
     @if(hasEdit)
     {
-        <a href="@Url" class="bg-blue-500 text-white rounded-md w-fit px-4 py-2">
+        <a href="@Url" class="btn-action-edit">
             <i class="ri-edit-line"></i>
         </a>
     }

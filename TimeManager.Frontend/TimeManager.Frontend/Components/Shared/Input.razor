@@ -1,18 +1,18 @@
 ﻿@typeparam TValue;
 
-<div class="w-full">
+<div class="form-group">
     @if (!string.IsNullOrEmpty(Label))
     {
-        <label for="@Id" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="@Id" class="form-label">
             @Label 
             @if (Required)
             {
-                <span class="text-red-500">*</span>
+                <span class="form-required">*</span>
             }
         </label>
     }
 
-    <div class="relative rounded-md shadow-sm">
+    <div class="form-input-wrapper">
         <input id="@Id"
                name="@Name"
                type="@Type"
@@ -20,12 +20,12 @@
                placeholder="@Placeholder"
                required="@Required"
                @oninput="ValueChangedHandler"
-               class="appearance-none text-black block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black text-sm transition duration-150">
+               class="form-input">
     </div>
 
     @if (!string.IsNullOrEmpty(Error))
     {
-        <p class="mt-1.5 text-sm text-red-600">@Error</p>
+        <p class="form-error">@Error</p>
     }
 </div>
 
@@ -61,12 +61,10 @@
             System.Globalization.CultureInfo.CurrentCulture, 
             out var parsedValue))
         {
-            Console.WriteLine("Changed to string");
             await ValueChanged.InvokeAsync(parsedValue);
         } else
         {
-            Console.WriteLine("Changed to default");
-            await ValueChanged.InvokeAsync(default);
+             await ValueChanged.InvokeAsync(default);
         }
     }
 }

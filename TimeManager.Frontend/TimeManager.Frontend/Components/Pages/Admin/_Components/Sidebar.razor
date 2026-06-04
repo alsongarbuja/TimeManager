@@ -1,10 +1,10 @@
-﻿<aside class="fixed top-0 left-0 z-40 w-64 h-screen bg-black text-white flex flex-col justify-between p-6 transition-transform -translate-x-full lg:translate-x-0 border-r border-neutral-900">
+﻿<aside class="sidebar">
     <div>
-        <div class="flex items-center gap-3 pb-6 mb-8 border-b border-neutral-800">
-            <div class="w-8 h-8 bg-white text-black flex items-center justify-center rounded font-black text-lg">Ω</div>
-            <span class="text-sm font-bold tracking-widest uppercase">Time Clock</span>
+        <div class="sidebar-brand-container">
+            <div class="sidebar-logo">Ω</div>
+            <span class="sidebar-title">Time Clock</span>
         </div>
-        <nav class="space-y-6">
+        <nav class="sidebar-nav-container">
             @* <div>
                 <ul class="space-y-1">
                     <li>
@@ -19,8 +19,8 @@
             
              @* Crud for all the tables in the database for testing *@
             <div>
-                <span class="px-3 text-xxs font-semibold uppercase tracking-wider text-neutral-500 block mb-2">Time Track</span>
-                <ul class="space-y-1">
+                <span class="sidebar-group-label">Time Track</span>
+                <ul class="sidebar-nav-list">
                     <li>
                         <SidebarNav Text="Department"
                                     Url="/app/department"
@@ -80,8 +80,8 @@
 
             @* @if (request.role.name != "Manager") *@
             <div>
-                <span class="px-3 text-xxs font-semibold uppercase tracking-wider text-neutral-500 block mb-2">Time Track</span>
-                <ul class="space-y-1">
+                <span class="sidebar-group-label">Time Track</span>
+                <ul class="sidebar-nav-list">
                     <li>
                         <SidebarNav Text="Clock in / out"
                                     Url="/app/clock-in-out"
@@ -97,8 +97,8 @@
             @* {% endif %} *@
             @* {% if request.role.name == "Manager" %} *@
             <div>
-                <span class="px-3 text-xxs font-semibold uppercase tracking-wider text-neutral-500 block mb-2">Management</span>
-                <ul class="space-y-1">
+                <span class="sidebar-group-label">Management</span>
+                <ul class="sidebar-nav-list">
                     <li>
                         <SidebarNav Text="Punch Report"
                                     Url="/app/punch-report"

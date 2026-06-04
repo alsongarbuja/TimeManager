@@ -17,10 +17,10 @@
     @foreach (var data in unitModels)
     {
         var currentId = data.Id;
-        <tr>
-            <td class="px-6 py-4 text-left">@data.Name</td>
-            <td class="px-6 py-4">@data.Index</td>
-            <td class="px-6 py-4">@data.Department?.Name</td>
+        <tr class="table-row">
+            <td class="table-cell">@data.Name</td>
+            <td class="table-cell">@data.Index</td>
+            <td class="table-cell">@data.Department?.Name</td>
             <ActionTD 
                 Url="/app/unit/edit/1"
              />

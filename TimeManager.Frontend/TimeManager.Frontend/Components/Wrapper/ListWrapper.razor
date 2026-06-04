@@ -1,51 +1,50 @@
-﻿<div class="min-h-screen">
-    <div class="mx-auto max-w-7xl">
+﻿<div class="page-container">
+    <div class="page-content-wrapper">
 
-        <!-- Header -->
-        <div class="mb-8 flex items-start justify-between">
+        <div class="page-header">
             <div>
-                <h1 class="text-3xl font-bold tracking-tight text-black">
+                <h1 class="page-title">
                     @Title
                 </h1>
 
-                <p class="mt-2 text-sm text-gray-500">
+                <p class="page-subtitle">
                     @Subtitle
                 </p>
             </div>
 
             <a href="@CreateUrl"
-               class="inline-flex items-center rounded-xl bg-black px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-800">
+               class="btn-create">
                 Create
             </a>
         </div>
 
-        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="data-table">
 
-                    <thead class="bg-gray-50">
+                    <thead class="table-header">
                         <tr>
                             @foreach (var header in Headers)
                             {
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                <th class="table-header-cell">
                                     @header
                                 </th>
                             }
                             @if (hasAction)
                             {
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                <th class="table-header-cell">
                                     Action
                                 </th>
                             }
                         </tr>
                     </thead>
 
-                    <tbody class="divide-y divide-gray-100 bg-white">
+                    <tbody class="table-body">
                         @if (isEmpty)
                         {
                             <tr>
                                 <td colspan="@Headers.Length"
-                                    class="px-6 py-16 text-center text-sm text-gray-400">
+                                    class="table-empty-cell">
                                     No data available
                                 </td>
                             </tr>

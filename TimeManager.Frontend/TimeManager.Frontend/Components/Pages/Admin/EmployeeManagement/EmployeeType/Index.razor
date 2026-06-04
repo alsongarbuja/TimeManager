@@ -16,11 +16,11 @@
   >  
     @foreach(var e in employeeTypes)
     {
-        <tr>
-            <td class="px-6 py-4">@e.Name</td>
-            <td class="px-6 py-4 text-truncate">@e.Description</td>
+        <tr class="table-row">
+            <td class="table-cell">@e.Name</td>
+            <td class="table-cell table-cell-desc">@e.Description</td>
             <ActionTD 
-                Url="/app/employee-type/edit/1"
+                Url="@($"/app/employee-type/edit/{e.Id}")"
              />
         </tr>
     }

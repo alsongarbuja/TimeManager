@@ -14,11 +14,11 @@
              CreateUrl="/app/pay-frequency/create">
     @foreach (var pf in payFrequencies)
     {
-        <tr>
-            <td class="px-6 py-4">@pf.Name</td>
-            <td class="px-6 py-4 text-truncate">@pf.Description</td>
+        <tr class="table-row">
+            <td class="table-cell">@pf.Name</td>
+            <td class="table-cell table-cell-desc">@pf.Description</td>
             <ActionTD 
-                Url="/app/pay-frequency/edit/1"
+                Url="@($"/app/pay-frequency/edit/{pf.Id}")"
              />
         </tr>
     }

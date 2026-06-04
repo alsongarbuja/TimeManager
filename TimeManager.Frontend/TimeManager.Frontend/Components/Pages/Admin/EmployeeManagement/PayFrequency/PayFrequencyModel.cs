@@ -4,6 +4,8 @@ namespace TimeManager.Frontend.Components.Pages.Admin.EmployeeManagement.PayFreq
 {
     public class PayFrequencyModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = string.Empty;
 

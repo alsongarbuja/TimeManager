@@ -62,9 +62,6 @@ namespace TimeManager.Backend.Controllers.Organization
                 return NotFound(new { message = $"Department with ID {id} does not exist." });
             }
 
-            _logger.LogInformation(department.Description);
-            _logger.LogInformation(departmentDto.Description);
-
             _context.Entry(department).CurrentValues.SetValues(departmentDto);
             await _context.SaveChangesAsync();
 

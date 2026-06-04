@@ -1,4 +1,7 @@
 ﻿@page "/app/employee"
+
+@inject HttpClient Http
+@using TimeManager.Frontend.Components.Pages.Admin._Components
 @using TimeManager.Frontend.Components.Wrapper
 
 <PageTitle>Employee</PageTitle>
@@ -7,8 +10,38 @@
     Title="Employee"
     Subtitle="Manage the employee"
     Headers="@headers"
-    />
+    CreateUrl="/app/employee/create"
+    isEmpty="isEmpty"
+>
+    @foreach (EmployeeModel employeeModel in employeeModels)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@employeeModel.FirstName</td>
+            <td class="table-cell">@employeeModel.LastName</td>
+            <td class="table-cell">@employeeModel.Email</td>
+            <td class="table-cell">@employeeModel.UniqueId</td>
+            <ActionTD 
+                Url="@($"/app/employee/edit/{employeeModel.Id}")"
+                />
+        </tr>
+    }
+    </ListWrapper>
 
 @code {
     private string[] headers { get; set; } = ["First Name", "Last Name", "Email", "SO-ID"];
+    private EmployeeModel[] employeeModels = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            employeeModels = await Http.GetFromJsonAsync<EmployeeModel[]>("/api/employee");
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private bool isEmpty => employeeModels.Length == 0;
+
 }

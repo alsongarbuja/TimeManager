@@ -22,7 +22,7 @@
             <td class="table-cell">@data.Index</td>
             <td class="table-cell">@data.Department?.Name</td>
             <ActionTD 
-                Url="/app/unit/edit/1"
+                Url="@($"/app/unit/edit/{currentId}")"
              />
         </tr>
     }

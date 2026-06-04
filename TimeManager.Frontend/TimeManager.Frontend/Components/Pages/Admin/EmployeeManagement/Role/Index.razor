@@ -14,22 +14,12 @@
              CreateUrl="/app/role/create">
     @foreach (var r in roles)
     {
-        <tr>
-            <td class="px-6 py-4">@r.Name</td>
-            <td class="px-6 py-4 text-truncate">@r.Description</td>
+        <tr class="table-row">
+            <td class="table-cell">@r.Name</td>
+            <td class="table-cell table-cell-desc">@r.Description</td>
             <ActionTD 
-                Url="/app/role/edit/1"
+                Url="@($"/app/role/edit/{r.Id}")"
             />
-            @* <td class="px-6 py-4 flex items-center gap-2">
-                <Button Type="button"
-                        Classes="bg-red-500 text-white rounded-md w-fit">
-                    <i class="ri-delete-bin-7-line"></i>
-                </Button>
-                <Button Type="button"
-                        Classes="bg-blue-500 text-white rounded-md w-fit">
-                    <i class="ri-edit-line"></i>
-                </Button>
-            </td> *@
         </tr>
     }
 </ListWrapper>

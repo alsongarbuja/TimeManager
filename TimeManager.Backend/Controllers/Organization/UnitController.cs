@@ -62,14 +62,14 @@ namespace TimeManager.Backend.Controllers.Organization
         [HttpPatch("{id}")]
         public async Task<ActionResult<Unit>> UpdateUnit(int id, [FromBody] UnitDto unitDto)
         {
-            var unit = await GetUnit(id);
+            var unit = await GetUnitById(id);
 
             if (unit == null)
             {
                 return NotFound(new { message = "Unit not found" });
             }
 
-            _context.Entry(unit).State = EntityState.Modified;
+            _context.Entry(unit).CurrentValues.SetValues(unitDto);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -89,5 +89,11 @@ namespace TimeManager.Backend.Controllers.Organization
 
         //    await _context.Unit.Remove();
         //}
+
+        private async Task<Unit?> GetUnitById(int id)
+        {
+            Unit? u = await _context.Unit.FindAsync(id);
+            return u;
+        }
     }
 }

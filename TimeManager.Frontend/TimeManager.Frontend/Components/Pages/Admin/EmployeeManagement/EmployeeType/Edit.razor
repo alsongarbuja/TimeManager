@@ -1,4 +1,4 @@
-﻿@page "/app/unit/edit/{id:int}"
+﻿@page "/app/employee-type/edit/{id:int}"
 
 @rendermode InteractiveServer
 @inject HttpClient Http
@@ -6,25 +6,17 @@
 @using TimeManager.Frontend.Components.Shared
 @using TimeManager.Frontend.Components.Wrapper
 
-<PageTitle>Edit Unit</PageTitle>
+<PageTitle>Edit Employee Type</PageTitle>
 
-<FormWrapper 
-    isEdit
-    Title="Unit"
-    Subtitle="Update the unit data"
-    BackUrl="/app/unit"
-    Model="@unitModel"
-    OnSubmit="HandleSubmit"
-    OnCancel="Cancel"
->
-    <Input @bind-Value="unitModel.Name" Label="Name" Name="name" Placeholder="Enter a name" />
-    <Input @bind-Value="unitModel.Index"
-            TValue="int"
-           Type="number"
-           Label="Index"
-           Name="index"
-           Placeholder="Enter a index" />
-    <Input @bind-Value="unitModel.Description" Label="Description" Name="description" Placeholder="Enter a descrption" Required="false" />
+<FormWrapper isEdit
+             Title="Employee Type"
+             Subtitle="Update the employee type"
+             BackUrl="/app/employee-type"
+             Model="@employeeTypeModel"
+             OnSubmit="HandleSubmit"
+             OnCancel="Cancel">
+    <Input @bind-Value="employeeTypeModel.Name" Label="Name" Name="name" Placeholder="Enter a name" />
+    <Input @bind-Value="employeeTypeModel.Description" Label="Description" Name="description" Placeholder="Enter a descrption" Required="false" />
 </FormWrapper>
 
 @code {
@@ -32,7 +24,7 @@
     public int Id { get; set; }
 
     private bool _hasDataLoaded = false;
-    private UnitModel unitModel = new();
+    private EmployeeTypeModel employeeTypeModel = new();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -40,14 +32,15 @@
         {
             try
             {
-                var data = await Http.GetFromJsonAsync<UnitModel>($"/api/unit/{Id}");
+                var data = await Http.GetFromJsonAsync<EmployeeTypeModel>($"/api/employeeType/{Id}");
 
                 if (data != null)
                 {
-                    unitModel = data;
+                    employeeTypeModel = data;
                     _hasDataLoaded = true;
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
@@ -58,17 +51,19 @@
     {
         try
         {
-            HttpResponseMessage responseMessage = await Http.PatchAsJsonAsync($"/api/unit/{Id}", unitModel);
+            HttpResponseMessage responseMessage = await Http.PatchAsJsonAsync($"/api/employeeType/{Id}", employeeTypeModel);
 
             if (responseMessage.IsSuccessStatusCode)
             {
                 return "";
-            } else
+            }
+            else
             {
                 var problemDetails = await responseMessage.Content.ReadFromJsonAsync<System.Text.Json.Nodes.JsonObject>();
                 return problemDetails?["detail"]?.ToString() ?? "An error occured while saving.";
             }
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             return ex.Message;
         }

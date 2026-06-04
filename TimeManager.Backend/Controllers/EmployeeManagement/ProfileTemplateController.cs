@@ -20,7 +20,21 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProfileTemplate>>> GetProfileTemplates()
         {
-            var data = await _context.ProfileTemplate.ToListAsync();
+            var data = await _context.ProfileTemplate.Select(pf => new ProfileTemplate
+            {
+                Id = pf.Id,
+                EarlyClockInBufferMin = pf.EarlyClockInBufferMin,
+                ShiftStartTime = pf.ShiftStartTime,
+                EmployeeTypeId = pf.EmployeeTypeId,
+                UnitId = pf.UnitId,
+                RoleId = pf.RoleId,
+                PayFrequencyId = pf.PayFrequencyId,
+
+                Unit = pf.Unit,
+                PayFrequency = pf.PayFrequency,
+                Role = pf.Role,
+                EmployeeType = pf.EmployeeType,
+            }).ToListAsync();
             return data;
         }
 
@@ -58,13 +72,13 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpPatch("{id}")]
         public async Task<ActionResult<ProfileTemplate>> UpdateProfileTemplate(int id, [FromBody] ProfileTemplateDto profileTemplateDto)
         {
-            var profileTemplate = await GetProfileTemplate(id);
+            var profileTemplate = await GetProfileTemplateById(id);
             if (profileTemplate == null)
             {
                 return NotFound(new { message = "ProfileTemplate not found" });
             }
 
-            _context.Entry(profileTemplate).State = EntityState.Modified;
+            _context.Entry(profileTemplate).CurrentValues.SetValues(profileTemplateDto);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -82,6 +96,12 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             //_context.ProfileTemplate.Remove(profileTemplate);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        private async Task<ProfileTemplate?> GetProfileTemplateById(int id)
+        {
+            ProfileTemplate? pt = await _context.ProfileTemplate.FindAsync(id);
+            return pt;
         }
     }
 }

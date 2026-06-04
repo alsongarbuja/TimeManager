@@ -1,4 +1,7 @@
 ﻿@page "/app/profile-template"
+
+@inject HttpClient Http
+@using TimeManager.Frontend.Components.Pages.Admin._Components
 @using TimeManager.Frontend.Components.Wrapper
 
 <PageTitle>Profile Template</PageTitle>
@@ -7,8 +10,37 @@
     Title="Profile Template"
     Subtitle="Manage the profile templates"
     Headers="@headers"
-    />
+    CreateUrl="/app/profile-template/create"
+    isEmpty="isEmpty"
+>
+    @foreach (ProfileTemplateModel pt in pTModels)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@pt.Unit?.Name</td>
+            <td class="table-cell">@pt.Role?.Name</td>
+            <td class="table-cell">@pt.EmployeeType?.Name</td>
+            <td class="table-cell">@pt.ShiftStartTime</td>
+            <td class="table-cell">@pt.EarlyClockInBufferMin min</td>
+            <ActionTD Url="@($"/app/profile-template/edit/{pt.Id}")" />
+        </tr>
+    }
+    </ListWrapper>
 
 @code {
-    private string[] headers { get; set; } = ["Employee Type", "Pay Frequency", "Role"];
+    private string[] headers { get; set; } = ["Unit", "Role", "Employee Type", "Shift Time", "Buffer clock in"];
+    private ProfileTemplateModel[] pTModels = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            pTModels = await Http.GetFromJsonAsync<ProfileTemplateModel[]>("/api/profiletemplate");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private bool isEmpty => pTModels.Length == 0;
 }

@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TimeManager.Frontend.Components.Pages.Admin.EmployeeManagement.Employee;
+using TimeManager.Frontend.Components.Pages.Admin.EmployeeManagement.ProfileTemplate;
 
-namespace TimeManager.Backend.Controllers.EmployeeManagement.Dto
+namespace TimeManager.Frontend.Components.Pages.Admin.EmployeeManagement.JobProfile
 {
-    public class JobProfileDto
+    public class JobProfileModel
     {
         public int Id { get; set; }
 
@@ -12,7 +14,7 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement.Dto
         [Required(ErrorMessage = "Employee Id is required")]
         public int EmployeeId { get; set; }
 
-        public string ProfileTemplateString { get; set; } = string.Empty;
         public string EmployeeString { get; set; } = string.Empty;
+        public string ProfileTemplateString { get; set; } = string.Empty;
     }
 }

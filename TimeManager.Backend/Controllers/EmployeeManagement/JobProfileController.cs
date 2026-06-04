@@ -18,9 +18,16 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<JobProfile>>> GetJobProfiles()
+        public async Task<ActionResult<IEnumerable<JobProfileDto>>> GetJobProfiles()
         {
-            var data = await _context.JobProfile.ToListAsync();
+            var data = await _context.JobProfile.Select(jp => new JobProfileDto { 
+                Id = jp.Id,
+                EmployeeId = jp.EmployeeId,
+                ProfileTemplateId = jp.ProfileTemplateId,
+
+                EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
+                ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
+            }).ToListAsync();
             return data;
         }
 
@@ -54,13 +61,13 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpPatch("{id}")]
         public async Task<ActionResult<JobProfile>> UpdateJobProfile(int id, [FromBody] JobProfileDto jobProfileDto)
         {
-            var jobProfile = await GetJobProfile(id);
+            var jobProfile = await GetJobProfileById(id);
             if (jobProfile == null)
             {
                 return NotFound(new { message = "JobProfile not found" });
             }
 
-            _context.Entry(jobProfile).State = EntityState.Modified;
+            _context.Entry(jobProfile).CurrentValues.SetValues(jobProfileDto);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -78,6 +85,12 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             //_context.JobProfile.Remove(jobProfile);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        private async Task<JobProfile?> GetJobProfileById(int id)
+        {
+            JobProfile? jp = await _context.JobProfile.FindAsync(id);
+            return jp;
         }
     }
 }

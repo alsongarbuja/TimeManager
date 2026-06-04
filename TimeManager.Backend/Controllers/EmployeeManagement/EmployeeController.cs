@@ -57,13 +57,13 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpPatch("{id}")]
         public async Task<ActionResult<Employee>> UpdateEmployee(int id, [FromBody] EmployeeDto employeeDto)
         {
-            var employee = await GetEmployee(id);
+            var employee = await GetEmployeeById(id);
             if (employee == null)
             {
                 return NotFound(new { message = "Employee not found" });
             }
 
-            _context.Entry(employee).State = EntityState.Modified;
+            _context.Entry(employee).CurrentValues.SetValues(employeeDto);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -81,6 +81,12 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             //_context.Employee.Remove(employee);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        private async Task<Employee?> GetEmployeeById(int id)
+        {
+            Employee? e = await _context.Employee.FindAsync(id);
+            return e;
         }
     }
 }

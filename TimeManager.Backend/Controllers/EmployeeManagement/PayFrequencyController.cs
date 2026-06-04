@@ -51,13 +51,13 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpPatch("{id}")]
         public async Task<ActionResult<PayFrequency>> UpdatePayFrequency(int id, [FromBody] PayFrequencyDto payFrequencyDto)
         {
-            var payFrequency = await GetPayFrequency(id);
+            var payFrequency = await GetPayFrequencyById(id);
             if (payFrequency == null)
             {
                 return NotFound(new { message = "PayFrequency not found" });
             }
 
-            _context.Entry(payFrequency).State = EntityState.Modified;
+            _context.Entry(payFrequency).CurrentValues.SetValues(payFrequencyDto);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -75,6 +75,12 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             //_context.PayFrequency.Remove(payFrequency);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        private async Task<PayFrequency?> GetPayFrequencyById(int id)
+        {
+            PayFrequency? pf = await _context.PayFrequency.FindAsync(id);
+            return pf;
         }
     }
 }

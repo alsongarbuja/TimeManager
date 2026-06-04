@@ -51,13 +51,13 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpPatch("{id}")]
         public async Task<ActionResult<Role>> UpdateRole(int id, [FromBody] RoleDto roleDto)
         {
-            var role = await GetRole(id);
+            var role = await GetRoleById(id);
             if (role == null)
             {
                 return NotFound(new { message = "Role not found" });
             }
 
-            _context.Entry(role).State = EntityState.Modified;
+            _context.Entry(role).CurrentValues.SetValues(roleDto);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -75,6 +75,12 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             //_context.Role.Remove(role);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        private async Task<Role?> GetRoleById(int id)
+        {
+            Role? role = await _context.Role.FindAsync(id);
+            return role;
         }
     }
 }

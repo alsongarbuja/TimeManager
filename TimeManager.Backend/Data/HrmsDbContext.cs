@@ -30,5 +30,18 @@ namespace TimeManager.Backend.Data
 
         // Device Management Models
         public DbSet<Kiosk> Kiosk { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ProfileTemplate>()
+                .HasIndex(p => new { p.RoleId, p.EmployeeTypeId, p.UnitId, p.PayFrequencyId })
+                .IsUnique();
+
+            modelBuilder.Entity<Employee>()
+                .HasIndex(e => new { e.UniqueId, e.Email })
+                .IsUnique();
+        }
     }
 }

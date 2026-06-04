@@ -83,6 +83,9 @@ namespace TimeManager.Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UniqueId", "Email")
+                        .IsUnique();
+
                     b.ToTable("Employee");
                 });
 
@@ -185,9 +188,10 @@ namespace TimeManager.Backend.Migrations
 
                     b.HasIndex("PayFrequencyId");
 
-                    b.HasIndex("RoleId");
-
                     b.HasIndex("UnitId")
+                        .IsUnique();
+
+                    b.HasIndex("RoleId", "EmployeeTypeId", "UnitId", "PayFrequencyId")
                         .IsUnique();
 
                     b.ToTable("ProfileTemplate");

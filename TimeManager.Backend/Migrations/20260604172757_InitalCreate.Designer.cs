@@ -12,8 +12,8 @@ using TimeManager.Backend.Data;
 namespace TimeManager.Backend.Migrations
 {
     [DbContext(typeof(HrmsDbContext))]
-    [Migration("20260603131326_AddIndexToUnit")]
-    partial class AddIndexToUnit
+    [Migration("20260604172757_InitalCreate")]
+    partial class InitalCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -85,6 +85,9 @@ namespace TimeManager.Backend.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UniqueId", "Email")
+                        .IsUnique();
 
                     b.ToTable("Employee");
                 });
@@ -188,9 +191,10 @@ namespace TimeManager.Backend.Migrations
 
                     b.HasIndex("PayFrequencyId");
 
-                    b.HasIndex("RoleId");
-
                     b.HasIndex("UnitId")
+                        .IsUnique();
+
+                    b.HasIndex("RoleId", "EmployeeTypeId", "UnitId", "PayFrequencyId")
                         .IsUnique();
 
                     b.ToTable("ProfileTemplate");

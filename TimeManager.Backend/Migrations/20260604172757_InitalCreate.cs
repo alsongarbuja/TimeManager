@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TimeManager.Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMySQLScehma : Migration
+    public partial class InitalCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -120,6 +120,32 @@ namespace TimeManager.Backend.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Kiosk",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Description = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    AllowedIPAddress = table.Column<string>(type: "varchar(45)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    DepartmentId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Kiosk", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Kiosk_Department_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Department",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Unit",
                 columns: table => new
                 {
@@ -127,6 +153,7 @@ namespace TimeManager.Backend.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    Index = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     DepartmentId = table.Column<int>(type: "int", nullable: false)
@@ -236,6 +263,12 @@ namespace TimeManager.Backend.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Employee_UniqueId_Email",
+                table: "Employee",
+                columns: new[] { "UniqueId", "Email" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_JobProfile_EmployeeId",
                 table: "JobProfile",
                 column: "EmployeeId");
@@ -244,6 +277,11 @@ namespace TimeManager.Backend.Migrations
                 name: "IX_JobProfile_ProfileTemplateId",
                 table: "JobProfile",
                 column: "ProfileTemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Kiosk_DepartmentId",
+                table: "Kiosk",
+                column: "DepartmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProfileTemplate_EmployeeTypeId",
@@ -256,9 +294,10 @@ namespace TimeManager.Backend.Migrations
                 column: "PayFrequencyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProfileTemplate_RoleId",
+                name: "IX_ProfileTemplate_RoleId_EmployeeTypeId_UnitId_PayFrequencyId",
                 table: "ProfileTemplate",
-                column: "RoleId");
+                columns: new[] { "RoleId", "EmployeeTypeId", "UnitId", "PayFrequencyId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProfileTemplate_UnitId",
@@ -280,6 +319,9 @@ namespace TimeManager.Backend.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Kiosk");
+
             migrationBuilder.DropTable(
                 name: "PayPeriod");
 

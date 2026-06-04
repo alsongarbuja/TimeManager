@@ -12,10 +12,15 @@
                 </p>
             </div>
 
-            <a href="@CreateUrl"
-               class="btn-create">
-                Create
-            </a>
+            @if (hasCreate)
+            {
+                <a href="@CreateUrl"
+                   class="btn-create">
+                    Create
+                </a>
+            }
+
+            @DifferentActions
         </div>
 
         <div class="table-card">
@@ -75,6 +80,10 @@
     [Parameter] public bool isEmpty { get; set; } = false;
 
     [Parameter] public bool hasAction { get; set; } = true;
+
+    [Parameter] public bool hasCreate { get; set; } = true;
+
+    [Parameter] public RenderFragment? DifferentActions { get; set; }
 
     [Parameter] public RenderFragment? ChildContent { get; set; }
 }

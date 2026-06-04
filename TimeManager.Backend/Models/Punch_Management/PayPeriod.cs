@@ -7,8 +7,11 @@ namespace TimeManager.Backend.Models.Punch_Management
         [Key]
         public int Id { get; set; }
 
-        public required DateTime StartDate { get; set; }
+        [Required(ErrorMessage = "Start Date time offset is required")]
+        public DateTimeOffset StartDate { get; set; }
 
-        public required DateTime EndDate { get; set; }
+
+        [Required(ErrorMessage = "End Date time offset is required")]
+        public DateTimeOffset EndDate { get; set; }
     }
 }

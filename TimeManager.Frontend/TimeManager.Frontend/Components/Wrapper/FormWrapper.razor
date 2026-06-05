@@ -50,18 +50,18 @@
 
                 <div class="form-actions">
 
-                    <Button 
+                    <CustomButton 
                         Type="button"
                         HandleClick="OnCancel"
                             Classes="btn-cancel">
-                            Cancel</Button>
+                            Cancel</CustomButton>
 
-                    <Button 
+                    <CustomButton 
                         Type="submit"
                         Classes="btn-submit"
                         Loading="@isLoading"
                         Disabled="@isLoading"
-                        >Save</Button>
+                        >Save</CustomButton>
                 </div>
 
             </EditForm>

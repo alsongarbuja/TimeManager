@@ -75,20 +75,20 @@ namespace TimeManager.Backend.Controllers.Organization
             return NoContent();
         }
 
-        //[HttpDelete("{id}")]
-        //public async void DeleteUnit(int id)
-        //{
-        //    var unit = await GetUnit(id);
-        //    Unit? value = unit.Value;
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteUnit(int id)
+        {
+            var unit = await GetUnitById(id);
 
-        //    if (value == null)
-        //    {
-        //        NotFound(new { message = "Unit not found" });
-        //        return;
-        //    }
+            if (unit == null)
+            {
+                return NotFound(new { message = "Unit not found" });
+            }
 
-        //    await _context.Unit.Remove();
-        //}
+            _context.Unit.Remove(unit);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
 
         private async Task<Unit?> GetUnitById(int id)
         {

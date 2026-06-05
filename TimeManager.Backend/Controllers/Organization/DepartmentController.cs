@@ -69,20 +69,21 @@ namespace TimeManager.Backend.Controllers.Organization
         }
 
 
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult> DeleteDepartment(int id) { 
-        //    var department = await GetDepartment(id);
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteDepartment(int id)
+        {
+            var department = await GetDepartmentById(id);
 
-        //    if (department == null)
-        //    {
-        //        return NotFound(new { message = $"Product with ID {id} does not exist." });
-        //    }
+            if (department == null)
+            {
+                return NotFound(new { message = $"Department with ID {id} does not exist." });
+            }
 
-        //    _context.Department.Remove(department);
-        //    await _context.SaveChangesAsync();
+            _context.Department.Remove(department);
+            await _context.SaveChangesAsync();
 
-        //    return NoContent();
-        //}
+            return NoContent();
+        }
 
         private async Task<Department?> GetDepartmentById(int id)
         {

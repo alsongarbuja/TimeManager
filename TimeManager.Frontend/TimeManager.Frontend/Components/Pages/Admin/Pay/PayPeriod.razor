@@ -20,7 +20,7 @@
         <EditForm Model="@numOfPeriods" FormName="PayPeriodAutoGenerateForm" OnValidSubmit="HandleGeneratePayPeriod">
             @* <AntiforgeryToken /> *@
             <input type="hidden" value="26" name="numOfPeriods" />
-            <Button Type="submit" Classes="btn-create">Generate Pay Period</Button>
+            <CustomButton Type="submit" Classes="btn-create">Generate Pay Period</CustomButton>
         </EditForm>
     </DifferentActions>
 

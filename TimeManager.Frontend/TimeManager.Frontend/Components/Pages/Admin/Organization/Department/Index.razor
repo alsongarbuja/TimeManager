@@ -1,5 +1,6 @@
 ﻿@page "/app/department"
 
+@rendermode InteractiveServer
 @inject HttpClient Http
 
 @using TimeManager.Frontend.Components.Pages.Admin._Components
@@ -20,7 +21,10 @@
         <tr class="table-row">
             <td class="table-cell">@data.Name</td>
             <td class="table-cell table-cell-desc">@data.Description</td>
-            <ActionTD Url="@($"/app/department/edit/{data.Id}")"          />
+            <ActionTD Url="@($"/app/department/edit/{data.Id}")" 
+                DeleteUrl="@($"api/department/{data.Id}")"
+                OnDeleteSuccess="LoadDataAsync"
+            />
         </tr>
     }
     </ListWrapper>
@@ -31,6 +35,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {   
         try
         {
             departmentModels = await Http.GetFromJsonAsync<DepartmentModel[]>("api/department");

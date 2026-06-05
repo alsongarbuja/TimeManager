@@ -22,6 +22,8 @@
             <td class="table-cell">@d.Department?.Name</td>
             <ActionTD 
                 Url="@($"/app/kiosk/edit/{d.Id}")"
+                DeleteUrl="@($"api/kiosk/{d.Id}")"
+                OnDeleteSuccess="LoadDataAsync"
              />
         </tr>
     }
@@ -31,7 +33,7 @@
     private string[] headers { get; set; } = ["Name", "Allowed IP Address",  "Department"];
     private DeviceModel[] devices = [];
 
-    protected override async Task OnInitializedAsync()
+    private async Task LoadDataAsync()
     {
         try
         {
@@ -40,6 +42,11 @@
         {
             Console.WriteLine(ex);
         }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
     }
 
     private bool isEmpty => devices.Length == 0;

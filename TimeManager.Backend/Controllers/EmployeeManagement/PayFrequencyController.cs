@@ -66,13 +66,13 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpDelete("{id}")]
         public async Task<ActionResult<PayFrequency>> DeletePayFrequency(int id)
         {
-            var payFrequency = await GetPayFrequency(id);
+            var payFrequency = await GetPayFrequencyById(id);
             if (payFrequency == null)
             {
                 return NotFound(new { message = "PayFrequency not found" });
             }
 
-            //_context.PayFrequency.Remove(payFrequency);
+            _context.PayFrequency.Remove(payFrequency);
             await _context.SaveChangesAsync();
             return NoContent();
         }

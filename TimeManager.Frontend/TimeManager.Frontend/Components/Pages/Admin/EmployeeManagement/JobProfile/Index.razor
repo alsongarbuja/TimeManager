@@ -1,5 +1,7 @@
 ﻿@page "/app/job-profile"
 
+@rendermode InteractiveServer
+
 @inject HttpClient Http
 @using TimeManager.Frontend.Components.Pages.Admin._Components
 @using TimeManager.Frontend.Components.Wrapper
@@ -20,6 +22,8 @@
             <td class="table-cell">@jp.ProfileTemplateString</td>
             <ActionTD 
                    Url="@($"/app/job-profile/edit/{jp.Id}")"
+                   DeleteUrl="@($"api/jobprofile/{jp.Id}")"
+                   OnDeleteSuccess="LoadDataAsync"
                 />
         </tr>
     }
@@ -31,10 +35,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
         try
         {
             jobProfiles = await Http.GetFromJsonAsync<JobProfileModel[]>("/api/jobprofile");
-            Console.WriteLine(jobProfiles);
         } catch (Exception ex)
         {
             Console.WriteLine(ex);

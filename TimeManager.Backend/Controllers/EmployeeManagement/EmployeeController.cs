@@ -72,13 +72,13 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpDelete("{id}")]
         public async Task<ActionResult<Employee>> DeleteEmployee(int id)
         {
-            var employee = await GetEmployee(id);
+            var employee = await GetEmployeeById(id);
             if (employee == null)
             {
                 return NotFound(new { message = "Employee not found" });
             }
 
-            //_context.Employee.Remove(employee);
+            _context.Employee.Remove(employee);
             await _context.SaveChangesAsync();
             return NoContent();
         }

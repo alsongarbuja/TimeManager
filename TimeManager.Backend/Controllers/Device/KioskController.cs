@@ -68,19 +68,25 @@ namespace TimeManager.Backend.Controllers.Device
             return NoContent();
         }
 
-        //[HttpDelete("{id}")]
-        //public async void DeleteKiosk(int id)
-        //{
-        //    var kiosk = await GetKioskById(id);
-        //    Kiosk? value = kiosk.Value;
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteKiosk(int id)
+        {
+            var kiosk = await GetKioskById(id);
+            
+            if (kiosk == null)
+            {
+                return NotFound(new { message = "Kiosk not found" });
+            }
 
-        //    if (value == null)
-        //    {
-        //        NotFound(new { message = "Kiosk not found" });
-        //        return;
-        //    }
+            _context.Kiosk.Remove(kiosk);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
 
-        //    await _context.Kiosk.Remove();
-        //}
+        private async Task<Kiosk?> GetKioskById(int id)
+        {
+            Kiosk? k = await _context.Kiosk.FindAsync(id);
+            return k;
+        }
     }
 }

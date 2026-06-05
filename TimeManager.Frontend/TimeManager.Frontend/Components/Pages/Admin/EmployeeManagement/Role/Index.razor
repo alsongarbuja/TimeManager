@@ -1,5 +1,6 @@
 ﻿@page "/app/role"
 
+@rendermode InteractiveServer
 @inject HttpClient Http
 
 @using TimeManager.Frontend.Components.Pages.Admin._Components
@@ -19,16 +20,18 @@
             <td class="table-cell table-cell-desc">@r.Description</td>
             <ActionTD 
                 Url="@($"/app/role/edit/{r.Id}")"
+                DeleteUrl="@($"api/role/{r.Id}")"
+                OnDeleteSuccess="LoadDataAsync"
             />
         </tr>
     }
 </ListWrapper>
 
-@code {
+    @code {
     private string[] headers { get; set; } = ["Name", "Description"];
     private RoleModel[] roles = [];
 
-    protected override async Task OnInitializedAsync()
+    private async Task LoadDataAsync()
     {
         try
         {
@@ -38,6 +41,11 @@
         {
             Console.WriteLine(ex);
         }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
     }
 
     private bool isEmpty => roles.Length == 0;

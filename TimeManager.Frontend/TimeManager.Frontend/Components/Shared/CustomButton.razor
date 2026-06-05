@@ -34,10 +34,12 @@
 
     private async Task OnClickHandler(MouseEventArgs e)
     {
+        Console.WriteLine("The onclick handler");
         if (Disabled || Loading) return;
 
         if (HandleClick.HasDelegate)
         {
+            Console.WriteLine("The sent function has a delegate");
             await HandleClick.InvokeAsync(e);
         }
     }

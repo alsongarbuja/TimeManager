@@ -1,5 +1,6 @@
 ﻿@page "/app/employee-type"
 
+@rendermode InteractiveServer
 @inject HttpClient Http
 
 @using TimeManager.Frontend.Components.Pages.Admin._Components
@@ -21,6 +22,8 @@
             <td class="table-cell table-cell-desc">@e.Description</td>
             <ActionTD 
                 Url="@($"/app/employee-type/edit/{e.Id}")"
+                DeleteUrl="@($"api/employeetype/{e.Id}")"
+                OnDeleteSuccess="LoadDataAsync"
              />
         </tr>
     }
@@ -30,7 +33,7 @@
     private string[] headers { get; set; } = ["Name", "Description"];
     private EmployeeTypeModel[] employeeTypes = [];
 
-    protected override async Task OnInitializedAsync()
+    private async Task LoadDataAsync()
     {
         try
         {
@@ -39,6 +42,11 @@
         {
             Console.WriteLine(ex);
         }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
     }
 
     private bool isEmpty => employeeTypes.Length == 0;

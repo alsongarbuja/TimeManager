@@ -66,13 +66,13 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpDelete("{id}")]
         public async Task<ActionResult<Role>> DeleteRole(int id)
         {
-            var role = await GetRole(id);
+            var role = await GetRoleById(id);
             if (role == null)
             {
                 return NotFound(new { message = "Role not found" });
             }
 
-            //_context.Role.Remove(role);
+            _context.Role.Remove(role);
             await _context.SaveChangesAsync();
             return NoContent();
         }

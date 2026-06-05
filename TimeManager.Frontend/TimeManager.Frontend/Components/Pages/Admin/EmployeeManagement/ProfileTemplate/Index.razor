@@ -1,4 +1,5 @@
 ﻿@page "/app/profile-template"
+@rendermode InteractiveServer
 
 @inject HttpClient Http
 @using TimeManager.Frontend.Components.Pages.Admin._Components
@@ -21,7 +22,10 @@
             <td class="table-cell">@pt.EmployeeType?.Name</td>
             <td class="table-cell">@pt.ShiftStartTime</td>
             <td class="table-cell">@pt.EarlyClockInBufferMin min</td>
-            <ActionTD Url="@($"/app/profile-template/edit/{pt.Id}")" />
+            <ActionTD Url="@($"/app/profile-template/edit/{pt.Id}")"
+                DeleteUrl="@($"api/profiletemplate/{pt.Id}")"
+                OnDeleteSuccess="LoadDataAsync"
+            />
         </tr>
     }
     </ListWrapper>
@@ -30,7 +34,7 @@
     private string[] headers { get; set; } = ["Unit", "Role", "Employee Type", "Shift Time", "Buffer clock in"];
     private ProfileTemplateModel[] pTModels = [];
 
-    protected override async Task OnInitializedAsync()
+    private async Task LoadDataAsync()
     {
         try
         {
@@ -40,6 +44,11 @@
         {
             Console.WriteLine(ex);
         }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
     }
 
     private bool isEmpty => pTModels.Length == 0;

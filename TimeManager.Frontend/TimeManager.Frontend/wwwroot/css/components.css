@@ -12,6 +12,8 @@
 }
 
 .btn:disabled {
+    background-color: dimgray;
+    opacity: 0.4;
     cursor: not-allowed;
 }
 

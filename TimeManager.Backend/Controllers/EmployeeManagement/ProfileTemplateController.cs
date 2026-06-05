@@ -87,13 +87,13 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpDelete("{id}")]
         public async Task<ActionResult<ProfileTemplate>> DeleteProfileTemplate(int id)
         {
-            var profileTemplate = await GetProfileTemplate(id);
+            var profileTemplate = await GetProfileTemplateById(id);
             if (profileTemplate == null)
             {
                 return NotFound(new { message = "ProfileTemplate not found" });
             }
 
-            //_context.ProfileTemplate.Remove(profileTemplate);
+            _context.ProfileTemplate.Remove(profileTemplate);
             await _context.SaveChangesAsync();
             return NoContent();
         }

@@ -6,6 +6,8 @@ namespace TimeManager.Frontend.Components.Pages.Admin.Device
 {
     public class DeviceModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = string.Empty;
 

@@ -1,12 +1,14 @@
-﻿/* Custom Button Styling */
-.btn {
-    border-radius: 5px;
+﻿.btn {
+    border: none;
+    border-radius: 0.25em;
     padding: .5em 1em;  
     display: flex;
     align-items: center; 
     gap: 4px; 
     justify-content: center; 
     cursor: pointer; 
+    background-color: black;
+    color: white;
 }
 
 .btn:disabled {

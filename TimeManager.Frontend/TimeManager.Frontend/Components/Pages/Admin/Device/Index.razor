@@ -16,12 +16,12 @@
   >  
     @foreach(var d in devices)
     {
-        <tr>
-            <td class="px-6 py-4">@d.Name</td>
-            <td class="px-6 py-4">@d.AllowedIPAddress</td>
-            <td class="px-6 py-4">@d.Department?.Name</td>
+        <tr class="table-row">
+            <td class="table-cell">@d.Name</td>
+            <td class="table-cell">@d.AllowedIPAddress</td>
+            <td class="table-cell">@d.Department?.Name</td>
             <ActionTD 
-                Url="/app/kiosk/edit/1"
+                Url="@($"/app/kiosk/edit/{d.Id}")"
              />
         </tr>
     }

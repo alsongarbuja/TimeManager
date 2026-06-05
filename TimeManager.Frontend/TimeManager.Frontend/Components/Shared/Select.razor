@@ -1,25 +1,25 @@
 ﻿@typeparam TValue
 @using System.Globalization
 
-<div class="w-full">
+<div class="form-group">
     @if (!string.IsNullOrEmpty(Label))
     {
-        <label for="@Id" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="@Id" class="form-label">
             @Label
             @if (Required)
             {
-                <span class="text-red-500">*</span>
+                <span class="form-required">*</span>
             }
         </label>
     }
 
-    <div class="relative rounded-md shadow-sm">
+    <div class="form-input-wrapper">
         <select id="@Id"
                 name="@Name"
                 value="@Value"
                 @onchange="ValueChangedHandler"
                 required="@Required"
-                class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm @( !string.IsNullOrEmpty(Error) ? "border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500" : "" )">
+                class="form-input @( !string.IsNullOrEmpty(Error) ? "border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500" : "" )">
 
             @if (!string.IsNullOrEmpty(Placeholder))
             {
@@ -32,7 +32,7 @@
 
     @if (!string.IsNullOrEmpty(Error))
     {
-        <p class="mt-1.5 text-sm text-red-600">@Error</p>
+        <p class="form-error">@Error</p>
     }
 </div>
 

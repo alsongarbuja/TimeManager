@@ -9,27 +9,31 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 
+<HeadContent>
+    <link rel="stylesheet" href="@Assets["css/login.css"]" />
+</HeadContent>
+
 <PageTitle>Home</PageTitle>
 
-<div class="h-screen flex flex-col justify-center px-8 bg-gray-200">
-    <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 class="text-center text-3xl font-extrabold tracking-tight text-gray-900">
+<div class="login-container">
+    <div class="form-wrapper">
+        <h2 class="form-title text-center">
             Welcome back
         </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <p class="form-subtitle text-center">
             Please sign in to your account
         </p>
     </div>
 
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white py-8 px-4 shadow-sm border border-gray-100 sm:rounded-xl sm:px-10">
+    <div class="mt-8 form-wrapper">
+        <div class="form-card">
             <EditForm Model="@loginDto" FormName="LoginUserForm" OnValidSubmit="Login" class="space-y-6">
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-red-600 mb-4" />
 
                 @if (!String.IsNullOrEmpty(@Error))
                 {   
-                <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded">
+                <div class="error-alert">
                     <div class="flex">
                         <div class="text-sm text-red-700">
                             <p>@Error</p>
@@ -45,7 +49,7 @@
                     Loading="@isLoading" 
                     Disabled="@isLoading" 
                     Type="submit" 
-                    Classes="py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-150">
+                    Classes="btn-submit">
                     Submit
                    </Button>
             </EditForm>

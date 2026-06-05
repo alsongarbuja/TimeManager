@@ -204,14 +204,10 @@
 
 .btn-action-delete {
     background-color: orangered;
-    color: white;
     width: fit-content;
 }
 
 .btn-action-edit {
     background-color: steelblue;
-    color: white;
     width: fit-content;
-    border-radius: 0.2em;
-    padding: 0.5em 1em;
 }

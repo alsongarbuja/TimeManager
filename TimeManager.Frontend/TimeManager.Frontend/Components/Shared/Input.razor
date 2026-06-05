@@ -44,18 +44,17 @@
     {
         var valueAsString = e.Value?.ToString();
 
-        // if (typeof(TValue) == typeof(System.Net.IPAddress))
-        // {
-        //     if(System.Net.IPAddress.TryParse(valueAsString, out var ip))
-        //     {
-        //         Console.WriteLine("Changed to IPADDRESS");
-        //         await ValueChanged.InvokeAsync((TValue)(object)ip);
-        //     } else if (string.IsNullOrEmpty(valueAsString))
-        //     {
-        //         await ValueChanged.InvokeAsync(default);
-        //     }
-        //     return;
-        // }
+        if (typeof(TValue) == typeof(System.Net.IPAddress))
+        {
+            if(System.Net.IPAddress.TryParse(valueAsString, out var ip))
+            {
+                await ValueChanged.InvokeAsync((TValue)(object)ip);
+            } else if (string.IsNullOrEmpty(valueAsString))
+            {
+                await ValueChanged.InvokeAsync(default);
+            }
+            return;
+        }
 
         if (BindConverter.TryConvertTo<TValue>(valueAsString, 
             System.Globalization.CultureInfo.CurrentCulture, 

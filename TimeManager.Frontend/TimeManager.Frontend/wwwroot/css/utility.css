@@ -2,6 +2,26 @@
     width: 100%;
 }
 
+.min-h-screen {
+    min-height: 100dvh;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
 .w-5 {
     width: 1.25rem;
 }

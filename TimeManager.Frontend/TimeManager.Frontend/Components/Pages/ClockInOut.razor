@@ -1,0 +1,60 @@
+﻿@page "/clock-in-out"
+@layout MainLayout
+
+@rendermode InteractiveServer
+
+@using TimeManager.Frontend.Components.Shared
+@using System.Net.Http.Json
+
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Clock In Out</PageTitle>
+
+<div class="main-section flex flex-column items-center justify-center min-h-screen">
+    <h1 class="text-center">Scan your Id to clock in/out</h1>
+
+    <EditForm Model="@cioModel" FormName="ClockInOutForm" OnValidSubmit="HandleClockInOut">
+        <Input Type="number" Label="" TValue="int" Name="DepartmentId" @bind-Value="@cioModel.departmentId" />
+        <Input AutoFocus Name="UniqueId" @bind-Value="@cioModel.uniqueId" Label="" Required TValue="string" />
+        <CustomButton Type="submit"></CustomButton>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <span class="alert-error">@errorMessage</span>
+    }
+</div>
+
+@code {
+    private string errorMessage = "";
+    private class ClockInOutModel
+    {
+        public string uniqueId { get; set; } = "";
+        public int departmentId { get; set; } = 1; // Change to dynamic
+    }
+    private ClockInOutModel cioModel = new();
+
+    public record ApiErrorResponse(string Message);
+
+    private async Task HandleClockInOut()
+    {
+        try
+        {
+            HttpResponseMessage res = await Http.PostAsJsonAsync("api/punch", new
+            {
+                UniqueId = cioModel.uniqueId,
+                DepartmentId = cioModel.departmentId,
+            });
+
+            var errorResult = await res.Content.ReadFromJsonAsync<ApiErrorResponse>();
+            if (errorResult != null)
+            {            
+                errorMessage = errorResult.Message;
+            }
+        } catch(Exception ex)
+        {
+            Console.WriteLine(ex);    
+        }
+    }
+}

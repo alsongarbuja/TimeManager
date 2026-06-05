@@ -20,7 +20,10 @@
                placeholder="@Placeholder"
                required="@Required"
                @oninput="ValueChangedHandler"
-               class="form-input">
+               class="form-input"
+                autofocus="@AutoFocus"
+        />
+
     </div>
 
     @if (!string.IsNullOrEmpty(Error))
@@ -38,6 +41,7 @@
     [Parameter] public TValue? Value { get; set; }
     [Parameter] public EventCallback<TValue> ValueChanged { get; set; }
     [Parameter] public bool Required { get; set; } = true;
+    [Parameter] public bool AutoFocus { get; set; } = false;
     [Parameter] public string? Error { get; set; } = null;
 
     private async Task ValueChangedHandler(ChangeEventArgs e)

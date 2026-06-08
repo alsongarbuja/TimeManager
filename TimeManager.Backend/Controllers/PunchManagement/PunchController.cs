@@ -73,7 +73,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
             TimeOnly earliestAllowed = startShiftTime.Add(-bufferMin);
             TimeOnly currentTime = TimeOnly.FromDateTime(DateTime.Now);
 
-            return currentTime >= earliestAllowed && currentTime <= startShiftTime;
+            return currentTime >= earliestAllowed;
         }
     }
 }

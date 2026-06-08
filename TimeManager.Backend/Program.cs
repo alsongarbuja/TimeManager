@@ -1,6 +1,7 @@
 using TimeManager.Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Shared;
+using TimeManager.Backend.Controllers.PunchManagement.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,7 @@ var serverVersion = ServerVersion.AutoDetect(connectionString);
 
 builder.Services.AddDbContext<HrmsDbContext>(options =>
     options.UseMySql(connectionString, serverVersion));
+builder.Services.AddScoped<PayPeriodUtility>();
 
 //builder.Services.AddDbContext<HrmsDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultServer")));

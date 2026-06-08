@@ -1,0 +1,129 @@
+﻿@page "/"
+@layout MainLayout
+
+@rendermode InteractiveServer
+
+@using System.Net.Http.Json
+
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Clock In Out</PageTitle>
+
+<div class="punch-container">
+    <div class="punch-card">
+        <div class="scanner-zone">
+            <div class="card-silhouette">
+                <div class="barcode-lines"></div>
+                <div class="laser-line"></div>
+            </div>
+        </div>
+
+        <h1 class="title">Scan ID Card</h1>
+
+        <EditForm Model="@cioModel" FormName="ClockInOutForm" OnValidSubmit="HandleClockInOut">
+            <input @ref="myIdeo" class="textfield-minimal" autofocus type="text" name="UniqueId" @bind-value="cioModel.uniqueId" placeholder="Waiting for scan..." autocomplete="off" />
+            <input type="hidden" name="DepartmentId" @bind-value="cioModel.departmentId" />
+        </EditForm>
+
+        <p class="helper-text">or type your ID and press <kbd>Enter</kbd></p>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
+                <span>@errorMessage</span>
+            </div>
+        }
+    </div>
+</div>
+
+@if (showModal)
+{
+    <div class="success-modal-overlay">
+        <div class="success-modal">
+            <div class="modal-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+            </div>
+            <h2 class="modal-title">@apiMessage</h2>
+            <p class="modal-time">@operationTime</p>
+            <p class="modal-greeting">@greetingMessage</p>
+            
+            <div class="modal-progress-bar"></div>
+        </div>
+    </div>
+}
+
+@code {
+    private ElementReference myIdeo;
+    private string errorMessage = "";
+    
+    private bool showModal = false;
+    private string apiMessage = "";
+    private string operationTime = "";
+    private string greetingMessage = "";
+
+    private class ClockInOutModel
+    {
+        public string uniqueId { get; set; } = "";
+        public int departmentId { get; set; } = 1; // TODO: Change to dynamic
+    }
+    private ClockInOutModel cioModel = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await myIdeo.FocusAsync();
+    }
+
+    public record ApiErrorResponse(string Message, string Status, string Time, string Greeting);
+
+    private async Task HandleClockInOut()
+    {
+        try
+        {
+            errorMessage = "";
+
+            HttpResponseMessage res = await Http.PostAsJsonAsync("api/punch", new
+            {
+                UniqueId = cioModel.uniqueId,
+                DepartmentId = cioModel.departmentId,
+            });
+
+            var errorResult = await res.Content.ReadFromJsonAsync<ApiErrorResponse>();
+            if (errorResult != null)
+            {
+                if (!res.IsSuccessStatusCode)
+                {
+                    errorMessage = errorResult.Message;
+                }
+                else 
+                {
+                    apiMessage = errorResult.Message ?? "Operation Successful";
+                    operationTime = errorResult.Time ?? DateTime.Now.ToString("hh:mm tt");
+                    greetingMessage = errorResult.Greeting ?? "Have a great day!";
+                    
+                    await TriggerSuccessModal();
+                }
+            }
+            
+            cioModel.uniqueId = ""; 
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private async Task TriggerSuccessModal()
+    {
+        showModal = true;
+        StateHasChanged();
+
+        await Task.Delay(8000);
+        
+        showModal = false;
+        StateHasChanged();
+        
+        await myIdeo.FocusAsync();
+    }
+}

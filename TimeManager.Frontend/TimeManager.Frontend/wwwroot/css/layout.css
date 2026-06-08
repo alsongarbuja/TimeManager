@@ -22,11 +22,13 @@
     flex-direction: column;
     justify-content: space-between;
     padding: 1.5rem;
+    padding-bottom: 3rem;
     transform: translateX(-100%);
     transition-property: transform;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
     border-right: 1px solid #171717;
+    overflow-y: scroll;
 }
 
 .sidebar-brand-container {

@@ -9,6 +9,10 @@
       {
         "Path": "TimeManager.Frontend\\TimeManager.Frontend\\TimeManager.Frontend.csproj",
         "Action": "Start"
+      },
+      {
+        "Path": "PunchSystem\\PunchSystem\\PunchSystem.csproj",
+        "Action": "Start"
       }
     ]
   }

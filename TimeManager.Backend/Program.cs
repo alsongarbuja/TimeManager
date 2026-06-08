@@ -1,5 +1,7 @@
 using TimeManager.Backend.Data;
 using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Shared;
+using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,9 +27,13 @@ var serverVersion = ServerVersion.AutoDetect(connectionString);
 
 builder.Services.AddDbContext<HrmsDbContext>(options =>
     options.UseMySql(connectionString, serverVersion));
+builder.Services.AddScoped<PayPeriodUtility>();
 
 //builder.Services.AddDbContext<HrmsDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultServer")));
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddIdentityCore<IdentityUser>(options =>
 {
@@ -69,6 +75,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 

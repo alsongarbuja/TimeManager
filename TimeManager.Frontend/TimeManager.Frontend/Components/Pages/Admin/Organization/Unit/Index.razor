@@ -1,0 +1,56 @@
+﻿@page "/app/unit"
+
+@rendermode InteractiveServer
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Pages.Admin._Components
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Unit</PageTitle>
+
+<ListWrapper 
+    Title="Unit"
+    Subtitle="Manage the units"
+    Headers="@headers"
+    CreateUrl="/app/unit/create"
+    isEmpty="isEmpty"
+>
+    @foreach (var data in unitModels)
+    {
+        var currentId = data.Id;
+        <tr class="table-row">
+            <td class="table-cell">@data.Name</td>
+            <td class="table-cell">@data.Index</td>
+            <td class="table-cell">@data.Department?.Name</td>
+            <ActionTD 
+                Url="@($"/app/unit/edit/{currentId}")"
+                DeleteUrl="@($"api/unit/{currentId}")"
+                OnDeleteSuccess="LoadDataAsync"
+             />
+        </tr>
+    }
+
+</ListWrapper>
+
+@code {
+    private string[] headers { get; set; } = ["Name", "Index", "Department"];
+    private UnitModel[] unitModels = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            unitModels = await Http.GetFromJsonAsync<UnitModel[]>("/api/unit");
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private bool isEmpty => unitModels.Length == 0;
+}

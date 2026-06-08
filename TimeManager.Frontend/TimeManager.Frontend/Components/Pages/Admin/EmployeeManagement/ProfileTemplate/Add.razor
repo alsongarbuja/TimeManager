@@ -1,0 +1,122 @@
+﻿@page "/app/profile-template/create"
+
+@rendermode InteractiveServer
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Shared
+@using TimeManager.Frontend.Components.Wrapper
+@using TimeManager.Frontend.Components.Pages.Admin.EmployeeManagement.EmployeeType
+@using TimeManager.Frontend.Components.Pages.Admin.EmployeeManagement.PayFrequency
+@using TimeManager.Frontend.Components.Pages.Admin.EmployeeManagement.Role
+@using TimeManager.Frontend.Components.Pages.Admin.Organization.Unit
+
+<PageTitle>Profile Template - Add</PageTitle>
+
+<FormWrapper Title="Profile Template"
+             Subtitle="Add profile templates to the system"
+             BackUrl="/app/profile-template"
+             FormName="ProfileTemplateAddForm"
+             Model="@ptModel"
+             OnSubmit="HandleSubmit"
+             OnCancel="Cancel">
+    <Select Name="UnitId"
+            TValue="int"
+            Label="Unit"
+            Placeholder="Choose an unit"
+            @bind-Value="ptModel.UnitId">
+        @foreach (var u in units)
+        {
+            <option value="@u.Id">@u.Name</option>
+        }
+    </Select>
+    <Select Name="RoleId"
+            TValue="int"
+            Label="Role"
+            Placeholder="Choose a role"
+            @bind-Value="ptModel.RoleId">
+        @foreach (var r in roles)
+        {
+            <option value="@r.Id">@r.Name</option>
+        }
+    </Select>
+             <Select Name="EmployeeTypeId"
+            TValue="int"
+            Label="Employee Type"
+            Placeholder="Choose a employee type"
+            @bind-Value="ptModel.EmployeeTypeId">
+        @foreach (var et in employeeTypes)
+        {
+            <option value="@et.Id">@et.Name</option>
+        }
+    </Select>
+    <Select Name="PayFrequencyId"
+            TValue="int"
+            Label="Pay Frequency"
+            Placeholder="Choose a pay frequency"
+            @bind-Value="ptModel.PayFrequencyId">
+        @foreach (var pf in payFrequencies)
+        {
+            <option value="@pf.Id">@pf.Name</option>
+        }
+    </Select>
+    <Input @bind-Value="ptModel.ShiftStartTime" Type="time" Name="ShiftStartTime" Label="Shift Start Time" Placeholder="Enter the shift start time" />
+    <Input @bind-Value="ptModel.EarlyClockInBufferMin" Type="number" Name="EarlyClockInBufferMin" Label="Early clock in buffer" Placeholder="Enter the early buffer in min" />
+</FormWrapper>
+
+@code {
+    private ProfileTemplateModel ptModel = new();
+    private EmployeeTypeModel[] employeeTypes = [];
+    private PayFrequencyModel[] payFrequencies = [];
+    private RoleModel[] roles = [];
+    private UnitModel[] units = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            employeeTypes = await Http.GetFromJsonAsync<EmployeeTypeModel[]>("api/employeetype");
+            ptModel.EmployeeTypeId = employeeTypes[0].Id;
+
+            payFrequencies = await Http.GetFromJsonAsync<PayFrequencyModel[]>("api/payfrequency");
+            ptModel.PayFrequencyId= payFrequencies[0].Id;
+
+            roles = await Http.GetFromJsonAsync<RoleModel[]>("api/role");
+            ptModel.RoleId = roles[0].Id;
+
+            units = await Http.GetFromJsonAsync<UnitModel[]>("api/unit");
+            ptModel.UnitId = units[0].Id;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private async Task<string> HandleSubmit()
+    {
+        try
+        {
+            HttpResponseMessage responseMessage = await Http.PostAsJsonAsync("api/profiletemplate", ptModel);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return "";
+            }
+            else
+            {
+                var problemDetails = await responseMessage.Content.ReadFromJsonAsync<System.Text.Json.Nodes.JsonObject>();
+                return problemDetails?["detail"]?.ToString() ?? "An unexpected error occured";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return ex.Message;
+        }
+    }
+
+    private Task Cancel()
+    {
+        return Task.CompletedTask;
+    }
+}

@@ -9,17 +9,22 @@ namespace TimeManager.Backend.Models.Employee_Management
         [Key]
         public int Id { get; set; }
 
-        public required int EmployeeTypeId { get; set; }
+        [Required(ErrorMessage = "Employee Type is required")]
+        public int EmployeeTypeId { get; set; }
 
-        public required int RoleId { get; set; }
+        [Required(ErrorMessage = "Role is required")]
+        public int RoleId { get; set; }
 
-        public required int PayFrequencyId { get; set; }
+        [Required(ErrorMessage = "Pay Frequency is required")]
+        public int PayFrequencyId { get; set; }
 
-        public required int UnitId { get; set; }
+        [Required(ErrorMessage = "Unit is required")]
+        public int UnitId { get; set; }
 
-        public required TimeOnly ShiftStartTime { get; set; }
+        [Required(ErrorMessage = "Shift start time is required")]
+        public TimeOnly ShiftStartTime { get; set; }
 
-        public required int EarlyClockInBufferMin { get; set; }
+        public int EarlyClockInBufferMin { get; set; } = 5;
 
 
         [ForeignKey("EmployeeTypeId")]

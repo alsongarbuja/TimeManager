@@ -10,15 +10,19 @@ namespace TimeManager.Backend.Models.Device_Management
         [Key]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Name of the device is requried")]
         [StringLength(50)]
-        public required string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        [StringLength(100)]
+
+        [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
         public string? Description { get; set; }
 
-        public required IPAddress AllowedIPAddress { get; set; }
+        [Required(ErrorMessage = "Allowed IP Address is required")]
+        public IPAddress AllowedIPAddress { get; set; }
 
-        public required int DepartmentId { get; set; }
+        [Required(ErrorMessage = "Departmetn ID is required")]
+        public int DepartmentId { get; set; }
 
         [ForeignKey("DepartmentId")]
         public virtual Department Department { get; set; } = null!;

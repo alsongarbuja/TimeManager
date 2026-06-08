@@ -1,0 +1,79 @@
+﻿@page "/app/kiosk/create"
+
+@rendermode InteractiveServer
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Shared
+@using TimeManager.Frontend.Components.Wrapper
+@using TimeManager.Frontend.Components.Pages.Admin.Organization.Department
+
+<PageTitle>Kiosk - Add</PageTitle>
+
+<FormWrapper
+    Title="Kiosk"
+    Subtitle="Add kiosk/devices to the department"
+    BackUrl="/app/kiosk"    
+    FormName="KioskAddForm"
+    Model="@deviceModel"
+    OnSubmit="HandleSubmit"
+    OnCancel="Cancel"
+>
+    
+    <Input @bind-Value="deviceModel.Name" Name="Name" Label="Name" Placeholder="Give the device a name" />
+    <Input @bind-Value="deviceModel.AllowedIPAddress" Name="AllowedIPAddress" Label="IP Address" Placeholder="Allowed only from this IP Address" />
+    <Select
+        Label="Department"
+        Name="DepartmentId"
+        Placeholder="Select the related department"
+        @bind-Value="deviceModel.DepartmentId"    
+    >
+        @foreach(var dep in departments)
+        {
+            <option value="@dep.Id">@dep.Name</option>
+        }
+    </Select>
+    <Input @bind-Value="deviceModel.Description" Required="false" Name="Description" Label="Description" Placeholder="Give it a descriptive info" />
+</FormWrapper>
+
+@code {
+    private DeviceModel deviceModel = new();
+    private DepartmentModel[] departments = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            departments = await Http.GetFromJsonAsync<DepartmentModel[]>("/api/department");
+            deviceModel.DepartmentId = departments[0].Id;
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private async Task<string> HandleSubmit()
+    {
+        try
+        {
+            HttpResponseMessage responseMessage = await Http.PostAsJsonAsync("api/kiosk", deviceModel);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return "";
+            } else
+            {
+                var problemDetails = await responseMessage.Content.ReadFromJsonAsync<System.Text.Json.Nodes.JsonObject>();
+                return problemDetails?["detail"]?.ToString() ?? "An unexpected error occured";            
+            }
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return ex.Message;
+        } 
+    }
+
+    private Task Cancel()
+    {
+        return Task.CompletedTask;
+    }
+}

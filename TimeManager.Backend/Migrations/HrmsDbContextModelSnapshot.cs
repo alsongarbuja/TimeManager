@@ -83,6 +83,9 @@ namespace TimeManager.Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UniqueId", "Email")
+                        .IsUnique();
+
                     b.ToTable("Employee");
                 });
 
@@ -185,9 +188,10 @@ namespace TimeManager.Backend.Migrations
 
                     b.HasIndex("PayFrequencyId");
 
-                    b.HasIndex("RoleId");
-
                     b.HasIndex("UnitId")
+                        .IsUnique();
+
+                    b.HasIndex("RoleId", "EmployeeTypeId", "UnitId", "PayFrequencyId")
                         .IsUnique();
 
                     b.ToTable("ProfileTemplate");
@@ -252,6 +256,9 @@ namespace TimeManager.Backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -272,10 +279,10 @@ namespace TimeManager.Backend.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTimeOffset>("EndDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTimeOffset>("StartDate")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");

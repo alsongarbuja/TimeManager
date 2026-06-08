@@ -1,0 +1,53 @@
+﻿@page "/app/pay-frequency"
+
+@rendermode InteractiveServer
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Pages.Admin._Components
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Pay Frequency</PageTitle>
+
+<ListWrapper Title="Pay Frequency"
+             Subtitle="Manage the pay frequencies"
+             Headers="@headers"
+             isEmpty="isEmpty"
+             CreateUrl="/app/pay-frequency/create">
+    @foreach (var pf in payFrequencies)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@pf.Name</td>
+            <td class="table-cell table-cell-desc">@pf.Description</td>
+            <ActionTD 
+                Url="@($"/app/pay-frequency/edit/{pf.Id}")"
+                DeleteUrl="@($"api/payfrequency/{pf.Id}")"
+                OnDeleteSuccess="LoadDataAsync"
+             />
+        </tr>
+    }
+</ListWrapper>
+
+    @code {
+    private string[] headers { get; set; } = ["Name", "Description"];
+    private PayFrequencyModel[] payFrequencies = [];
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            payFrequencies = await Http.GetFromJsonAsync<PayFrequencyModel[]>("api/payfrequency");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private bool isEmpty => payFrequencies.Length == 0;
+}
+

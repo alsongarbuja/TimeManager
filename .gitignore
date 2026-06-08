@@ -56,3 +56,4 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 /.vs
+/TimeManager.Frontend/TimeManager.Frontend/node_modules

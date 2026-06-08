@@ -1,59 +1,147 @@
-﻿<aside class="fixed top-0 left-0 z-40 w-64 h-screen bg-black text-white flex flex-col justify-between p-6 transition-transform -translate-x-full lg:translate-x-0 border-r border-neutral-900">
+﻿<aside class="sidebar">
     <div>
-        <div class="flex items-center gap-3 pb-6 mb-8 border-b border-neutral-800">
-            <div class="w-8 h-8 bg-white text-black flex items-center justify-center rounded font-black text-lg">Ω</div>
-            <span class="text-sm font-bold tracking-widest uppercase">Time Clock</span>
+        <div class="sidebar-brand-container">
+            <div class="sidebar-logo">Ω</div>
+            <span class="sidebar-title">Time Clock</span>
         </div>
-        <nav class="space-y-6">
-            <div>
-                <ul class="space-y-1">
-                    <li>
-                        <SidebarNav 
-                            Text="Dashboard"
-                            Url="/app/dashboard"
-                            IconClass="ri-layout-grid-line"
-                            />
-                    </li>
-                </ul>
-            </div>
-            @* @if (request.role.name != "Manager") *@
-            <div>
-                <span class="px-3 text-xxs font-semibold uppercase tracking-wider text-neutral-500 block mb-2">Time Track</span>
-                <ul class="space-y-1">
-                    <li>
-                        <SidebarNav Text="Clock in / out"
-                                    Url="/app/clock-in-out"
-                                    IconClass="ri-time-line" />
-                    </li>
+        <nav class="sidebar-nav-container">
+            @foreach (var grp in _links)
+            {
+                <div>
+                    <span class="sidebar-group-label">@grp.Title</span>
+
+                    <ul class="sidebar-nav-list">
+                        @foreach(var link in grp.LinkData)
+                        {
+                            <li>
+                                <SidebarNav 
+                                    Text="@link.Text"
+                                    Url="@($"/app/{link.Url}")"
+                                    IconClass="@link.IconClass"
+                                    />
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            @* <div>
+                <span class="sidebar-group-label">Time Track</span>
+                <ul class="sidebar-nav-list">
                     <li>
                         <SidebarNav Text="Time off requests"
                                     Url="/app/timeoff-request"
                                     IconClass="ri-list-check" />
                     </li>
                 </ul>
-            </div>
-            @* {% endif %} *@
-            @* {% if request.role.name == "Manager" %} *@
-            <div>
-                <span class="px-3 text-xxs font-semibold uppercase tracking-wider text-neutral-500 block mb-2">Management</span>
-                <ul class="space-y-1">
-                    <li>
-                        <SidebarNav Text="Punch Report"
-                                    Url="/app/punch-report"
-                                    IconClass="ri-file-chart-line" />
-                    </li>
-                    <li>
-                        <SidebarNav Text="Schedule"
-                                    Url="/app/scheduler"
-                                    IconClass="ri-calendar-line" />
-                    </li>
-                </ul>
-            </div>
-            @* {% endif %} *@
+            </div> *@
         </nav>
     </div>
 </aside>
 
 @code {
+    private readonly List<LinkGroup> _links = [
+        new LinkGroup {
+            Title = "General",
+            LinkData = [
 
+            new LinkProps {
+                Text = "Dashboard",
+                Url = "dashboard",
+                IconClass = "ri-layout-grid-line",
+            },
+            new LinkProps {
+                Text = "Report",
+                Url = "report",
+                IconClass = "ri-file-chart-line",
+            }
+           ],
+        },
+
+        new LinkGroup {
+            Title = "Organization",
+            LinkData = [
+
+new LinkProps {
+                Text = "Department",
+                Url = "department",
+                IconClass = "ri-layout-grid-line",
+            },
+            new LinkProps {
+                Text = "Unit",
+                Url = "unit",
+                IconClass = "ri-layout-grid-line",
+            },
+            new LinkProps {
+                Text = "Kiosk",
+                Url = "kiosk",
+                IconClass = "ri-layout-grid-line",
+            },
+
+            new LinkProps {
+                Text = "Pay Period",
+                Url = "pay-period",
+                IconClass = "ri-time-line",
+            },
+
+            new LinkProps {
+                Text = "Employee Type",
+                Url = "employee-type",
+                IconClass = "ri-layout-grid-line",
+            },
+            new LinkProps {
+                Text = "Role",
+                Url = "role",
+                IconClass = "ri-layout-grid-line",
+            },
+            new LinkProps {
+                Text = "Pay Frequency",
+                Url = "pay-frequency",
+                IconClass = "ri-layout-grid-line",
+            },
+           ],
+        },
+
+        new LinkGroup {
+            Title = "Employee",
+            LinkData = [
+
+new LinkProps {
+                Text = "Employee",
+                Url = "employee",
+                IconClass = "ri-layout-grid-line",
+            },
+            new LinkProps {
+                Text = "Profile Template",
+                Url = "profile-template",
+                IconClass = "ri-layout-grid-line",
+            },
+            new LinkProps {
+                Text = "Job Profile",
+                Url = "job-profile",
+                IconClass = "ri-layout-grid-line",
+            },
+
+            new LinkProps {
+                Text = "Scheduler",
+                Url = "scheduler",
+                IconClass = "ri-calendar-line"
+            }
+           ],
+        },
+    ];
+
+
+    class LinkGroup
+    {
+        public string Title { get; set; }
+        public List<LinkProps> LinkData { get; set; } = new();
+    }
+
+    class LinkProps
+    {
+        public string Text { get; set; }
+        public string Url { get; set; }
+        public string IconClass { get; set; }
+    }
 }

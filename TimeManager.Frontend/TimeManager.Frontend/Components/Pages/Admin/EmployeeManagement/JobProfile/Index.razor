@@ -1,0 +1,53 @@
+﻿@page "/app/job-profile"
+
+@rendermode InteractiveServer
+
+@inject HttpClient Http
+@using TimeManager.Frontend.Components.Pages.Admin._Components
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Job Profile</PageTitle>
+
+<ListWrapper 
+    Title="Job Profile"
+    Subtitle="Manage the job profiles"
+    Headers="@headers"
+    CreateUrl="/app/job-profile/create"
+    isEmpty="isEmpty"
+>
+    @foreach (JobProfileModel jp in jobProfiles)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@jp.EmployeeString</td>
+            <td class="table-cell">@jp.ProfileTemplateString</td>
+            <ActionTD 
+                   Url="@($"/app/job-profile/edit/{jp.Id}")"
+                   DeleteUrl="@($"api/jobprofile/{jp.Id}")"
+                   OnDeleteSuccess="LoadDataAsync"
+                />
+        </tr>
+    }
+    </ListWrapper>
+
+@code {
+    private string[] headers { get; set; } = ["Employee", "Profile Template"];
+    private JobProfileModel[] jobProfiles = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            jobProfiles = await Http.GetFromJsonAsync<JobProfileModel[]>("/api/jobprofile");
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private bool isEmpty => jobProfiles.Length == 0;
+}

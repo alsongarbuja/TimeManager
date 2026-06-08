@@ -1,0 +1,68 @@
+﻿@typeparam TValue
+@using System.Globalization
+
+<div class="form-group">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <label for="@Id" class="form-label">
+            @Label
+            @if (Required)
+            {
+                <span class="form-required">*</span>
+            }
+        </label>
+    }
+
+    <div class="form-input-wrapper">
+        <select id="@Id"
+                name="@Name"
+                value="@Value"
+                @onchange="ValueChangedHandler"
+                required="@Required"
+                class="form-input @( !string.IsNullOrEmpty(Error) ? "border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500" : "" )">
+
+            @if (!string.IsNullOrEmpty(Placeholder))
+            {
+                <option value="" disabled selected>@Placeholder</option>
+            }
+
+            @ChildContent
+        </select>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Error))
+    {
+        <p class="form-error">@Error</p>
+    }
+</div>
+
+@code {
+    [Parameter] public string Id { get; set; } = Guid.NewGuid().ToString();
+    [Parameter] public required string Name { get; set; }
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string Placeholder { get; set; } = "";
+    [Parameter] public TValue? Value { get; set; }
+    [Parameter] public EventCallback<TValue> ValueChanged { get; set; }
+    [Parameter] public bool Required { get; set; } = true;
+    [Parameter] public string? Error { get; set; } = null;
+
+    // Allows you to pass <option> tags inside the component wrapper
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private async Task ValueChangedHandler(ChangeEventArgs e)
+    {
+        var valueAsString = e.Value?.ToString();
+
+        if (BindConverter.TryConvertTo<TValue>(valueAsString,
+            CultureInfo.CurrentCulture,
+            out var parsedValue))
+        {
+            await ValueChanged.InvokeAsync(parsedValue);
+        }
+        else
+        {
+            // Fallback for default/empty values (like the placeholder)
+            await ValueChanged.InvokeAsync(default);
+        }
+    }
+}

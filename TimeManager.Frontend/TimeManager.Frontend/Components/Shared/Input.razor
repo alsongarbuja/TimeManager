@@ -1,12 +1,18 @@
-﻿<div class="w-full">
+﻿@typeparam TValue;
+
+<div class="form-group">
     @if (!string.IsNullOrEmpty(Label))
     {
-        <label for="@Id" class="block text-sm font-medium text-gray-700 mb-1">
-            @Label
+        <label for="@Id" class="form-label">
+            @Label 
+            @if (Required)
+            {
+                <span class="form-required">*</span>
+            }
         </label>
     }
 
-    <div class="relative rounded-md shadow-sm">
+    <div class="form-input-wrapper">
         <input id="@Id"
                name="@Name"
                type="@Type"
@@ -14,12 +20,15 @@
                placeholder="@Placeholder"
                required="@Required"
                @oninput="ValueChangedHandler"
-               class="appearance-none text-black block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black text-sm transition duration-150">
+               class="form-input"
+                autofocus="@AutoFocus"
+        />
+
     </div>
 
     @if (!string.IsNullOrEmpty(Error))
     {
-        <p class="mt-1.5 text-sm text-red-600">@Error</p>
+        <p class="form-error">@Error</p>
     }
 </div>
 
@@ -29,13 +38,36 @@
     [Parameter] public string Label { get; set; } = "";
     [Parameter] public string Type { get; set; } = "text";
     [Parameter] public string Placeholder { get; set; } = "";
-    [Parameter] public string Value { get; set; } = "";
-    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public TValue? Value { get; set; }
+    [Parameter] public EventCallback<TValue> ValueChanged { get; set; }
     [Parameter] public bool Required { get; set; } = true;
+    [Parameter] public bool AutoFocus { get; set; } = false;
     [Parameter] public string? Error { get; set; } = null;
 
-    private Task ValueChangedHandler(ChangeEventArgs e)
+    private async Task ValueChangedHandler(ChangeEventArgs e)
     {
-        return ValueChanged.InvokeAsync(e.Value?.ToString());
+        var valueAsString = e.Value?.ToString();
+
+        if (typeof(TValue) == typeof(System.Net.IPAddress))
+        {
+            if(System.Net.IPAddress.TryParse(valueAsString, out var ip))
+            {
+                await ValueChanged.InvokeAsync((TValue)(object)ip);
+            } else if (string.IsNullOrEmpty(valueAsString))
+            {
+                await ValueChanged.InvokeAsync(default);
+            }
+            return;
+        }
+
+        if (BindConverter.TryConvertTo<TValue>(valueAsString, 
+            System.Globalization.CultureInfo.CurrentCulture, 
+            out var parsedValue))
+        {
+            await ValueChanged.InvokeAsync(parsedValue);
+        } else
+        {
+             await ValueChanged.InvokeAsync(default);
+        }
     }
 }

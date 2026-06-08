@@ -1,0 +1,54 @@
+﻿@page "/app/employee-type"
+
+@rendermode InteractiveServer
+@inject HttpClient Http
+
+@using TimeManager.Frontend.Components.Pages.Admin._Components
+@using TimeManager.Frontend.Components.Wrapper
+
+<PageTitle>Employee Type</PageTitle>
+
+<ListWrapper 
+    Title="Employee Type"
+    Subtitle="Manage the employee types"
+    Headers="@headers"
+    isEmpty="isEmpty"
+    CreateUrl="/app/employee-type/create"
+  >  
+    @foreach(var e in employeeTypes)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@e.Name</td>
+            <td class="table-cell table-cell-desc">@e.Description</td>
+            <ActionTD 
+                Url="@($"/app/employee-type/edit/{e.Id}")"
+                DeleteUrl="@($"api/employeetype/{e.Id}")"
+                OnDeleteSuccess="LoadDataAsync"
+             />
+        </tr>
+    }
+    </ListWrapper>
+
+@code {
+    private string[] headers { get; set; } = ["Name", "Description"];
+    private EmployeeTypeModel[] employeeTypes = [];
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            employeeTypes = await Http.GetFromJsonAsync<EmployeeTypeModel[]>("api/employeetype");
+        } catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private bool isEmpty => employeeTypes.Length == 0;
+}
+

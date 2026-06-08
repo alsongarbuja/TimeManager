@@ -1,0 +1,57 @@
+﻿@rendermode InteractiveServer
+
+@inject NavigationManager Navigation
+@inject HttpClient Http
+
+<td class="table-actions">
+    @ChildContent
+    
+    @if(hasDelete)
+    {
+        <button class="btn btn-action-delete" @onclick="DeleteResource">
+            <i class="ri-delete-bin-7-line"></i>
+        </button>
+    }
+
+    @if(hasEdit)
+    {
+        <a href="@Url" class="btn btn-action-edit">
+            <i class="ri-edit-line"></i>
+        </a>
+    }
+</td>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool hasDelete { get; set; } = true;
+    [Parameter] public bool hasEdit { get; set; } = true;
+    [Parameter] public string Url { get; set; } = string.Empty;
+    [Parameter] public string DeleteUrl { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnDeleteSuccess { get; set; }
+
+    private async Task DeleteResource()
+    {
+        if (string.IsNullOrEmpty(DeleteUrl)) return;
+
+        try
+        {
+            HttpResponseMessage response = await Http.DeleteAsync(DeleteUrl);
+
+            if (((int)response.StatusCode) == StatusCodes.Status204NoContent)
+            {
+                if (OnDeleteSuccess.HasDelegate)
+                {
+                    await OnDeleteSuccess.InvokeAsync();
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Server returned error status: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Network error during delete: {ex.Message}");
+        }
+    }
+}

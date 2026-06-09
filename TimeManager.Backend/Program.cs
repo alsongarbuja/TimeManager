@@ -37,25 +37,28 @@ builder.Services.AddScoped<PayPeriodUtility>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication();
+    
+builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
 {
-    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-})
-.AddIdentityCookies();
-
-builder.Services.AddIdentityCore<IdentityUser>(options =>
-{
-    options.Password.RequiredLength = 5;
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = false;
     options.User.RequireUniqueEmail = true;
-    options.Lockout.MaxFailedAccessAttempts = 5;
-})
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<HrmsDbContext>()
-    .AddDefaultTokenProviders()
-    .AddApiEndpoints();
+}).AddRoles<IdentityRole>().AddEntityFrameworkStores<HrmsDbContext>();
+
+//builder.Services.AddIdentityCore<IdentityUser>(options =>
+//{
+//    options.Password.RequiredLength = 5;
+//    options.Password.RequireNonAlphanumeric = false;
+//    options.User.RequireUniqueEmail = true;
+//    options.Lockout.MaxFailedAccessAttempts = 5;
+//})
+//    .AddRoles<IdentityRole>()
+//    .AddEntityFrameworkStores<HrmsDbContext>()
+//    .AddDefaultTokenProviders()
+//    .AddApiEndpoints();
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Require Admin", policy => policy.RequireRole("Admin"))
@@ -94,7 +97,7 @@ app.UseCors("AllowBlazor");
 app.UseAuthentication();
 app.UseAuthorization();
 
-//app.MapGroup("/auth").MapIdentityApi<IdentityUser>();
+app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 
 app.MapControllers();
 

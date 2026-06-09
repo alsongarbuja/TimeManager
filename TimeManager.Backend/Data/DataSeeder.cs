@@ -46,7 +46,7 @@ namespace TimeManager.Backend.Data
             }
 
             var defaultSuperAdmin = configuration["SeedSettings:SuperAdminEmail"] ?? "superadmin@hrms.com";
-            var defaultSuperAdminPassword = configuration["seedSettings:SuperAdminPassword"];
+            var defaultSuperAdminPassword = configuration["SeedSettings:SuperAdminPassword"];
 
             if (string.IsNullOrEmpty(defaultSuperAdminPassword))
             {

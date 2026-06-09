@@ -4,6 +4,8 @@ using TimeManager.Backend.Shared;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using Microsoft.AspNetCore.Identity;
 
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -34,6 +36,14 @@ builder.Services.AddScoped<PayPeriodUtility>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+.AddIdentityCookies();
 
 builder.Services.AddIdentityCore<IdentityUser>(options =>
 {
@@ -87,5 +97,7 @@ app.UseAuthorization();
 //app.MapGroup("/auth").MapIdentityApi<IdentityUser>();
 
 app.MapControllers();
+
+await DataSeeder.SeedDataAsync(app.Services);
 
 app.Run();

@@ -1,21 +1,37 @@
-//using TimeManager.Frontend.Client.Pages;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Net;
+using TimeManager.Frontend.Auth;
 using TimeManager.Frontend.Components;
-using TimeManager.Frontend.State;
+using TimeManager.Frontend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Adding scope to connect with backend
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7263/") });
+builder.Services.AddScoped<CookieContainer>();
 
-// Adding authentication and authorization
+builder.Services.AddHttpClient<AuthApiClient>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7263/");
+})
+.ConfigurePrimaryHttpMessageHandler(sp =>
+{
+    var cookieContainer = sp.GetRequiredService<CookieContainer>();
+    return new HttpClientHandler
+    {
+        UseCookies = true,
+        CookieContainer = cookieContainer
+    };
+});
+
+builder.Services.AddScoped<CookieAuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(
+    sp => sp.GetRequiredService<CookieAuthStateProvider>());
+
 builder.Services.AddAuthorizationCore();
+
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<AuthenticationStateProvider, BackendAuthenticationStateProvider>();
 
 var app = builder.Build();
 

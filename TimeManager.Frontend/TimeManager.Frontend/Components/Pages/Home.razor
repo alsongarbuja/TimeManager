@@ -63,13 +63,20 @@
     private LoginModel loginDto = new();
     private string? Error;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+            Navigation.NavigateTo("/app/dashboard", forceLoad: true);
+    }
+
     private async Task HandleLogin()
     {
         isLoading = true;
 
         var (success, err) = await AuthProvider.LoginAsync(loginDto.Email, loginDto.Password);
         if (success)
-            Navigation.NavigateTo("/app/dashboard");
+            Navigation.NavigateTo("/app/dashboard", forceLoad: true);
         else
             Error = err;
 

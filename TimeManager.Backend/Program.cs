@@ -1,8 +1,10 @@
-using TimeManager.Backend.Data;
-using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Shared;
-using TimeManager.Backend.Controllers.PunchManagement.Utility;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using TimeManager.Backend.Controllers.PunchManagement.Utility;
+using TimeManager.Backend.Data;
+using TimeManager.Backend.Shared;
 
 DotNetEnv.Env.Load();
 
@@ -38,7 +40,11 @@ builder.Services.AddScoped<PayPeriodUtility>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-builder.Services.AddAuthentication();   
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+}).AddCookie();   
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
 {
@@ -55,6 +61,8 @@ builder.Services.AddAuthorizationBuilder()
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
+    options.LoginPath = "/";
+    options.AccessDeniedPath = "/";
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.HttpOnly = true;
@@ -89,6 +97,20 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
+
+app.MapGet("/api/auth/me", (HttpContext context) =>
+{
+    if (context.User.Identity?.IsAuthenticated != true)
+        return Results.Unauthorized();
+
+    var claims = context.User.Claims.Select(c => new { c.Type, c.Value });
+    return Results.Ok(new
+    {
+        email = context.User.FindFirstValue(ClaimTypes.Email),
+        name = context.User.FindFirstValue(ClaimTypes.Name),
+        roles = context.User.FindAll(ClaimTypes.Role).Select(c => c.Value)
+    });
+}).RequireAuthorization();
 
 app.MapControllers();
 

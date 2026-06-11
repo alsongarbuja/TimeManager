@@ -1,0 +1,20 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <main class="main layout-main">
+        @await Html.PartialAsync("_Sidenav")
+        <div class="layout-section">
+            <header class="header">NavBar</header>
+            <section class="main-section">
+                @RenderBody()
+            </section>
+        </div>
+    </main>
+</body>
+</html>
+

@@ -16,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddRazorPages();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -64,6 +65,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
@@ -73,6 +76,7 @@ app.UseAuthorization();
 
 app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 app.MapControllers();
+app.MapRazorPages();
 
 await DataSeeder.SeedDataAsync(app.Services);
 

@@ -28,8 +28,9 @@ namespace TimeManager.Backend.Data
                 await SeedHrmsLookupDataAsync(context);
             } catch (Exception ex)
             {
-                var logger = services.GetRequiredService<ILogger>();
-                logger.LogInformation(ex, "An error occured during database seeding");
+                //var logger = services.GetRequiredService<ILogger>();
+                //logger.LogInformation(ex, "An error occured during database seeding");
+                Console.WriteLine("An error occured during database seeding", ex);
                 throw;
             }
         }

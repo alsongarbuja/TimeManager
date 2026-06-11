@@ -4,9 +4,111 @@
 @rendermode InteractiveServer
 
 @using TimeManager.Frontend.Components.Shared
-@using TimeManager.Frontend.Auth
+@using TimeManager.Frontend.Services
 
-@inject CookieAuthStateProvider AuthProvider
+@inject TokenStore TokenStore
+@inject NavigationManager Nav
+@inject IHttpClientFactory HttpClientFactory
+
+<HeadContent>
+    <link rel="stylesheet" href="@Assets["css/login.css"]" />
+</HeadContent>
+
+<PageTitle>Login</PageTitle>
+
+<div class="login-container">
+    <div class="form-wrapper">
+        <h2 class="form-title text-center">
+            Welcome back
+        </h2>
+        <p class="form-subtitle text-center">
+            Please sign in to your account
+        </p>
+    </div>
+
+    <div class="mt-8 form-wrapper">
+        <div class="form-card">
+            <form class="space-y-6" method="post" @onsubmit="HandleSubmit" @onsubmit:preventDefault>
+                @if (!String.IsNullOrEmpty(@Error))
+                {
+                    <div class="error-alert">
+                        <div class="flex">
+                            <div class="text-sm text-red-700">
+                                <p>@Error</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <Input @bind-Value="loginDto.Email" Required Label="User ID / Username" Name="username" Placeholder="Enter your user ID" />
+                <Input @bind-Value="loginDto.Password" Required Type="password" Label="Password" Name="password" Placeholder="Enter your password" />
+
+                <CustomButton Loading="@isLoading"
+                              Disabled="@isLoading"
+                              Type="submit"
+                              Classes="btn-submit">
+                    Submit
+                </CustomButton>
+            </form>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isLoading = false;
+    private LoginModel loginDto = new();
+    private string? Error;
+    private HttpClient Http => HttpClientFactory.CreateClient("BackendApi");
+
+    public async Task HandleSubmit()
+    {
+        isLoading = true;
+
+        try
+        {
+            var res = await Http.PostAsJsonAsync("api/auth/login", loginDto);
+
+            if (res.IsSuccessStatusCode)
+            {
+                var tokenResponse = await res.Content.ReadFromJsonAsync<TokenResponse>();
+                await TokenStore.SetTokensAsync(tokenResponse!.AccessToken, tokenResponse.RefreshToken);
+
+                Nav.NavigateTo("/app/dashboard");
+                return;
+            }
+
+            Error = await res.Content.ReadAsStringAsync();
+        } catch (Exception e)
+        {
+            Error = e.Message;
+        } finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private class LoginModel
+    {
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+
+    private class TokenResponse
+    {
+        public string AccessToken { get; set; } = "";
+        public string RefreshToken { get; set; } = "";
+        public string TokenType { get; set; } = "";
+    }
+}
+
+@* @page "/"
+@layout MainLayout
+
+@rendermode InteractiveServer
+
+@using TimeManager.Frontend.Components.Shared
+
 @inject HttpClient Http
 @inject NavigationManager Navigation
 
@@ -33,26 +135,25 @@
                 <ValidationSummary class="text-red-600 mb-4" />
 
                 @if (!String.IsNullOrEmpty(@Error))
-                {   
-                <div class="error-alert">
-                    <div class="flex">
-                        <div class="text-sm text-red-700">
-                            <p>@Error</p>
+                {
+                    <div class="error-alert">
+                        <div class="flex">
+                            <div class="text-sm text-red-700">
+                                <p>@Error</p>
+                            </div>
                         </div>
                     </div>
-                </div>
                 }
 
                 <Input @bind-Value="loginDto.Email" Required Label="User ID / Username" Name="username" Placeholder="Enter your user ID" />
                 <Input @bind-Value="loginDto.Password" Required Type="password" Label="Password" Name="password" Placeholder="Enter your password" />
 
-                <CustomButton 
-                    Loading="@isLoading" 
-                    Disabled="@isLoading" 
-                    Type="submit" 
-                    Classes="btn-submit">
+                <CustomButton Loading="@isLoading"
+                              Disabled="@isLoading"
+                              Type="submit"
+                              Classes="btn-submit">
                     Submit
-                   </CustomButton>
+                </CustomButton>
             </EditForm>
         </div>
     </div>
@@ -74,13 +175,25 @@
     {
         isLoading = true;
 
-        var (success, err) = await AuthProvider.LoginAsync(loginDto.Email, loginDto.Password);
-        if (success)
-            Navigation.NavigateTo("/app/dashboard", forceLoad: true);
-        else
-            Error = err;
 
-        isLoading = false;
+        try
+        {
+            var res = await Http.PostAsJsonAsync("/api/auth/login", loginDto);
+
+            if (res.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/app/dashboard");
+            } else
+            {
+                Error = await res.Content.ReadAsStringAsync();
+            }
+        } catch (Exception ex)
+        {
+            Error = ex.Message;
+        } finally
+        {
+            isLoading = false;
+        }
     }
 
     private class LoginModel
@@ -88,4 +201,4 @@
         public string Email { get; set; } = "";
         public string Password { get; set; } = "";
     }
-}
+} *@

@@ -1,13 +1,8 @@
-using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Services;
 using TimeManager.Backend.Shared;
 
 DotNetEnv.Env.Load();
@@ -51,11 +46,20 @@ var serverVersion = ServerVersion.AutoDetect(connectionString);
 builder.Services.AddDbContext<HrmsDbContext>(options =>
     options.UseMySql(connectionString, serverVersion));
 builder.Services.AddScoped<PayPeriodUtility>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IUnitService, UnitService>();
+builder.Services.AddScoped<IPayPeriodService, PayPeriodService>();
+builder.Services.AddScoped<IJobProfileService, JobProfileService>();
 
 //builder.Services.AddDbContext<HrmsDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultServer")));
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+//builder.Services.AddRazorPages().AddRazorPagesOptions(options =>
+//{
+//    options.Conventions.AuthorizeFolder("/App");
+//});
 
 var app = builder.Build();
 
@@ -63,6 +67,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+}
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
 
 app.UseDefaultFiles();

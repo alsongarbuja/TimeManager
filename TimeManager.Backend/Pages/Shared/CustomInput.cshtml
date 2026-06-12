@@ -1,0 +1,35 @@
+﻿@model TimeManager.Backend.Models.Components.InputFieldViewModel
+
+@{
+}
+
+<div class="form-group">
+    @if (!string.IsNullOrEmpty(@Model.Label))
+    {
+        <label for="@Model.Id" class="form-label">
+            @Model.Label
+            @if (@Model.Required)
+            {
+                <span class="form-required">*</span>
+            }
+        </label>
+    }
+
+    <div class="form-input-wrapper">
+        <input id="@Model.Id"
+               name="@Model.Name"
+               type="@Model.Type"
+               @* value="@Model.Value" *@
+               placeholder="@Model.Placeholder"
+               required="@Model.Required"
+        @* oninput ="@Model.OnChange" *@
+        class="form-input"
+        autofocus="@Model.AutoFocus" />
+
+    </div>
+
+    @if (!string.IsNullOrEmpty(@Model.Error))
+    {
+        <p class="form-error">@Model.Error</p>
+    }
+</div>

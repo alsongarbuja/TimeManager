@@ -1,0 +1,137 @@
+﻿@page
+@model TimeManager.Backend.Pages.App.ReportModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Report Generation";
+
+    var centralTimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
+}
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <h2 class="display-6 fw-bold">Report Generation</h2>
+        <p class="text-muted">Generate report for the pay period</p>
+    </div>
+
+    <hr />
+
+    <div class="card shadow-sm border-0 bg-light p-4 mb-4">
+        <form method="post" asp-page-handler="GenerateReport">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="PayPeriodId" class="form-label fw-semibold">Pay Period <span class="text-danger">*</span></label>
+                    <select id="PayPeriodId" name="PayPeriodId" class="form-select" required>
+                        <option value="">-- Select Pay Period --</option>
+                        @foreach (var period in Model.PayPeriods)
+                        {
+                            var localStart = TimeZoneInfo.ConvertTime(period.StartDate, centralTimeZone);
+                            var localEnd = TimeZoneInfo.ConvertTime(period.EndDate, centralTimeZone);
+
+                            <option value="@period.Id">@localStart.ToString("MMM d, yyyy") - @localEnd.ToString("MMM d, yyyy")</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="UnitId" class="form-label fw-semibold">Unit</label>
+                    <select id="UnitId" name="UnitId" class="form-select">
+                        <option value="">-- All Units --</option>
+                        @foreach (var unit in Model.Units)
+                        {
+                            <option value="@unit.Id">@unit.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="UserId" class="form-label fw-semibold">User / Employee</label>
+                    <select id="UserId" name="UserId" class="form-select">
+                        <option value="">-- All Users --</option>
+                        @foreach (var user in Model.Users)
+                        {
+                            <option value="@user.Id">@user.Employee.FirstName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-file-earmark-bar-graph"></i> Generate Report
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.ShowReportModal && Model.ReportData != null)
+{
+    <div class="modal fade show d-block" id="reportModal" tabindex="-1" style="background: rgba(0,0,0,0.5);" role="dialog">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-table"></i> Generated Pay Period Report</h5>
+                    <form method="get" class="m-0">
+                        <button type="submit" class="btn-close btn-close-white" aria-label="Close"></button>
+                    </form>
+                </div>
+                <div class="modal-body overflow-auto">
+
+                    <table class="table table-bordered table-striped text-center align-middle">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th rowspan="2" class="align-middle bg-light" style="width: 10%;">Type</th>
+                                <th colspan="7" class="border-end">Week One</th>
+                                <th colspan="7">Week Two</th>
+                            </tr>
+                            <tr>
+                                <th class="text-muted small">Sun</th>
+                                <th class="text-muted small">Mon</th>
+                                <th class="text-muted small">Tue</th>
+                                <th class="text-muted small">Wed</th>
+                                <th class="text-muted small">Thu</th>
+                                <th class="text-muted small">Fri</th>
+                                <th class="text-muted small" class="border-end">Sat</th>
+
+                                <th class="text-muted small">Sun</th>
+                                <th class="text-muted small">Mon</th>
+                                <th class="text-muted small">Tue</th>
+                                <th class="text-muted small">Wed</th>
+                                <th class="text-muted small">Thu</th>
+                                <th class="text-muted small">Fri</th>
+                                <th class="text-muted small">Sat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in Model.ReportData.Rows)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-start bg-light">@row.HourType</td>
+
+                                    @foreach (var hours in row.WeekOneHours)
+                                    {
+                                        <td>@(hours > 0 ? hours.ToString() : "-")</td>
+                                    }
+
+                                    @foreach (var hours in row.WeekTwoHours)
+                                    {
+                                        <td>@(hours > 0 ? hours.ToString() : "-")</td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-footer">
+                    <form method="get">
+                        <button type="submit" class="btn btn-secondary">Close</button>
+                    </form>
+                    <button type="button" class="btn btn-success" onclick="window.print()">
+                        <i class="bi bi-printer"></i> Print / Export PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

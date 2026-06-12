@@ -1,0 +1,75 @@
+﻿@page
+@model TimeManager.Backend.Pages.App.Department.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Department";
+
+    List<string> Headers = ["Name", "Description"];
+}
+
+<div class="page-container">
+    <div class="page-content-wrapper">
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">
+                    Department
+                </h1>
+
+                <p class="page-subtitle">
+                    Manage the departments
+                </p>
+            </div>
+
+            <a href="department/add"
+                class="btn-create">
+                Create
+            </a>
+        </div>
+
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="data-table">
+
+                    <thead class="table-header">
+                        <tr>
+                            @foreach (var header in Headers)
+                            {
+                                <th class="table-header-cell">
+                                    @header
+                                </th>
+                            }
+                            <th class="table-header-cell">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="table-body">
+                        @if (Model.Departments.Count() <= 0)
+                        {
+                            <tr>
+                                <td colspan="@Headers.Count"
+                                    class="table-empty-cell">
+                                    No data available
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var d in Model.Departments)
+                            {
+                                <tr class="table-row">
+                                    <td class="table-cell">@d.Name</td>
+                                    <td class="table-cell table-desc">@d.Description</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>

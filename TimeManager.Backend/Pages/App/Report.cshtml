@@ -49,7 +49,7 @@
                         <option value="">-- All Users --</option>
                         @foreach (var user in Model.Users)
                         {
-                            <option value="@user.Id">@user.Employee.FirstName</option>
+                            <option value="@user.Id">@user.EmployeeString</option>
                         }
                     </select>
                 </div>

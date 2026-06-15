@@ -1,0 +1,32 @@
+﻿@page
+@model TimeManager.Backend.Pages.App.JobProfile.IndexModel
+@{
+    Layout = "_ListWrapper";
+    ViewData["Title"] = "Job Profile";
+
+    List<string> Headers = ["Name", "Profile Template"];
+    ViewData["Headers"] = Headers;
+    ViewData["ModuleTitle"] = "Job Profile";
+    ViewData["ModuleDesc"] = "Manage the job profiles in the system";
+    ViewData["CreateUrl"] = "jobprofile/add";
+}
+
+@if (Model.JobProfiles.Count() <= 0)
+{
+    <tr>
+        <td colspan="@Headers.Count"
+            class="table-empty-cell">
+            No data available
+        </td>
+    </tr>
+}
+else
+{
+    foreach (var d in Model.JobProfiles)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@d.EmployeeString</td>
+            <td class="table-cell">@d.ProfileTemplateString</td>
+        </tr>
+    }
+}

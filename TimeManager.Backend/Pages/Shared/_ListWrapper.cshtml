@@ -1,0 +1,57 @@
+﻿@{
+    Layout = "_AdminLayout";
+    var headers = ViewData["Headers"] as List<string>;
+    var createUrl = ViewData["CreateUrl"] as string;
+}
+
+<div class="page-container">
+    <div class="page-content-wrapper">
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">
+                    @ViewData["ModuleTitle"]
+                </h1>
+
+                <p class="page-subtitle">
+                    @ViewData["ModuleDesc"]
+                </p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(createUrl))
+            {
+                <a href="@createUrl"
+                   class="btn-create">
+                    Create
+                </a>
+            }
+        </div>
+
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="data-table">
+
+                    <thead class="table-header">
+                        <tr>
+                            @foreach (var header in headers)
+                            {
+                                <th class="table-header-cell">
+                                    @header
+                                </th>
+                            }
+                            <th class="table-header-cell">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="table-body">
+                        @RenderBody()
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>

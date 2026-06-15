@@ -1,0 +1,34 @@
+﻿@page
+@model TimeManager.Backend.Pages.App.Employee.IndexModel
+@{
+    Layout = "_ListWrapper";
+    ViewData["Title"] = "Employees";
+
+    List<string> Headers = ["SO ID", "Frist Name", "Last Name", "Email"];
+    ViewData["Headers"] = Headers;
+    ViewData["ModuleTitle"] = "Employee";
+    ViewData["ModuleDesc"] = "Manage the employees in the system";
+    ViewData["CreateUrl"] = "employee/add";
+}
+
+@if (Model.Employees.Count() <= 0)
+{
+    <tr>
+        <td colspan="@Headers.Count"
+            class="table-empty-cell">
+            No data available
+        </td>
+    </tr>
+}
+else
+{
+    foreach (var d in Model.Employees)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@d.UniqueId</td>
+            <td class="table-cell">@d.FirstName</td>
+            <td class="table-cell">@d.LastName</td>
+            <td class="table-cell">@d.Email</td>
+        </tr>
+    }
+}

@@ -1,17 +1,17 @@
 ﻿@page
-@model TimeManager.Backend.Pages.App.Department.IndexModel
+@model TimeManager.Backend.Pages.App.Role.IndexModel
 @{
     Layout = "_ListWrapper";
-    ViewData["Title"] = "Department";
+    ViewData["Title"] = "Role";
 
     List<string> Headers = ["Name", "Description"];
     ViewData["Headers"] = Headers;
-    ViewData["ModuleTitle"] = "Department";
-    ViewData["ModuleDesc"] = "Manage the department data in the system";
-    ViewData["CreateUrl"] = "department/add";
+    ViewData["ModuleTitle"] = "Role";
+    ViewData["ModuleDesc"] = "Manage the roles in the system";
+    ViewData["CreateUrl"] = "role/add";
 }
 
-@if (Model.Departments.Count() <= 0)
+@if (Model.Roles.Count() <= 0)
 {
     <tr>
         <td colspan="@Headers.Count"
@@ -22,7 +22,7 @@
 }
 else
 {
-    foreach (var d in Model.Departments)
+    foreach (var d in Model.Roles)
     {
         <tr class="table-row">
             <td class="table-cell">@d.Name</td>

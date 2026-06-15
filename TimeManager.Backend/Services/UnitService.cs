@@ -21,7 +21,14 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<Unit>> GetUnitsAysnc()
         {
-            var units = await _context.Unit.ToListAsync();
+            var units = await _context.Unit.Select(u => new Unit
+            {
+                Id = u.Id,
+                Name = u.Name,
+                DepartmentId = u.DepartmentId,
+                Department = u.Department,
+                Description = u.Description,
+            }).ToListAsync();
             return units;
         }
     }

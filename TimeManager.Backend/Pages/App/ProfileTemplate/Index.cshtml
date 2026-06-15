@@ -1,0 +1,34 @@
+﻿@page
+@model TimeManager.Backend.Pages.App.ProfileTemplate.IndexModel
+@{
+    Layout = "_ListWrapper";
+    ViewData["Title"] = "Profile Template";
+
+    List<string> Headers = ["Unit", "Role", "Shift Start Time", "Early clock in buffer"];
+    ViewData["Headers"] = Headers;
+    ViewData["ModuleTitle"] = "Profile Template";
+    ViewData["ModuleDesc"] = "Manage the profile templates in the system";
+    ViewData["CreateUrl"] = "profiletemplate/add";
+}
+
+@if (Model.ProfileTemplates.Count() <= 0)
+{
+    <tr>
+        <td colspan="@Headers.Count"
+            class="table-empty-cell">
+            No data available
+        </td>
+    </tr>
+}
+else
+{
+    foreach (var d in Model.ProfileTemplates)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@d.Unit.Name</td>
+            <td class="table-cell">@d.Role.Name</td>
+            <td class="table-cell">@d.ShiftStartTime</td>
+            <td class="table-cell">@d.EarlyClockInBufferMin min</td>
+        </tr>
+    }
+}

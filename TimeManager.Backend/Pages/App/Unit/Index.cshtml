@@ -1,0 +1,33 @@
+﻿@page
+@model TimeManager.Backend.Pages.App.Unit.IndexModel
+@{
+    Layout = "_ListWrapper";
+    ViewData["Title"] = "Unit";
+
+    List<string> Headers = ["Name",  "Department", "Description"];
+    ViewData["Headers"] = Headers;
+    ViewData["ModuleTitle"] = "Unit";
+    ViewData["ModuleDesc"] = "Manage the unit data in the system";
+    ViewData["CreateUrl"] = "unit/add";
+}
+
+@if (Model.Units.Count() <= 0)
+{
+    <tr>
+        <td colspan="@Headers.Count"
+            class="table-empty-cell">
+            No data available
+        </td>
+    </tr>
+}
+else
+{
+    foreach (var d in Model.Units)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@d.Name</td>
+            <td class="table-cell">@d.Department.Name</td>
+            <td class="table-cell table-desc">@d.Description</td>
+        </tr>
+    }
+}

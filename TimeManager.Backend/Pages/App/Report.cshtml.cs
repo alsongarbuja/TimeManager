@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using TimeManager.Backend.Models.Employee_Management;
-using Unit = TimeManager.Backend.Models.Organization_Management.Unit;
-using TimeManager.Backend.Models.Punch_Management;
+using U = TimeManager.Backend.Models.Organization_Management.Unit;
+using PP = TimeManager.Backend.Models.Punch_Management.PayPeriod;
 using TimeManager.Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,9 +19,9 @@ namespace TimeManager.Backend.Pages.App
             //_unitService = unitService;
         }
 
-        public IEnumerable<PayPeriod> PayPeriods { get; set; } = [];
-        public IEnumerable<Unit> Units { get; set; } = [];
-        public IEnumerable<JobProfile> Users { get; set; } = [];
+        public IEnumerable<PP> PayPeriods { get; set; } = [];
+        public IEnumerable<U> Units { get; set; } = [];
+        public IEnumerable<JobProfileData> Users { get; set; } = [];
 
         public bool ShowReportModal { get; set; }
         public ReportMatrixResult ReportData { get; set; }

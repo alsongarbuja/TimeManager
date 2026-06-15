@@ -48,7 +48,12 @@ builder.Services.AddDbContext<HrmsDbContext>(options =>
 builder.Services.AddScoped<PayPeriodUtility>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IPayFrequencyService, PayFrequencyService>();
+builder.Services.AddScoped<IEmployeeTypeService, EmployeeTypeService>();
 builder.Services.AddScoped<IPayPeriodService, PayPeriodService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IProfileTemplateService, ProfileTemplateService>();
 builder.Services.AddScoped<IJobProfileService, JobProfileService>();
 
 //builder.Services.AddDbContext<HrmsDbContext>(options =>

@@ -3,12 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Organization_Management;
+using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Services
 {
     public interface IDepartmentService
     {
-        Task<IEnumerable<Department>> GetDepartmentsAsync();
+        Task<IEnumerable<DepartmentViewModel>> GetDepartmentsAsync();
         Task CreateDepartmentAsync(DepartmentDto departmentDto);
     }
 
@@ -27,9 +28,14 @@ namespace TimeManager.Backend.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Department>> GetDepartmentsAsync()
+        public async Task<IEnumerable<DepartmentViewModel>> GetDepartmentsAsync()
         {
-            var data = await _context.Department.ToListAsync();
+            var data = await _context.Department.Select(d => new DepartmentViewModel
+            {
+                Id = d.Id,
+                Name = d.Name,
+                Description = d.Description,
+            }).ToListAsync();
             return data;
         }
     }

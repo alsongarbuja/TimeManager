@@ -91,7 +91,20 @@ app.UseAuthorization();
 
 app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 app.MapControllers();
-app.MapRazorPages();
+
+// MVC view route setup 
+app.MapControllerRoute(
+    name: "login",
+    pattern: "", 
+    defaults: new { controller = "Account", action = "login" }
+);
+
+app.MapControllerRoute(
+    name: "app",
+    pattern: "app/{controller=Dashboard}/{action=Index}/{id?}"
+);
+
+//app.MapRazorPages();
 
 await DataSeeder.SeedDataAsync(app.Services);
 

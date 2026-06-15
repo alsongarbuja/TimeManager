@@ -9,7 +9,7 @@
     <div class="page-content-wrapper">
 
         <div class="page-header">
-            <a href="@backUrl"
+            <a asp-action"="Index"
                class="btn-back">
                 ← Back
             </a>
@@ -24,18 +24,17 @@
                 </p>
             </div>
 
-            
-
         </div>
 
         <div class="form-card">
-
-@RenderBody()
-
-
+            @RenderBody()
         </div>
 
     </div>
 </div>
 
-@await RenderSectionAsync("Scripts", required: false)
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

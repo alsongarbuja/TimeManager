@@ -1,6 +1,5 @@
-﻿@page
-@model TimeManager.Backend.Pages.App.Department.IndexModel
-@using TimeManager.Backend.Models.Components
+﻿@using TimeManager.Backend.ViewModels
+@model IEnumerable<DepartmentViewModel>
 
 @{
     Layout = "_ListWrapper";
@@ -10,10 +9,10 @@
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Department";
     ViewData["ModuleDesc"] = "Manage the department data in the system";
-    ViewData["CreateUrl"] = "department/add";
+    ViewData["hasCreate"] = true;
 }
 
-@if (Model.Departments.Count() <= 0)
+@if (Model.Count() <= 0)
 {
     <tr>
         <td colspan="@Headers.Count"
@@ -24,17 +23,17 @@
 }
 else
 {
-    foreach (var d in Model.Departments)
+    foreach (var d in Model)
     {
         <tr class="table-row">
             <td class="table-cell">@d.Name</td>
             <td class="table-cell table-desc">@d.Description</td>
             <td class="table-cell flex">
-                @await Html.PartialAsync("ActionTd", new ActionTdViewModel
-{
-            EditUrl = "#",
-            DeleteUrl = "#"
-})
+                @* @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+                {
+                    EditUrl = "#",
+                    DeleteUrl = "#"
+                }) *@
             </td>
         </tr>
     }

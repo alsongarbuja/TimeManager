@@ -1,0 +1,41 @@
+﻿@{
+    Layout = "_AdminLayout";
+    var backUrl = ViewData["BackUrl"] as string;
+    var title = ViewData["ModuleTitle"] as string;
+    var subtitle = ViewData["ModuleSubtitle"] as string;
+}
+
+<div class="page-container">
+    <div class="page-content-wrapper">
+
+        <div class="page-header">
+            <a href="@backUrl"
+               class="btn-back">
+                ← Back
+            </a>
+
+            <div>
+                <h1 class="page-title">
+                    @title
+                </h1>
+
+                <p class="page-subtitle">
+                    @subtitle
+                </p>
+            </div>
+
+            
+
+        </div>
+
+        <div class="form-card">
+
+@RenderBody()
+
+
+        </div>
+
+    </div>
+</div>
+
+@await RenderSectionAsync("Scripts", required: false)

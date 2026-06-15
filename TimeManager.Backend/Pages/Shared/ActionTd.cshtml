@@ -1,0 +1,20 @@
+﻿@model TimeManager.Backend.Models.Components.ActionTdViewModel
+
+@{
+}
+
+<td class="table-actions">
+    @if (!string.IsNullOrEmpty(Model.DeleteUrl))
+    {
+        <button class="btn btn-action-delete" onclick="@Model.DeleteUrl">
+            <i class="ri-delete-bin-7-line"></i>
+        </button>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.EditUrl))
+    {
+        <a href="@Model.EditUrl" class="btn btn-action-edit">
+            <i class="ri-edit-line"></i>
+        </a>
+    }
+</td>

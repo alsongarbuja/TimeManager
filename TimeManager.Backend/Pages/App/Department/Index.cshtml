@@ -1,5 +1,7 @@
 ﻿@page
 @model TimeManager.Backend.Pages.App.Department.IndexModel
+@using TimeManager.Backend.Models.Components
+
 @{
     Layout = "_ListWrapper";
     ViewData["Title"] = "Department";
@@ -27,6 +29,13 @@ else
         <tr class="table-row">
             <td class="table-cell">@d.Name</td>
             <td class="table-cell table-desc">@d.Description</td>
+            <td class="table-cell flex">
+                @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+{
+            EditUrl = "#",
+            DeleteUrl = "#"
+})
+            </td>
         </tr>
     }
 }

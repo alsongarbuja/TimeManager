@@ -1,0 +1,24 @@
+﻿@page
+@model TimeManager.Backend.Pages.App.Department.AddModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Department - Add";
+    ViewData["ModuleTitle"] = "Create Department";
+    ViewData["ModuleSubtitle"] = "Add new department";
+    ViewData["BackUrl"] = "/app/department";
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    
+    <partial name="CustomInput" model="@Model.Name" />
+
+    <partial name="CustomInput" model="@Model.Description" />
+   
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+@* 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} *@

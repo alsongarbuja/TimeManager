@@ -105,11 +105,11 @@
                     <ul class="sidebar-nav-list">
                         @foreach (var link in grp.LinkData)
                         {
-                            var targetUrl = $"/App/{link.Url}";
+                            var targetUrl = $"/app/{link.Url}";
 
-                            bool IsActive = string.Equals(ViewContext.HttpContext.Request.Path, targetUrl, StringComparison.OrdinalIgnoreCase);
+                            bool IsActive = string.Equals(ViewContext.HttpContext.Request.Path.ToString().Split("/")[2], link.Url, StringComparison.OrdinalIgnoreCase);
                             <li>
-                                <a href="@link.Url" class="sidebar-link @(IsActive ? "is-active" : "")">
+                                <a href="@targetUrl" class="sidebar-link @(IsActive ? "is-active" : "")">
                                     <i class="@link.IconClass sidebar-link-icon"></i>
                                     <span>@link.Text</span>
                                 </a>

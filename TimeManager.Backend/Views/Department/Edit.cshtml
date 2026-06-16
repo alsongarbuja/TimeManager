@@ -2,14 +2,14 @@
 
 @{
     Layout = "_FormWrapper";
-    ViewData["Title"] = "Department - Add";
-    ViewData["ModuleTitle"] = "Create Department";
-    ViewData["ModuleSubtitle"] = "Add new department";
+    ViewData["Title"] = "Department - Edit";
+    ViewData["ModuleTitle"] = "Edit Department";
+    ViewData["ModuleSubtitle"] = "Update department data";
 }
 
-<form asp-controller="Department" asp-action="Create" method="post">
+<form asp-controller="Department" asp-action="Edit" method="post" asp-route-id="@Model.Id">
     @Html.AntiForgeryToken()
-
+    
     <custom-input asp-for="Name" />
     <custom-input asp-for="Description" />
 

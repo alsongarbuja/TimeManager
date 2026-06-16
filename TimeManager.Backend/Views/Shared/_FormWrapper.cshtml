@@ -9,8 +9,7 @@
     <div class="page-content-wrapper">
 
         <div class="page-header">
-            <a asp-action"="Index"
-               class="btn-back">
+            <a asp-controller="Department" asp-action="Index" class="btn-back">
                 ← Back
             </a>
 
@@ -33,8 +32,8 @@
     </div>
 </div>
 
-@section Scripts {
+@* @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+} *@

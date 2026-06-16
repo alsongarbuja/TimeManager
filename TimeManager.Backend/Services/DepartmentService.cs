@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
@@ -10,7 +11,10 @@ namespace TimeManager.Backend.Services
     public interface IDepartmentService
     {
         Task<IEnumerable<DepartmentViewModel>> GetDepartmentsAsync();
+        Task<Department> GetDepartmentByIdAsync(int id);
         Task CreateDepartmentAsync(DepartmentDto departmentDto);
+        Task<Department?> UpdateDepartmentAsync(int id, DepartmentDto departmentDto);
+        Task<int?> DeleteDepartmentByIdAsync(int id);
     }
 
     public class DepartmentService: IDepartmentService
@@ -28,6 +32,23 @@ namespace TimeManager.Backend.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task<int?> DeleteDepartmentByIdAsync(int id)
+        {
+            var dept = await _context.Department.FindAsync(id);
+            if (dept == null) return null;
+
+            _context.Department.Remove(dept);
+            await _context.SaveChangesAsync();
+
+            return id;
+        }
+
+        public async Task<Department> GetDepartmentByIdAsync(int id)
+        {
+            var data = await _context.Department.FindAsync(id);
+            return data;
+        }
+
         public async Task<IEnumerable<DepartmentViewModel>> GetDepartmentsAsync()
         {
             var data = await _context.Department.Select(d => new DepartmentViewModel
@@ -37,6 +58,17 @@ namespace TimeManager.Backend.Services
                 Description = d.Description,
             }).ToListAsync();
             return data;
+        }
+
+        public async Task<Department?> UpdateDepartmentAsync(int id, DepartmentDto departmentDto)
+        {
+            var dept = await _context.Department.FindAsync(id);
+            if (dept == null) return null;
+
+            _context.Entry(dept).CurrentValues.SetValues(departmentDto);
+            await _context.SaveChangesAsync();
+
+            return dept;
         }
     }
 

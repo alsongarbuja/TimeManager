@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "_AdminLayout";
     var headers = ViewData["Headers"] as List<string>;
-    var hasCreate = ViewData["HasCreate"] as string;
+    var hasCreateController = ViewData["Controller"] as string;
 }
 
 <div class="page-container">
@@ -18,9 +18,9 @@
                 </p>
             </div>
 
-            @if (!string.IsNullOrEmpty(hasCreate))
+            @if (!string.IsNullOrEmpty(hasCreateController))
             {
-                <a asp-action="Create" class="btn-create">
+                <a asp-controller="@hasCreateController" asp-action="Create" class="btn-create">
                     Create
                 </a>
             }

@@ -1,4 +1,5 @@
-﻿@using TimeManager.Backend.ViewModels
+﻿@using TimeManager.Backend.Models.Components
+@using TimeManager.Backend.ViewModels
 @model IEnumerable<DepartmentViewModel>
 
 @{
@@ -9,7 +10,7 @@
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Department";
     ViewData["ModuleDesc"] = "Manage the department data in the system";
-    ViewData["hasCreate"] = true;
+    ViewData["Controller"] = "Department";
 }
 
 @if (Model.Count() <= 0)
@@ -28,13 +29,13 @@ else
         <tr class="table-row">
             <td class="table-cell">@d.Name</td>
             <td class="table-cell table-desc">@d.Description</td>
-            <td class="table-cell flex">
-                @* @await Html.PartialAsync("ActionTd", new ActionTdViewModel
-                {
-                    EditUrl = "#",
-                    DeleteUrl = "#"
-                }) *@
-            </td>
+            @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+{
+        Controller = "Department",
+        Id = d.Id,
+        hasEdit = true,
+        hasDelete = true,
+})
         </tr>
     }
 }

@@ -4,16 +4,19 @@
 }
 
 <td class="table-actions">
-    @if (!string.IsNullOrEmpty(Model.DeleteUrl))
+    @if(Model.hasDelete)
     {
-        <button class="btn btn-action-delete" onclick="@Model.DeleteUrl">
-            <i class="ri-delete-bin-7-line"></i>
-        </button>
+        <form method="post" asp-controller="@Model.Controller" asp-action="Delete" asp-route-id="@Model.Id" onsubmit="return confirm('Delete this department?')">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-action-delete">
+                <i class="ri-delete-bin-7-line"></i>
+            </button>
+        </form>
     }
 
-    @if (!string.IsNullOrEmpty(Model.EditUrl))
+    @if(Model.hasEdit)
     {
-        <a href="@Model.EditUrl" class="btn btn-action-edit">
+        <a asp-controller="@Model.Controller" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-action-edit">
             <i class="ri-edit-line"></i>
         </a>
     }

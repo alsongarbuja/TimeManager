@@ -2,7 +2,10 @@
 {
     public class ActionTdViewModel
     {
-        public string? DeleteUrl { get; set; }
-        public string? EditUrl { get; set; }
+        public bool hasDelete { get; set; }
+        public bool hasEdit { get; set; }
+
+        public string Controller { get; set; }
+        public int Id { get; set; }
     }
 }

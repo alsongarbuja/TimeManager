@@ -3,13 +3,14 @@
     var backUrl = ViewData["BackUrl"] as string;
     var title = ViewData["ModuleTitle"] as string;
     var subtitle = ViewData["ModuleSubtitle"] as string;
+    var Controller = ViewData["Controller"] as string;
 }
 
 <div class="page-container">
     <div class="page-content-wrapper">
 
         <div class="page-header">
-            <a asp-controller="Department" asp-action="Index" class="btn-back">
+            <a asp-controller="@Controller" asp-action="Index" class="btn-back">
                 ← Back
             </a>
 

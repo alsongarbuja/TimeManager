@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.Organization.Dto;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Organization_Management;
+using U = TimeManager.Backend.Models.Organization_Management.Unit;
 
 namespace TimeManager.Backend.Controllers.Organization
 {
@@ -18,9 +18,9 @@ namespace TimeManager.Backend.Controllers.Organization
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Unit>>> GetUnits()
+        public async Task<ActionResult<IEnumerable<U>>> GetUnits()
         {
-            var data = await _context.Unit.Select(u => new Unit
+            var data = await _context.Unit.Select(u => new U
             {
                 Id = u.Id,
                 Name = u.Name,
@@ -32,7 +32,7 @@ namespace TimeManager.Backend.Controllers.Organization
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Unit>> GetUnit(int id)
+        public async Task<ActionResult<U>> GetUnit(int id)
         {
             var unit = await _context.Unit.FindAsync(id);
 
@@ -45,9 +45,9 @@ namespace TimeManager.Backend.Controllers.Organization
         }
 
         [HttpPost]
-        public async Task<ActionResult<Unit>> CreateUnit([FromBody] UnitDto unitDto)
+        public async Task<ActionResult<U>> CreateUnit([FromBody] UnitDto unitDto)
         {
-            var data = _context.Unit.Add(new Unit
+            var data = _context.Unit.Add(new U
             {
                 Name = unitDto.Name,
                 Description = unitDto.Description,
@@ -60,7 +60,7 @@ namespace TimeManager.Backend.Controllers.Organization
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<Unit>> UpdateUnit(int id, [FromBody] UnitDto unitDto)
+        public async Task<ActionResult<U>> UpdateUnit(int id, [FromBody] UnitDto unitDto)
         {
             var unit = await GetUnitById(id);
 
@@ -90,9 +90,9 @@ namespace TimeManager.Backend.Controllers.Organization
             return NoContent();
         }
 
-        private async Task<Unit?> GetUnitById(int id)
+        private async Task<U?> GetUnitById(int id)
         {
-            Unit? u = await _context.Unit.FindAsync(id);
+            U? u = await _context.Unit.FindAsync(id);
             return u;
         }
     }

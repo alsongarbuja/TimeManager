@@ -6,7 +6,7 @@
 <td class="table-actions">
     @if(Model.hasDelete)
     {
-        <form method="post" asp-controller="@Model.Controller" asp-action="Delete" asp-route-id="@Model.Id" onsubmit="return confirm('Delete this department?')">
+        <form method="post" asp-controller="@Model.Controller" asp-action="Delete" asp-route-id="@Model.Id" onsubmit="return confirm('Delete this resource?')">
             @Html.AntiForgeryToken()
             <button type="submit" class="btn btn-action-delete">
                 <i class="ri-delete-bin-7-line"></i>

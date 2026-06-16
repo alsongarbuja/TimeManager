@@ -1,13 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Employee_Management;
 
 namespace TimeManager.Backend.Services
 {
     public interface IJobProfileService
     {
         Task<IEnumerable<JobProfileData>> GetJobProfilesAsync();
+        Task<IEnumerable<SelectListItem>> GetUserOptionsAsync();
     }
 
     public class JobProfileService: IJobProfileService
@@ -32,6 +34,17 @@ namespace TimeManager.Backend.Services
                 ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
             }).ToListAsync();
             return jobprofiles;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync()
+        {
+            var users = await _context.JobProfile.Select(jp => new SelectListItem
+            {
+                Value = jp.Id.ToString(),
+                Text = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
+            }).ToListAsync();
+
+            return users;
         }
     }
 

@@ -55,6 +55,7 @@ builder.Services.AddScoped<IPayPeriodService, PayPeriodService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IProfileTemplateService, ProfileTemplateService>();
 builder.Services.AddScoped<IJobProfileService, JobProfileService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 //builder.Services.AddDbContext<HrmsDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultServer")));

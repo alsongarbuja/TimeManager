@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.Organization.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Organization_Management;
@@ -13,6 +14,8 @@ namespace TimeManager.Backend.Services
         Task CreateUnitAsync(UnitDto departmentDto);
         Task<Unit?> UpdateUnitAsync(int id, UnitDto departmentDto);
         Task<int?> DeleteUnitByIdAsync(int id);
+
+        Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync();
     }
 
     public class UnitService: IUnitService
@@ -56,6 +59,16 @@ namespace TimeManager.Backend.Services
                 Department = u.Department,
             }).FirstOrDefaultAsync();
             return unit;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync()
+        {
+            var units = await _context.Unit.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = $"{u.Name} - {u.Department.Name}",
+            }).ToListAsync();
+            return units;
         }
 
         public async Task<IEnumerable<UnitViewModel>> GetUnitsAysnc()

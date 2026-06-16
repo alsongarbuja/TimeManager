@@ -1,0 +1,91 @@
+﻿@model TimeManager.Backend.ViewModels.ReportViewModel
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Report Generate";
+
+    TimeZoneInfo.FindSystemTimeZoneById(
+    System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
+        System.Runtime.InteropServices.OSPlatform.Windows)
+            ? "Central Standard Time"
+            : "America/Chicago");
+}
+
+<div class="page-container">
+    <div class="page-content-wrapper">
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">
+                    Reports
+                </h1>
+
+                <p class="page-subtitle">
+                    Get Reports by Unit or Employee Profile
+                </p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 bg-light p-4 mb-4">
+            <form asp-controller="Report" method="post" asp-action="GenerateReportByJPId">
+                @Html.AntiForgeryToken()
+                <div class="row g-3">
+                    <custom-select 
+                        asp-for="PayPeriodId"
+                        asp-items="@Model.PayPeriods"
+                        placeholder="-- Select Pay Period"
+                    />
+                    @* <div class="col-md-4">
+                        <label for="PayPeriodId" class="form-label fw-semibold">Pay Period</label>
+                        <select id="PayPeriodId" name="PayPeriodId" class="form-select">
+                            <option value="">-- Select Pay Period --</option>
+                            @foreach (var period in Model.PayPeriods)
+                            {
+                                <option value="@period.Id">@period.PayPeriodName</option>
+                            }
+                        </select>
+                    </div> *@
+
+                    @* <div class="col-md-4">
+                        <label for="UnitId" class="form-label fw-semibold">Unit</label>
+                        <select id="UnitId" name="UnitId" class="form-select">
+                            <option value="">-- All Units --</option>
+                            @foreach (var unit in Model.Units)
+                            {
+                                <option value="@unit.Id">@unit.UnitName</option>
+                            }
+                        </select>
+                    </div> *@
+
+                    <custom-select
+                        asp-for="UnitId"
+                        asp-items="@Model.Units"
+                        placeholder="-- Select Unit --" />
+
+                    <custom-select 
+                        asp-for="UserId"
+                        asp-items="@Model.Users"
+                        placeholder="-- Select User --"
+                    />
+
+                    @* <div class="col-md-4">
+                        <label for="UserId" class="form-label fw-semibold">User / Employee <span class="text-danger">*</span></label>
+                        <select id="UserId" name="UserId" class="form-select" required>
+                            <option value="">-- All Users --</option>
+                            @foreach (var user in Model.Users)
+                            {
+                                <option value="@user.Id">@user.EmployeeName</option>
+                            }
+                        </select>
+                    </div> *@
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-file-earmark-bar-graph"></i> Generate Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

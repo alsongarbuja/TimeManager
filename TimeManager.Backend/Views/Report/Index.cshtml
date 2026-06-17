@@ -35,57 +35,40 @@
                         asp-items="@Model.PayPeriods"
                         placeholder="-- Select Pay Period"
                     />
-                    @* <div class="col-md-4">
-                        <label for="PayPeriodId" class="form-label fw-semibold">Pay Period</label>
-                        <select id="PayPeriodId" name="PayPeriodId" class="form-select">
-                            <option value="">-- Select Pay Period --</option>
-                            @foreach (var period in Model.PayPeriods)
-                            {
-                                <option value="@period.Id">@period.PayPeriodName</option>
-                            }
-                        </select>
-                    </div> *@
-
-                    @* <div class="col-md-4">
-                        <label for="UnitId" class="form-label fw-semibold">Unit</label>
-                        <select id="UnitId" name="UnitId" class="form-select">
-                            <option value="">-- All Units --</option>
-                            @foreach (var unit in Model.Units)
-                            {
-                                <option value="@unit.Id">@unit.UnitName</option>
-                            }
-                        </select>
-                    </div> *@
-
-                    <custom-select
-                        asp-for="UnitId"
-                        asp-items="@Model.Units"
-                        placeholder="-- Select Unit --" />
 
                     <custom-select 
                         asp-for="UserId"
                         asp-items="@Model.Users"
                         placeholder="-- Select User --"
                     />
-
-                    @* <div class="col-md-4">
-                        <label for="UserId" class="form-label fw-semibold">User / Employee <span class="text-danger">*</span></label>
-                        <select id="UserId" name="UserId" class="form-select" required>
-                            <option value="">-- All Users --</option>
-                            @foreach (var user in Model.Users)
-                            {
-                                <option value="@user.Id">@user.EmployeeName</option>
-                            }
-                        </select>
-                    </div> *@
                 </div>
 
                 <div class="mt-4 text-end">
                     <button type="submit" class="btn btn-primary px-4">
-                        <i class="bi bi-file-earmark-bar-graph"></i> Generate Report
+                        <i class="bi bi-file-earmark-bar-graph"></i> Generate Report By Employee Profile
                     </button>
                 </div>
             </form>
         </div>
+
+        <form asp-controller="Report" method="post" asp-action="GenerateReportByUnitId">
+            @Html.AntiForgeryToken()
+            <div class="row g-3">
+                <custom-select asp-for="PayPeriodId"
+                               asp-items="@Model.PayPeriods"
+                               placeholder="-- Select Pay Period" />
+
+                <custom-select asp-for="UnitId"
+                               asp-items="@Model.Units"
+                               placeholder="-- Select Unit --"
+                               />
+            </div>
+
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-file-earmark-bar-graph"></i> Generate Report By Unit
+                </button>
+            </div>
+        </form>
     </div>
 </div>

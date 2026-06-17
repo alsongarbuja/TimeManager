@@ -37,8 +37,19 @@ namespace TimeManager.Backend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GenerateReportByJPId(ReportViewModel reportViewModel)
         {
-            var data = await reportService.GenerateReportByJobProfileId(reportViewModel.UserId);
+            var data = await reportService.GenerateReportByJobProfileId(reportViewModel.UserId ?? 0, reportViewModel.PayPeriodId ?? 0);
             return View("Result", data);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateReportByUnitId(ReportViewModel rvm)
+        {
+            var d = await reportService.GenerateReportByUnitId(rvm.UnitId ?? 0, rvm.PayPeriodId ?? 0);
+            return View("ResultByUnit", new ReportGeneratedUnitViewModel
+            {
+                Reports = d.ToList(),
+            });
         }
     }
 }

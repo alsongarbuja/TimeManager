@@ -23,6 +23,12 @@ namespace TimeManager.Backend.Controllers.PunchManagement.Utility
             return pp;
         }
 
+        public async Task<PayPeriod?> GetPayPeriodByIdAsync(int id)
+        {
+            PayPeriod pp = await _hrmsDbContext.PayPeriod.FindAsync(id);
+            return pp;
+        }
+
         public async Task<Dictionary<string, string>> GetDateToDayMap()
         {
             var map = new Dictionary<string, string>();

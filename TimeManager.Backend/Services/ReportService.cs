@@ -3,6 +3,7 @@ using System.Text.Json;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Employee_Management;
+using TimeManager.Backend.Models.Organization_Management;
 using TimeManager.Backend.Models.Punch_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -15,7 +16,8 @@ namespace TimeManager.Backend.Services
         //Task CreateReportAsync(ReportDto reportDto);
         //Task<ReportDto?> UpdateReportAsync(int id, ReportDto reportDto);
         //Task<int?> DeleteReportByIdAsync(int id);
-        Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id);
+        Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id, int payPeriodId = 0);
+        Task<IEnumerable<ReportGeneratedViewModel>> GenerateReportByUnitId(int id, int payPeriodId = 0);
     }
 
     public class ReportService: IReportService
@@ -29,13 +31,15 @@ namespace TimeManager.Backend.Services
             _payPeriodUtility = payPeriodUtility;
         }
 
-        public async Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id)
+        public async Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id, int payPeriodId = 0)
         {
             JobProfile? jp = await hrmsDbContext.JobProfile.Include(jp => jp.Employee).FirstOrDefaultAsync(j => j.Id == id);
 
             if (jp == null) return null;
 
-            PayPeriod pp = await _payPeriodUtility.GetCurrentPayPeriod();
+            PayPeriod? pp = payPeriodId != 0 ? await _payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await _payPeriodUtility.GetCurrentPayPeriod();
+
+            if (pp == null) return null;
 
             List<PunchEntry> punches = await hrmsDbContext.PunchEntry.Where(pe =>
                 pe.JobProfileId == id && pe.ClockIn >= pp.StartDate && pe.ClockIn < pp.EndDate
@@ -84,6 +88,29 @@ namespace TimeManager.Backend.Services
             string jsonString = JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true });
 
             return report;
+        }
+
+        public async Task<IEnumerable<ReportGeneratedViewModel>> GenerateReportByUnitId(int id, int payPeriodId = 0)
+        {
+            Unit? unit = await this.hrmsDbContext.Unit.FindAsync(id);
+            if (unit == null) return [];
+
+            PayPeriod? pp = payPeriodId != 0 ? await _payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await _payPeriodUtility.GetCurrentPayPeriod();
+
+            if (pp == null) return [];
+
+            List<ReportGeneratedViewModel> reports = new List<ReportGeneratedViewModel>();
+
+            List<JobProfile> jps = await this.hrmsDbContext.JobProfile.Where(jp => jp.ProfileTemplate.UnitId == id).ToListAsync();
+
+            for (int i = 0; i < jps.Count; i++)
+            {
+                var r = await this.GenerateReportByJobProfileId(jps[i].Id);
+                if (r == null) continue;
+                reports.Add(r);
+            }
+
+            return reports;
         }
     }
 }

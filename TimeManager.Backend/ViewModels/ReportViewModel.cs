@@ -11,7 +11,7 @@ namespace TimeManager.Backend.ViewModels
 
         public int? PayPeriodId { get; set; }
         public int? UnitId { get; set; }
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
     }
 
     public class ReportGeneratedViewModel
@@ -33,6 +33,12 @@ namespace TimeManager.Backend.ViewModels
 
         public Dictionary<string, DayReport> WeekOne { get; set; } = new();
         public Dictionary<string, DayReport> WeekTwo { get; set; } = new();
+    }
+
+    public class ReportGeneratedUnitViewModel
+    {
+        [Required]
+        public List<ReportGeneratedViewModel> Reports { get; set; }
     }
 
     public class DayReport

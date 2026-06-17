@@ -1,0 +1,18 @@
+﻿@model TimeManager.Backend.ViewModels.DepartmentViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Department - Add";
+    ViewData["ModuleTitle"] = "Create Department";
+    ViewData["ModuleSubtitle"] = "Add new department";
+    ViewData["Controller"] = "Department";
+}
+
+<form asp-controller="Department" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <custom-input asp-for="Name" />
+    <custom-input asp-for="Description" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

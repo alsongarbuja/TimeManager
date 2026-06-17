@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
-using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Employee_Management;
+using Emp = TimeManager.Backend.Models.Employee_Management.Employee;
+using TimeManager.Backend.Services;
+using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.EmployeeManagement
 {
@@ -10,24 +10,37 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
     [Route("api/[controller]")]
     public class EmployeeController : ControllerBase
     {
-        private readonly HrmsDbContext _context;
+        private readonly IEmployeeService _employeeService;
 
-        public EmployeeController(HrmsDbContext context)
+        public EmployeeController(IEmployeeService employeeService)
         {
-            _context = context;
+            _employeeService = employeeService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
+        public async Task<ActionResult<IEnumerable<Emp>>> GetEmployees()
         {
-            var data = await _context.Employee.ToListAsync();
-            return data;
+            IEnumerable<EmployeeViewModel> data = await _employeeService.GetEmployeesAsync();
+
+            List<Emp> employees = new List<Emp>();
+
+            foreach (var d in data) {
+                employees.Add(new Emp {
+                    Id = d.Id,
+                    Email = d.Email,
+                    UniqueId = d.UniqueId,
+                    FirstName = d.Name.Split(' ')[0],
+                    LastName = d.Name.Split(' ')[1],
+                });
+            }
+
+            return employees;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employee>> GetEmployee(int id)
+        public async Task<ActionResult<Emp>> GetEmployee(int id)
         {
-            var employee = await _context.Employee.FindAsync(id);
+            var employee = await _employeeService.GetEmployeeByIdAsync(id);
             if (employee == null)
             {
                 return NotFound(new
@@ -40,53 +53,26 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpPost]
-        public async Task<ActionResult<Employee>> CreateEmployee([FromBody] EmployeeDto employeeDto)
+        public async Task<ActionResult> CreateEmployee([FromBody] EmployeeDto employeeDto)
         {
-            var employee = _context.Employee.Add(new Employee
-            {
-                Email = employeeDto.Email,
-                FirstName = employeeDto.FirstName,
-                LastName = employeeDto.LastName,
-                UniqueId = employeeDto.UniqueId,
-            });
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetEmployee), new { id = employee.Entity.Id }, employee.Entity);
+            await _employeeService.CreateEmployeeAsync(employeeDto);
+            return Ok();
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<Employee>> UpdateEmployee(int id, [FromBody] EmployeeDto employeeDto)
+        public async Task<ActionResult<Emp>> UpdateEmployee(int id, [FromBody] EmployeeDto employeeDto)
         {
-            var employee = await GetEmployeeById(id);
-            if (employee == null)
-            {
-                return NotFound(new { message = "Employee not found" });
-            }
-
-            _context.Entry(employee).CurrentValues.SetValues(employeeDto);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            var e = await _employeeService.UpdateEmployeeAsync(id, employeeDto);
+            if (e == null) return NotFound();
+            return e;
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Employee>> DeleteEmployee(int id)
+        public async Task<ActionResult<int>> DeleteEmployee(int id)
         {
-            var employee = await GetEmployeeById(id);
-            if (employee == null)
-            {
-                return NotFound(new { message = "Employee not found" });
-            }
-
-            _context.Employee.Remove(employee);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        private async Task<Employee?> GetEmployeeById(int id)
-        {
-            Employee? e = await _context.Employee.FindAsync(id);
-            return e;
+            var i = await _employeeService.DeleteEmployeeByIdAsync(id);
+            if (i == null) return NotFound();
+            return i;
         }
     }
 }

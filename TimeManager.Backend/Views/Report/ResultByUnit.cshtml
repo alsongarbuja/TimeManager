@@ -1,0 +1,152 @@
+﻿@model TimeManager.Backend.ViewModels.ReportGeneratedUnitViewModel
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Unit Report";
+
+    var days = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="rg-page">
+
+    <div class="rg-header">
+        <div class="rg-header-text">
+            <p class="rg-eyebrow">Unit Overview</p>
+            <h1 class="rg-title">Reports by User</h1>
+        </div>
+        <a asp-controller="Report" asp-action="Index" class="rg-back">← Back to Reports</a>
+    </div>
+
+    @if (Model.Reports.Any())
+    {
+        <!-- User jump selector -->
+        <div class="rbu-controls">
+            <div class="rbu-select-wrap">
+                <label class="rbu-select-label" for="userJump">Jump to user</label>
+                <div class="rbu-select-outer">
+                    <select id="userJump" class="rbu-select" onchange="jumpToUser(this.value)">
+                        <option value="">— Select a user —</option>
+                        @foreach (var report in Model.Reports)
+                        {
+                            <option value="user-@report.JobProfileId">@report.Name</option>
+                        }
+                    </select>
+                    <span class="rbu-select-chevron">▾</span>
+                </div>
+            </div>
+
+            <button class="rbu-expand-all" type="button" onclick="toggleAll(this)">Expand all</button>
+        </div>
+
+        <!-- Accordion list -->
+        <div class="rbu-accordion" id="accordionRoot">
+            @foreach (var report in Model.Reports)
+            {
+                <div class="rbu-item" id="user-@report.JobProfileId">
+
+                    <!-- Accordion header -->
+                    <button class="rbu-trigger" type="button" onclick="toggleItem(this)" aria-expanded="false">
+                        <div class="rbu-trigger-left">
+                            <span class="rbu-trigger-name">@report.Name</span>
+                            <span class="rbu-trigger-meta">Job Profile #@report.JobProfileId</span>
+                        </div>
+                        <div class="rbu-trigger-right">
+                            <span class="rbu-pill">@report.TotalHours.ToString("F2") hrs</span>
+                            <span class="rbu-chevron">›</span>
+                        </div>
+                    </button>
+
+                    <!-- Accordion body -->
+                    <div class="rbu-body">
+                        <div class="rbu-body-inner">
+
+                            <!-- Mini stat row -->
+                            <div class="rg-stats rbu-stats">
+                                <div class="rg-stat-card">
+                                    <span class="rg-stat-label">Total Hours</span>
+                                    <span class="rg-stat-value">@report.TotalHours.ToString("F2")</span>
+                                </div>
+                                <div class="rg-stat-card">
+                                    <span class="rg-stat-label">Worked Hours</span>
+                                    <span class="rg-stat-value">@report.TotalWorkedHours.ToString("F2")</span>
+                                </div>
+                                <div class="rg-stat-card">
+                                    <span class="rg-stat-label">Holiday Hours</span>
+                                    <span class="rg-stat-value">@report.TotalHolidayHours.ToString("F2")</span>
+                                </div>
+                            </div>
+
+                            <!-- Week table -->
+                            <div class="rg-table-card rbu-table-card">
+                                <div class="rg-table-scroll">
+                                    <table class="rg-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="rg-th rg-th-week">Week</th>
+                                                @foreach (var day in days)
+                                                {
+                                                    <th class="rg-th @(day is "Saturday" or "Sunday" ? "rg-th-weekend" : "")">@day</th>
+                                                }
+                                                <th class="rg-th rg-th-total">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @await Html.PartialAsync("_WeekRow", (report.WeekOne, "Week 1", days))
+                                            @await Html.PartialAsync("_WeekRow", (report.WeekTwo, "Week 2", days))
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="rg-foot-row">
+                                                <td colspan="@(days.Length + 1)" class="rg-foot-spacer"></td>
+                                                <td class="rg-foot-total">@report.TotalHours.ToString("F2")</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="rbu-empty">
+            <p class="rbu-empty-text">No reports found for this unit.</p>
+        </div>
+    }
+
+</div>
+
+<script>
+    function toggleItem(trigger) {
+        const item = trigger.closest('.rbu-item');
+        const isOpen = item.classList.contains('rbu-open');
+        item.classList.toggle('rbu-open', !isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    function jumpToUser(id) {
+        if (!id) return;
+        // Open the target item
+        const item = document.getElementById(id);
+        if (!item) return;
+        item.classList.add('rbu-open');
+        item.querySelector('.rbu-trigger').setAttribute('aria-expanded', 'true');
+        // Smooth scroll with a brief delay to let the body open
+        setTimeout(() => item.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    }
+
+    function toggleAll(btn) {
+        const items = document.querySelectorAll('.rbu-item');
+        const anyOpen = [...items].some(i => i.classList.contains('rbu-open'));
+        items.forEach(item => {
+            item.classList.toggle('rbu-open', !anyOpen);
+            item.querySelector('.rbu-trigger').setAttribute('aria-expanded', String(!anyOpen));
+        });
+        btn.textContent = anyOpen ? 'Expand all' : 'Collapse all';
+    }
+</script>

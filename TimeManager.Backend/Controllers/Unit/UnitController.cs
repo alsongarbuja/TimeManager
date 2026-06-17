@@ -1,0 +1,95 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using TimeManager.Backend.Controllers.Organization.Dto;
+using TimeManager.Backend.Services;
+using TimeManager.Backend.ViewModels;
+
+namespace TimeManager.Backend.Controllers.Unit
+{
+    public class UnitController : Controller
+    {
+        private readonly IUnitService unitService;
+
+        public UnitController(IUnitService unitService)
+        {
+            this.unitService = unitService;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var units = await this.unitService.GetUnitsAysnc();
+            return View(units);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create() => View(new UnitViewModel());
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(UnitViewModel unitViewModel)
+        {
+            if (!ModelState.IsValid) return View(unitViewModel);
+            await this.unitService.CreateUnitAsync(new UnitDto
+            {
+                Name = unitViewModel.Name,
+                Description = unitViewModel.Description,
+                DepartmentId = 1,  // TODO: Change dynamically
+            });
+            TempData["Success"] = "Unit created";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var unit = await this.unitService.GetUnitByIdAsync(id);
+            if (unit == null) return NotFound();
+            return View(new UnitViewModel
+            {
+                Id = unit.Id,
+                Name = unit.Name,
+                Description = unit.Description,
+                DepartmentName = unit.Department.Name,
+                DepartmentId = unit.DepartmentId,
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, UnitViewModel uvm)
+        {
+            if (!ModelState.IsValid) return View(uvm);
+            var d = await this.unitService.UpdateUnitAsync(id, new UnitDto
+            {
+                Name = uvm.Name,
+                Description = uvm.Description,
+                DepartmentId = 2,  // TODO: Change dynamically
+            });
+
+            if (d == null)
+            {
+                TempData["error"] = "Error while updating the data";
+                return View(uvm);
+            }
+
+            TempData["success"] = "Successfully edited the data";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var data = await this.unitService.DeleteUnitByIdAsync(id);
+            if (data == null)
+            {
+                TempData["error"] = "Error while deleting the data";
+            }
+            else
+            {
+                TempData["success"] = "Successfully removed the data";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}

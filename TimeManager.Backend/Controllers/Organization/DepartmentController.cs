@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.Organization.Dto;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Organization_Management;
+using D = TimeManager.Backend.Models.Organization_Management.Department;
 
 namespace TimeManager.Backend.Controllers.Organization
 {
@@ -20,14 +20,14 @@ namespace TimeManager.Backend.Controllers.Organization
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
+        public async Task<ActionResult<IEnumerable<D>>> GetDepartments()
         {
             var data = await _context.Department.ToListAsync();
             return data;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Department>> GetDepartment(int id)
+        public async Task<ActionResult<D>> GetDepartment(int id)
         {
            var department = await GetDepartmentById(id);
 
@@ -44,9 +44,9 @@ namespace TimeManager.Backend.Controllers.Organization
 
 
         [HttpPost]
-        public async Task<ActionResult<Department>> CreateDepartment([FromBody] DepartmentDto departmentDto)
+        public async Task<ActionResult<D>> CreateDepartment([FromBody] DepartmentDto departmentDto)
         {
-            var data = _context.Department.Add(new Department { Name = departmentDto.Name, Description = departmentDto.Description });
+            var data = _context.Department.Add(new D{ Name = departmentDto.Name, Description = departmentDto.Description });
 
             await _context.SaveChangesAsync();
 
@@ -54,7 +54,7 @@ namespace TimeManager.Backend.Controllers.Organization
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<Department>> UpdateDepartment(int id, [FromBody] DepartmentDto departmentDto) { 
+        public async Task<ActionResult<D>> UpdateDepartment(int id, [FromBody] DepartmentDto departmentDto) { 
             var department = await GetDepartmentById(id);
 
             if (department == null)
@@ -85,9 +85,9 @@ namespace TimeManager.Backend.Controllers.Organization
             return NoContent();
         }
 
-        private async Task<Department?> GetDepartmentById(int id)
+        private async Task<D?> GetDepartmentById(int id)
         {
-            Department? d = await _context.Department.FindAsync(id);
+            D? d = await _context.Department.FindAsync(id);
             return d;
         }
     }

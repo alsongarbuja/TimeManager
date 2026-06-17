@@ -1,0 +1,475 @@
+﻿.rg-page {
+    font-family: 'Inter', system-ui, sans-serif;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    color: #111827;
+}
+
+.rg-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.rg-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6B7280;
+    margin: 0 0 0.35rem;
+}
+
+.rg-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: #111827;
+}
+
+.rg-back {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #6B7280;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    background: #fff;
+    transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+    .rg-back:hover {
+        border-color: #4F67E4;
+        color: #4F67E4;
+    }
+
+.rg-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.rg-stat-card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-left: 3px solid #4F67E4;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.rg-stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6B7280;
+}
+
+.rg-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    color: #111827;
+    line-height: 1;
+}
+
+.rg-table-card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.rg-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.rg-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.rg-th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #6B7280;
+    background: #F8F9FB;
+    border-bottom: 1px solid #E5E7EB;
+    white-space: nowrap;
+}
+
+.rg-th-week {
+    min-width: 80px;
+}
+
+.rg-th-weekend {
+    background: #F3F4F6;
+    color: #9CA3AF;
+}
+
+.rg-th-total {
+    text-align: right;
+    color: #4F67E4;
+    min-width: 80px;
+}
+
+.rg-table tbody tr {
+    border-bottom: 1px solid #F3F4F6;
+    transition: background 0.1s;
+}
+
+    .rg-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .rg-table tbody tr:hover {
+        background: #F8F9FB;
+    }
+
+.rg-foot-row {
+    border-top: 2px solid #E5E7EB;
+}
+
+.rg-foot-spacer {
+    padding: 0.875rem 1rem;
+}
+
+.rg-foot-total {
+    padding: 0.875rem 1rem;
+    text-align: right;
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #4F67E4;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+.week-label {
+    padding: 0.875rem 1rem;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    color: #374151;
+}
+
+.rg-table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+.hours-value {
+    display: block;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.875rem;
+    color: #111827;
+    line-height: 1.2;
+}
+
+.hours-type {
+    display: inline-block;
+    margin-top: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1.4;
+}
+
+    .hours-type.reg {
+        background: #ECFDF5;
+        color: #065F46;
+    }
+
+    .hours-type.hol {
+        background: #FFFBEB;
+        color: #92400E;
+    }
+
+    .hours-type.ot {
+        background: #FEF2F2;
+        color: #991B1B;
+    }
+
+.no-entry {
+    color: #D1D5DB;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.total-cell {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: #374151;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .rg-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .rg-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+/* ── ResultByUnit page ───────────────────────────────────────────── */
+
+/* Controls bar */
+.rbu-controls {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.rbu-select-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6B7280;
+    margin-bottom: 0.35rem;
+}
+
+.rbu-select-outer {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.rbu-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 0.5rem 2.5rem 0.5rem 0.875rem;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111827;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    min-width: 220px;
+}
+
+    .rbu-select:focus {
+        outline: none;
+        border-color: #4F67E4;
+        box-shadow: 0 0 0 3px rgba(79, 103, 228, 0.12);
+    }
+
+.rbu-select-chevron {
+    position: absolute;
+    right: 0.75rem;
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    pointer-events: none;
+}
+
+.rbu-expand-all {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #6B7280;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+    .rbu-expand-all:hover {
+        border-color: #4F67E4;
+        color: #4F67E4;
+    }
+
+/* Accordion */
+.rbu-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.rbu-item {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+}
+
+    .rbu-item.rbu-open {
+        border-color: #C7D0F8;
+    }
+
+/* Accordion trigger */
+.rbu-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'Inter', system-ui, sans-serif;
+    transition: background 0.1s;
+}
+
+    .rbu-trigger:hover {
+        background: #F8F9FB;
+    }
+
+.rbu-trigger-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.rbu-trigger-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.2;
+}
+
+.rbu-trigger-meta {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #9CA3AF;
+}
+
+.rbu-trigger-right {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    flex-shrink: 0;
+}
+
+.rbu-pill {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: #4F67E4;
+    background: #EEF1FD;
+    padding: 0.25rem 0.625rem;
+    border-radius: 20px;
+}
+
+.rbu-chevron {
+    font-size: 1.125rem;
+    color: #9CA3AF;
+    line-height: 1;
+    transition: transform 0.2s ease;
+    display: inline-block;
+}
+
+.rbu-open .rbu-chevron {
+    transform: rotate(90deg);
+}
+
+/* Accordion body */
+.rbu-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s ease;
+}
+
+.rbu-open .rbu-body {
+    grid-template-rows: 1fr;
+}
+
+.rbu-body-inner {
+    overflow: hidden;
+    padding: 0 1.25rem;
+    transition: padding 0.25s ease;
+}
+
+.rbu-open .rbu-body-inner {
+    padding: 0 1.25rem 1.25rem;
+}
+
+/* Stat cards inside accordion — slightly smaller */
+.rbu-stats {
+    margin-bottom: 1rem;
+}
+
+    .rbu-stats .rg-stat-value {
+        font-size: 1.5rem;
+    }
+
+/* Table inside accordion — no outer border-radius (already inside card) */
+.rbu-table-card {
+    border-radius: 8px;
+}
+
+/* Empty state */
+.rbu-empty {
+    background: #fff;
+    border: 1px dashed #E5E7EB;
+    border-radius: 10px;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.rbu-empty-text {
+    font-size: 0.9375rem;
+    color: #9CA3AF;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .rbu-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rbu-select {
+        width: 100%;
+    }
+
+    .rbu-expand-all {
+        width: 100%;
+        text-align: center;
+    }
+
+    .rbu-stats {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,137 @@
+﻿@page
+@* @using TimeManager.Backend.Models.Components *@
+
+@model TimeManager.Backend.Pages.Account.LoginModel
+
+@{
+    Layout = "_MainLayout";
+    ViewData["Title"] = "Login";
+
+    bool isLoading = false;
+    // LoginModel loginDto = new();
+}
+
+@section styles {
+    <link href="/css/login.css" rel="stylesheet" />
+}
+
+<div class="login-container">
+    <div class="form-wrapper">
+        <h2 class="form-title text-center">
+            Welcome back
+        </h2>
+        <p class="form-subtitle text-center">
+            Please sign in to your account
+        </p>
+    </div>
+
+    <div class="mt-8 form-wrapper">
+        <div class="form-card">
+            <form class="space-y-6" id="account" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                @* @if (!String.IsNullOrEmpty(Error))
+                {
+                    <div class="error-alert">
+                        <div class="flex">
+                            <div class="text-sm text-red-700">
+                                <p>@Error</p>
+                            </div>
+                        </div>
+                    </div>
+                } *@
+
+                <div class="form-group">
+                    <label asp-for="Input.Username" for="username" class="form-label">Username <span class="form-required">*</span></label>
+                    <input asp-for="Input.Username" id="username" name="Username" required class="form-input" autocomplete="username" />
+                    <span asp-validation-for="Input.Username" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Password" class="form-label" for="password">Password <span class="form-required">*</span></label>
+                    <input asp-for="Input.Password" id="password" name="Password" class="form-input" required autocomplete="current-password" type="password" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+
+                <div class="checkbox mb-3">
+                    <label asp-for="Input.RememberMe" class="form-label">
+                        <input type="checkbox" class="form-check-input" asp-for="Input.RememberMe" />
+                        @Html.DisplayNameFor(m => m.Input.RememberMe)
+                    </label>
+                </div>
+
+                <button id="login-submit" type="submit" class="btn btn-primary w-100">Log in</button>
+
+@*                 @await Html.PartialAsync("CustomInput", new InputFieldViewModel
+{
+   Label = "Username",
+   Id = "username",
+Placeholder = "Enter your username",
+Name="Username"
+})
+
+                @await Html.PartialAsync("CustomInput", new InputFieldViewModel
+                {
+                    Label = "Password",
+                    Id = "password",
+                    Type = "password",
+                    Placeholder = "Enter your password",
+                    Name = "Password"
+                }) *@
+
+@*                 @await Html.PartialAsync("Button", new ButtonViewModel
+{
+    Text = "Login",
+    Id = "login",
+                    Classes = "btn-submit",
+Type = "submit",
+Loading = isLoading
+}) *@
+            </form>
+        </div>
+    </div>
+</div>
+
+@functions {
+    // public async Task HandleSubmit()
+    // {
+    //     isLoading = true;
+
+    //     try
+    //     {
+    //         var res = await Http.PostAsJsonAsync("api/auth/login", loginDto);
+
+    //         if (res.IsSuccessStatusCode)
+    //         {
+    //             var tokenResponse = await res.Content.ReadFromJsonAsync<TokenResponse>();
+    //             await TokenStore.SetTokensAsync(tokenResponse!.AccessToken, tokenResponse.RefreshToken);
+
+    //             Nav.NavigateTo("/app/dashboard");
+    //             return;
+    //         }
+
+    //         Error = await res.Content.ReadAsStringAsync();
+    //     } catch (Exception e)
+    //     {
+    //         Error = e.Message;
+    //     } finally
+    //     {
+    //         isLoading = false;
+    //         StateHasChanged();
+    //     }
+    // }
+
+    private class LoginModel
+    {
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+
+    private class TokenResponse
+    {
+        public string AccessToken { get; set; } = "";
+        public string RefreshToken { get; set; } = "";
+        public string TokenType { get; set; } = "";
+    }
+}
+

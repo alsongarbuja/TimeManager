@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Models.Device_Management;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.Models.Organization_Management;
@@ -6,7 +8,7 @@ using TimeManager.Backend.Models.Punch_Management;
 
 namespace TimeManager.Backend.Data
 {
-    public class HrmsDbContext: DbContext
+    public class HrmsDbContext: IdentityDbContext<IdentityUser, IdentityRole, string>
     {
         public HrmsDbContext(DbContextOptions<HrmsDbContext> options): base(options)
         {

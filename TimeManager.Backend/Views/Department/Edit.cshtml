@@ -1,0 +1,18 @@
+﻿@model TimeManager.Backend.ViewModels.DepartmentViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Department - Edit";
+    ViewData["ModuleTitle"] = "Edit Department";
+    ViewData["ModuleSubtitle"] = "Update department data";
+    ViewData["Controller"] = "Department";
+}
+
+<form asp-controller="Department" asp-action="Edit" method="post" asp-route-id="@Model.Id">
+    @Html.AntiForgeryToken()
+    
+    <custom-input asp-for="Name" />
+    <custom-input asp-for="Description" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

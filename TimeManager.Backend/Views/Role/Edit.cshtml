@@ -1,0 +1,18 @@
+﻿@model TimeManager.Backend.ViewModels.RoleViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Role - Edit";
+    ViewData["ModuleTitle"] = "Edit Role";
+    ViewData["ModuleSubtitle"] = "Update role";
+    ViewData["Controller"] = "Role";
+}
+
+<form asp-controller="Role" asp-action="Edit" method="post" asp-route-id="@Model.Id">
+    @Html.AntiForgeryToken()
+    
+    <custom-input asp-for="Name" />
+    <custom-input asp-for="Description" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

@@ -1,0 +1,19 @@
+﻿@model TimeManager.Backend.ViewModels.UnitViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Unit - Edit";
+    ViewData["ModuleTitle"] = "Edit Unit";
+    ViewData["ModuleSubtitle"] = "Update unit data";
+    ViewData["Controller"] = "Unit";
+}
+
+<form asp-controller="Unit" asp-action="Edit" method="post" asp-route-id="@Model.Id">
+    @Html.AntiForgeryToken()
+    
+    @* TODO: ADD DEPARTMENT ID FROM AUTHORIZATION *@
+    <custom-input asp-for="Name" />
+    <custom-input asp-for="Description" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

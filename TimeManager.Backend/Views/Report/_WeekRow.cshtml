@@ -1,0 +1,51 @@
+﻿@using TimeManager.Backend.ViewModels
+@model (Dictionary<string, DayReport> Week, string Label, string[] Days)
+
+@{
+    var weekTotal = Model.Week.Values.Sum(d => d.Hours);
+}
+
+<tr>
+    <td class="week-label">@Model.Label</td>
+    @foreach (var day in Model.Days)
+    {
+        if (Model.Week.TryGetValue(day, out var entry))
+        {
+            <td>
+                <span class="hours-value">@entry.Hours.ToString("F2")</span>
+                <span class="hours-type @entry.Type.ToLower()">@entry.Type</span>
+            </td>
+        }
+        else
+        {
+            <td class="no-entry">—</td>
+        }
+    }
+    <td class="total-cell">@weekTotal.ToString("F2")</td>
+</tr>
+
+@* @using TimeManager.Backend.ViewModels
+@model (Dictionary<string, DayReport> Week, string Label, string[] Days)
+
+@{
+    var weekTotal = Model.Week.Values.Sum(d => d.Hours);
+}
+
+<tr>
+    <td class="week-label">@Model.Label</td>
+    @foreach (var day in Model.Days)
+    {
+        if (Model.Week.TryGetValue(day, out var entry))
+        {
+            <td>
+                <span class="hours-value">@entry.Hours.ToString("F2")</span>
+                <span class="hours-type @entry.Type.ToLower()">@entry.Type</span>
+            </td>
+        }
+        else
+        {
+            <td class="no-entry">—</td>
+        }
+    }
+    <td class="total-cell">@weekTotal.ToString("F2")</td>
+</tr> *@

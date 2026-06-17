@@ -1,0 +1,56 @@
+﻿@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@model ModelExpression
+
+@{
+    // 1. Get the property name (e.g., "Name")
+    var propertyName = Model.Name;
+
+    // 2. Safely look for a Display attribute, or fall back to the raw property name
+    var labelText = Model.Metadata?.DisplayName
+                    ?? Model.Metadata?.PropertyName
+                    ?? propertyName;
+
+    // 3. Look at the parent container's metadata to check if this specific property has [Required]
+    var isRequired = false;
+    if (Model.Metadata?.ContainerMetadata != null && Model.Metadata.PropertyName != null)
+    {
+        var propertyMetadata = Model.Metadata.ContainerMetadata.Properties[Model.Metadata.PropertyName];
+        isRequired = propertyMetadata?.IsRequired ?? false;
+    }
+    else
+    {
+        // Fallback check
+        isRequired = Model.Metadata?.IsRequired ?? false;
+    }
+}
+@* @{
+    var labelText = Model?.Metadata?.DisplayName ?? Model?.Metadata?.PropertyName ?? Model?.Name;
+    var isRequired = Model?.Metadata?.IsRequired ?? false;
+} *@
+
+<div class="form-group">
+    <label asp-for="@Model" class="form-label">
+        @labelText
+        @if (isRequired)
+        {
+            <span class="form-required">*</span>
+        }
+    </label>
+    
+    <div class="form-input-wrapper">
+        @if (Model?.Metadata.DataTypeName == "MultilineText")
+        {
+            <textarea asp-for="@Model" class="form-input"></textarea>
+        }
+        else
+        {
+            <input 
+                    required="@(isRequired ? true : null)"
+                    class="form-input" 
+                    asp-for="@Model"
+                 />
+        }
+
+    </div>
+    <span asp-validation-for="@Model" class="form-error"></span>
+</div>

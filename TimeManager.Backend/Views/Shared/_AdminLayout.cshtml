@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap"
+          rel="stylesheet">
+
+    <link href="/css/app.css" rel="stylesheet" />
+    <link href="/css/utility.css" rel="stylesheet" />
+    <link href="/css/layout.css" rel="stylesheet" />
+    <link href="/css/components.css" rel="stylesheet" />
+    <link href="/css/wrapper.css" rel="stylesheet" />
+    <link href="/css/report.css" rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+
+    <script src="/js/delete.js"></script>
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <main class="main layout-main">
+        @await Html.PartialAsync("_Sidenav")
+        <div class="layout-section">
+            <header class="header">NavBar</header>
+            <section class="main-section">
+                @RenderBody()
+            </section>
+        </div>
+    </main>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

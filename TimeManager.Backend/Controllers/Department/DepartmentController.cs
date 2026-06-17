@@ -1,0 +1,87 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using TimeManager.Backend.Services;
+using TimeManager.Backend.ViewModels;
+
+namespace TimeManager.Backend.Controllers.Department
+{
+    public class DepartmentController : Controller
+    {
+        private readonly IDepartmentService departmentService;
+
+        public DepartmentController(IDepartmentService departmentService)
+        {
+            this.departmentService = departmentService;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var departments = await this.departmentService.GetDepartmentsAsync();
+            return View(departments);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create() => View(new DepartmentViewModel());
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(DepartmentViewModel departmentViewModel)
+        {
+            if (!ModelState.IsValid) return View(departmentViewModel);
+            await this.departmentService.CreateDepartmentAsync(new DepartmentDto
+            {
+                Name = departmentViewModel.Name,
+                Description = departmentViewModel.Description,
+            });
+            TempData["Success"] = "Department created";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var department = await this.departmentService.GetDepartmentByIdAsync(id);
+            if (department == null) return NotFound();
+            return View(new DepartmentViewModel
+            {
+                Id = department.Id,
+                Name = department.Name,
+                Description = department.Description
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, DepartmentViewModel dvm)
+        {
+            if (!ModelState.IsValid) return View(dvm);
+            var d = await this.departmentService.UpdateDepartmentAsync(id, new DepartmentDto { Name = dvm.Name,
+                Description = dvm.Description
+            });
+
+            if (d == null)
+            {
+                TempData["error"] = "Error while updating the data";
+                return View(dvm);
+            }
+
+            TempData["success"] = "Successfully edited the data";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var data = await this.departmentService.DeleteDepartmentByIdAsync(id);
+            if (data == null)
+            {
+                TempData["error"] = "Error while deleting the data";
+            } else
+            {
+                TempData["success"] = "Successfully removed the data";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}

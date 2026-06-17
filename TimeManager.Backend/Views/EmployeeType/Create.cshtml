@@ -1,0 +1,18 @@
+﻿@model TimeManager.Backend.ViewModels.EmployeeTypeViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Employee Type - Add";
+    ViewData["ModuleTitle"] = "Create Employee Type";
+    ViewData["ModuleSubtitle"] = "Add new employee type";
+    ViewData["Controller"] = "EmployeeType";
+}
+
+<form asp-controller="EmployeeType" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <custom-input asp-for="Name" />
+    <custom-input asp-for="Description" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

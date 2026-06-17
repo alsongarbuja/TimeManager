@@ -1,0 +1,41 @@
+﻿@using TimeManager.Backend.Models.Components
+@using TimeManager.Backend.ViewModels
+@model IEnumerable<EmployeeTypeViewModel>
+
+@{
+    Layout = "_ListWrapper";
+    ViewData["Title"] = "Employee Type";
+
+    List<string> Headers = ["Name", "Description"];
+    ViewData["Headers"] = Headers;
+    ViewData["ModuleTitle"] = "Employee Type";
+    ViewData["ModuleDesc"] = "Manage the employee types in the system";
+    ViewData["Controller"] = "EmployeeType";
+}
+
+@if (Model.Count() <= 0)
+{
+    <tr>
+        <td colspan="@Headers.Count"
+            class="table-empty-cell">
+            No data available
+        </td>
+    </tr>
+}
+else
+{
+    foreach (var d in Model)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@d.Name</td>
+            <td class="table-cell table-desc">@d.Description</td>
+            @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+{
+        Controller = "EmployeeType",
+        Id = d.Id,
+        hasEdit = true,
+        hasDelete = true,
+})
+        </tr>
+    }
+}

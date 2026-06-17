@@ -1,0 +1,18 @@
+﻿@model TimeManager.Backend.ViewModels.EmployeeTypeViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Employee Type - Edit";
+    ViewData["ModuleTitle"] = "Edit Employee Type";
+    ViewData["ModuleSubtitle"] = "Update employee type";
+    ViewData["Controller"] = "EmployeeType";
+}
+
+<form asp-controller="EmployeeType" asp-action="Edit" method="post" asp-route-id="@Model.Id">
+    @Html.AntiForgeryToken()
+    
+    <custom-input asp-for="Name" />
+    <custom-input asp-for="Description" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

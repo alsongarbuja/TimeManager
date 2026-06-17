@@ -25,7 +25,11 @@
     <main class="main layout-main">
         @await Html.PartialAsync("_Sidenav")
         <div class="layout-section">
-            <header class="header">NavBar</header>
+            <header class="header">
+                <form asp-controller="Auth" asp-action="Logout" method="post">
+                    <button type="submit" class="btn btn-action-delete">Logout</button>
+                </form>
+            </header>
             <section class="main-section">
                 @RenderBody()
             </section>

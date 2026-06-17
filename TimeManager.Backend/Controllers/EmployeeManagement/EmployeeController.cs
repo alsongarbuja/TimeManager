@@ -29,8 +29,8 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
                     Id = d.Id,
                     Email = d.Email,
                     UniqueId = d.UniqueId,
-                    FirstName = d.Name.Split(' ')[0],
-                    LastName = d.Name.Split(' ')[1],
+                    FirstName = d.FirstName,
+                    LastName = d.LastName,
                 });
             }
 

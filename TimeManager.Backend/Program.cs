@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
@@ -9,25 +10,46 @@ DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
-
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddAuthentication(options =>
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
-    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
-})
-    .AddCookie(IdentityConstants.ApplicationScheme)
-    .AddBearerToken(IdentityConstants.BearerScheme);
-builder.Services.AddIdentityCore<IdentityUser>()
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<HrmsDbContext>()
-    .AddApiEndpoints();
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
+
+    options.Lockout.MaxFailedAccessAttempts = 10;
+    options.User.RequireUniqueEmail = true;
+}).AddEntityFrameworkStores<HrmsDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Auth/Login";
+    options.LogoutPath = "/Auth/Logout";
+    options.AccessDeniedPath = "/Auth/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.SlidingExpiration = true;
+});
+
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+//    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+//    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+//})
+//    .AddCookie(IdentityConstants.ApplicationScheme)
+//    .AddBearerToken(IdentityConstants.BearerScheme);
+//builder.Services.AddIdentityCore<IdentityUser>()
+//    .AddRoles<IdentityRole>()
+//    .AddEntityFrameworkStores<HrmsDbContext>()
+//    .AddApiEndpoints();
+
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AuthorizeFilter());
+});
 
 builder.Services.AddCors(options =>
 {
@@ -56,16 +78,13 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IProfileTemplateService, ProfileTemplateService>();
 builder.Services.AddScoped<IJobProfileService, JobProfileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 //builder.Services.AddDbContext<HrmsDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultServer")));
+
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-
-//builder.Services.AddRazorPages().AddRazorPagesOptions(options =>
-//{
-//    options.Conventions.AuthorizeFolder("/App");
-//});
 
 var app = builder.Build();
 
@@ -90,22 +109,19 @@ app.UseCors("AllowBlazor");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
+//app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 app.MapControllers();
 
 // MVC view route setup 
 app.MapControllerRoute(
-    name: "login",
-    pattern: "", 
-    defaults: new { controller = "Account", action = "login" }
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}"
 );
 
 app.MapControllerRoute(
     name: "app",
     pattern: "app/{controller=Dashboard}/{action=Index}/{id?}"
 );
-
-//app.MapRazorPages();
 
 await DataSeeder.SeedDataAsync(app.Services);
 

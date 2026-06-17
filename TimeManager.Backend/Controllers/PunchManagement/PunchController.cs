@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Data;
@@ -19,6 +20,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
             _logger = logger;
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<PunchEntry>> ClockInOut([FromBody] PunchEntryDto punchEntryDto) {
             var jobProfile = await _context.JobProfile.Where(

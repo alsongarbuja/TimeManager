@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Employee_Management;
+using ET = TimeManager.Backend.Models.Employee_Management.EmployeeType;
 
 namespace TimeManager.Backend.Controllers.EmployeeManagement
 {
@@ -18,14 +18,14 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmployeeType>>> GetEmployeeTypes()
+        public async Task<ActionResult<IEnumerable<ET>>> GetEmployeeTypes()
         {
             var data = await _context.EmployeeType.ToListAsync();
             return data;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EmployeeType>> GetEmployeeType(int id)
+        public async Task<ActionResult<ET>> GetEmployeeType(int id)
         {
             var employeeType = await _context.EmployeeType.FindAsync(id);
             if (employeeType == null)
@@ -40,16 +40,16 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpPost]
-        public async Task<ActionResult<EmployeeType>> CreateEmployeeType([FromBody] EmployeeTypeDto employeeTypeDto)
+        public async Task<ActionResult<ET>> CreateEmployeeType([FromBody] EmployeeTypeDto employeeTypeDto)
         {
-            var employeeType = _context.EmployeeType.Add(new EmployeeType { Name = employeeTypeDto.Name, Description = employeeTypeDto.Description });
+            var employeeType = _context.EmployeeType.Add(new ET { Name = employeeTypeDto.Name, Description = employeeTypeDto.Description });
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetEmployeeType), new { id = employeeType.Entity.Id }, employeeType.Entity);
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<EmployeeType>> UpdateEmployeeType(int id, [FromBody] EmployeeTypeDto employeeTypeDto)
+        public async Task<ActionResult<ET>> UpdateEmployeeType(int id, [FromBody] EmployeeTypeDto employeeTypeDto)
         {
             var employeeType = await GetEmployeeTypeById(id);
             if (employeeType == null)
@@ -64,7 +64,7 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<EmployeeType>> DeleteEmployeeType(int id)
+        public async Task<ActionResult<ET>> DeleteEmployeeType(int id)
         {
             var employeeType = await GetEmployeeTypeById(id);
             if (employeeType == null)
@@ -77,9 +77,9 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             return NoContent();
         }
 
-        private async Task<EmployeeType?> GetEmployeeTypeById(int id)
+        private async Task<ET?> GetEmployeeTypeById(int id)
         {
-            EmployeeType? et = await _context.EmployeeType.FindAsync(id);
+            ET? et = await _context.EmployeeType.FindAsync(id);
             return et;
         }
     }

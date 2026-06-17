@@ -1,17 +1,19 @@
-﻿@page
-@model TimeManager.Backend.Pages.App.PayFrequency.IndexModel
+﻿@using TimeManager.Backend.Models.Components
+@using TimeManager.Backend.ViewModels
+@model IEnumerable<PayFrequencyViewModel>
+
 @{
     Layout = "_ListWrapper";
-    ViewData["Title"] = "PayFrequency";
+    ViewData["Title"] = "Pay Frequency";
 
     List<string> Headers = ["Name", "Description"];
     ViewData["Headers"] = Headers;
-    ViewData["ModuleTitle"] = "PayFrequency";
+    ViewData["ModuleTitle"] = "Pay Frequency";
     ViewData["ModuleDesc"] = "Manage the pay frequencies in the system";
-    ViewData["CreateUrl"] = "payfrequency/add";
+    ViewData["Controller"] = "PayFrequency";
 }
 
-@if (Model.PayFrequencies.Count() <= 0)
+@if (Model.Count() <= 0)
 {
     <tr>
         <td colspan="@Headers.Count"
@@ -22,11 +24,18 @@
 }
 else
 {
-    foreach (var d in Model.PayFrequencies)
+    foreach (var d in Model)
     {
         <tr class="table-row">
             <td class="table-cell">@d.Name</td>
             <td class="table-cell table-desc">@d.Description</td>
+            @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+{
+        Controller = "PayFrequency",
+        Id = d.Id,
+        hasEdit = true,
+        hasDelete = true,
+})
         </tr>
     }
 }

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Employee_Management;
+using R = TimeManager.Backend.Models.Employee_Management.Role;
 
 namespace TimeManager.Backend.Controllers.EmployeeManagement
 {
@@ -18,14 +18,14 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
+        public async Task<ActionResult<IEnumerable<R>>> GetRoles()
         {
             var data = await _context.Role.ToListAsync();
             return data;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Role>> GetRole(int id)
+        public async Task<ActionResult<R>> GetRole(int id)
         {
             var role = await _context.Role.FindAsync(id);
             if (role == null)
@@ -40,16 +40,16 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpPost]
-        public async Task<ActionResult<Role>> CreateRole([FromBody] RoleDto roleDto)
+        public async Task<ActionResult<R>> CreateRole([FromBody] RoleDto roleDto)
         {
-            var role = _context.Role.Add(new Role { Name = roleDto.Name, Description = roleDto.Description });
+            var role = _context.Role.Add(new R { Name = roleDto.Name, Description = roleDto.Description });
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetRole), new { id = role.Entity.Id } , role.Entity);
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<Role>> UpdateRole(int id, [FromBody] RoleDto roleDto)
+        public async Task<ActionResult<R>> UpdateRole(int id, [FromBody] RoleDto roleDto)
         {
             var role = await GetRoleById(id);
             if (role == null)
@@ -64,7 +64,7 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Role>> DeleteRole(int id)
+        public async Task<ActionResult<R>> DeleteRole(int id)
         {
             var role = await GetRoleById(id);
             if (role == null)
@@ -77,9 +77,9 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             return NoContent();
         }
 
-        private async Task<Role?> GetRoleById(int id)
+        private async Task<R?> GetRoleById(int id)
         {
-            Role? role = await _context.Role.FindAsync(id);
+            R? role = await _context.Role.FindAsync(id);
             return role;
         }
     }

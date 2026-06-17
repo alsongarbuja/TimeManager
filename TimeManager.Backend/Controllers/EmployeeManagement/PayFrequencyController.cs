@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Employee_Management;
+using PF = TimeManager.Backend.Models.Employee_Management.PayFrequency;
 
 namespace TimeManager.Backend.Controllers.EmployeeManagement
 {
@@ -18,14 +18,14 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PayFrequency>>> GetPayFrequencys()
+        public async Task<ActionResult<IEnumerable<PF>>> GetPayFrequencys()
         {
             var data = await _context.PayFrequency.ToListAsync();
             return data;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<PayFrequency>> GetPayFrequency(int id)
+        public async Task<ActionResult<PF>> GetPayFrequency(int id)
         {
             var payFrequency = await _context.PayFrequency.FindAsync(id);
             if (payFrequency == null)
@@ -40,16 +40,16 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpPost]
-        public async Task<ActionResult<PayFrequency>> CreatePayFrequency([FromBody] PayFrequencyDto payFrequencyDto)
+        public async Task<ActionResult<PF>> CreatePayFrequency([FromBody] PayFrequencyDto payFrequencyDto)
         {
-            var payFrequency = _context.PayFrequency.Add(new PayFrequency { Name = payFrequencyDto.Name, Description = payFrequencyDto.Description });
+            var payFrequency = _context.PayFrequency.Add(new PF { Name = payFrequencyDto.Name, Description = payFrequencyDto.Description });
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetPayFrequency), new { id = payFrequency.Entity.Id }, payFrequency.Entity);
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<PayFrequency>> UpdatePayFrequency(int id, [FromBody] PayFrequencyDto payFrequencyDto)
+        public async Task<ActionResult<PF>> UpdatePayFrequency(int id, [FromBody] PayFrequencyDto payFrequencyDto)
         {
             var payFrequency = await GetPayFrequencyById(id);
             if (payFrequency == null)
@@ -64,7 +64,7 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<PayFrequency>> DeletePayFrequency(int id)
+        public async Task<ActionResult<PF>> DeletePayFrequency(int id)
         {
             var payFrequency = await GetPayFrequencyById(id);
             if (payFrequency == null)
@@ -77,9 +77,9 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             return NoContent();
         }
 
-        private async Task<PayFrequency?> GetPayFrequencyById(int id)
+        private async Task<PF?> GetPayFrequencyById(int id)
         {
-            PayFrequency? pf = await _context.PayFrequency.FindAsync(id);
+            PF? pf = await _context.PayFrequency.FindAsync(id);
             return pf;
         }
     }

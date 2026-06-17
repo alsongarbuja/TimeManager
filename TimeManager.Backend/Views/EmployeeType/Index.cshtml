@@ -1,5 +1,7 @@
-﻿@page
-@model TimeManager.Backend.Pages.App.EmployeeType.IndexModel
+﻿@using TimeManager.Backend.Models.Components
+@using TimeManager.Backend.ViewModels
+@model IEnumerable<EmployeeTypeViewModel>
+
 @{
     Layout = "_ListWrapper";
     ViewData["Title"] = "Employee Type";
@@ -8,10 +10,10 @@
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Employee Type";
     ViewData["ModuleDesc"] = "Manage the employee types in the system";
-    ViewData["CreateUrl"] = "employeetype/add";
+    ViewData["Controller"] = "EmployeeType";
 }
 
-@if (Model.EmployeeTypes.Count() <= 0)
+@if (Model.Count() <= 0)
 {
     <tr>
         <td colspan="@Headers.Count"
@@ -22,11 +24,18 @@
 }
 else
 {
-    foreach (var d in Model.EmployeeTypes)
+    foreach (var d in Model)
     {
         <tr class="table-row">
             <td class="table-cell">@d.Name</td>
             <td class="table-cell table-desc">@d.Description</td>
+            @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+{
+        Controller = "EmployeeType",
+        Id = d.Id,
+        hasEdit = true,
+        hasDelete = true,
+})
         </tr>
     }
 }

@@ -11,9 +11,14 @@
 <form asp-controller="Unit" asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
-    @* TODO: ADD DEPARTMENT ID FROM AUTHORIZATION *@
     <custom-input asp-for="Name" />
+    <custom-input asp-for="Index" />
     <custom-input asp-for="Description" />
+
+    @if (User.IsInRole("SuperAdmin"))
+        {
+            <custom-select asp-for="DepartmentId" asp-items="@Model.Departments" />
+        }
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

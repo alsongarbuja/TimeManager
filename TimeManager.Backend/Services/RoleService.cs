@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.AuthManagement;
@@ -13,6 +14,7 @@ namespace TimeManager.Backend.Services
         Task CreateRoleAsync(RoleDto roleDto);
         Task<Role?> UpdateRoleAsync(int id, RoleDto roleDto);
         Task<int?> DeleteRoleByIdAsync(int id);
+        Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync();
     }
 
     public class RoleService: IRoleService
@@ -44,6 +46,15 @@ namespace TimeManager.Backend.Services
         {
             var r = await this.hrmsDbContext.Roles.FindAsync(id);
             return r;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync()
+        {
+            var roles = await hrmsDbContext.Roles.Select(r => new SelectListItem {
+                Text = r.Name,
+                Value = r.Id.ToString(),
+            }).ToListAsync();
+            return roles;
         }
 
         public async Task<IEnumerable<RoleViewModel>> GetRolesAsync()

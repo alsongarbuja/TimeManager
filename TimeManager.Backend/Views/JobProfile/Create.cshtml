@@ -1,0 +1,18 @@
+﻿@model TimeManager.Backend.ViewModels.JobProfileViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Job Profile - Add";
+    ViewData["ModuleTitle"] = "Create Job Profile";
+    ViewData["ModuleSubtitle"] = "Add newjob profile";
+    ViewData["Controller"] = "JobProfile";
+}
+
+<form asp-controller="JobProfile" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <custom-select asp-for="EmployeeId" asp-items="@Model.Employees" />
+    <custom-select asp-for="ProfileTemplateId" asp-items="@Model.ProfileTemplates" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

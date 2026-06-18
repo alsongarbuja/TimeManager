@@ -26,8 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="Views\JobProfile\" />
-    <Folder Include="Views\ProfileTemplate\" />
     <Folder Include="wwwroot\js\" />
   </ItemGroup>
 

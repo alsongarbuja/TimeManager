@@ -1,16 +1,16 @@
 ﻿@using TimeManager.Backend.Models.Components
 @using TimeManager.Backend.ViewModels
-@model IEnumerable<UnitViewModel>
+@model IEnumerable<JobProfileViewModel>
 
 @{
     Layout = "_ListWrapper";
-    ViewData["Title"] = "Unit";
+    ViewData["Title"] = "Job Profile";
 
-    List<string> Headers = ["Name", "Department", "Index", "Description"];
+    List<string> Headers = ["Employee", "Profile Template"];
     ViewData["Headers"] = Headers;
-    ViewData["ModuleTitle"] = "Unit";
-    ViewData["ModuleDesc"] = "Manage the unit data in the system";
-    ViewData["Controller"] = "Unit";
+    ViewData["ModuleTitle"] = "Job Profile";
+    ViewData["ModuleDesc"] = "Manage job profiles in the department";
+    ViewData["Controller"] = "JobProfile";
 }
 
 @if (Model.Count() <= 0)
@@ -27,13 +27,11 @@ else
     foreach (var d in Model)
     {
         <tr class="table-row">
-            <td class="table-cell">@d.Name</td>
-            <td class="table-cell">@d.DepartmentName</td>
-            <td class="table-cell">@d.Index</td>
-            <td class="table-cell table-desc">@d.Description</td>
+            <td class="table-cell">@d.EmployeeString</td>
+            <td class="table-cell">@d.ProfileTemplateString</td>
             @await Html.PartialAsync("ActionTd", new ActionTdViewModel
             {
-                Controller = "Unit",
+                Controller = "JobProfile",
                 Id = d.Id,
                 hasEdit = true,
                 hasDelete = true,

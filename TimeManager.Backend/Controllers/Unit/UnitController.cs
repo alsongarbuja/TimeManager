@@ -8,10 +8,12 @@ namespace TimeManager.Backend.Controllers.Unit
     public class UnitController : Controller
     {
         private readonly IUnitService unitService;
+        private readonly IDepartmentService departmentService;
 
-        public UnitController(IUnitService unitService)
+        public UnitController(IUnitService unitService, IDepartmentService departmentService)
         {
             this.unitService = unitService;
+            this.departmentService = departmentService;
         }
 
         public async Task<IActionResult> Index()
@@ -21,18 +23,40 @@ namespace TimeManager.Backend.Controllers.Unit
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create() => View(new UnitViewModel());
+        public async Task<IActionResult> Create()
+        {
+            var departments = await departmentService.GetDepartmentOptionsAsync();
+            return View(new UnitViewModel
+            {
+                Departments = departments,
+            });
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UnitViewModel unitViewModel)
         {
-            if (!ModelState.IsValid) return View(unitViewModel);
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Where(x => x.Value.Errors.Count > 0)
+                           .Select(x => new
+                           {
+                               Key = x.Key,
+                               Errors = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
+                           });
+
+                foreach (var error in errors)
+                {
+                    Console.WriteLine($"Field: {error.Key} | Error: {error.Errors}");
+                }
+                return View(unitViewModel);
+            }
             await this.unitService.CreateUnitAsync(new UnitDto
             {
                 Name = unitViewModel.Name,
                 Description = unitViewModel.Description,
-                DepartmentId = 1,  // TODO: Change dynamically
+                DepartmentId = unitViewModel.DepartmentId,
+                Index = unitViewModel.Index,
             });
             TempData["Success"] = "Unit created";
             return RedirectToAction(nameof(Index));
@@ -47,9 +71,11 @@ namespace TimeManager.Backend.Controllers.Unit
             {
                 Id = unit.Id,
                 Name = unit.Name,
+                Index = unit.Index,
                 Description = unit.Description,
                 DepartmentName = unit.Department.Name,
                 DepartmentId = unit.DepartmentId,
+                Departments = (await departmentService.GetDepartmentOptionsAsync())
             });
         }
 
@@ -61,8 +87,9 @@ namespace TimeManager.Backend.Controllers.Unit
             var d = await this.unitService.UpdateUnitAsync(id, new UnitDto
             {
                 Name = uvm.Name,
+                Index = uvm.Index,
                 Description = uvm.Description,
-                DepartmentId = 2,  // TODO: Change dynamically
+                DepartmentId = uvm.DepartmentId,
             });
 
             if (d == null)

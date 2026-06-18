@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Employee_Management;
@@ -13,6 +14,7 @@ namespace TimeManager.Backend.Services
         Task<int> CreateEmployeeAsync(EmployeeDto employeeDto);
         Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto);
         Task<int?> DeleteEmployeeByIdAsync(int id);
+        Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync();
     }
 
     public class EmployeeService : IEmployeeService
@@ -53,6 +55,16 @@ namespace TimeManager.Backend.Services
         {
             var e = await this.hrmsDbContext.Employee.FindAsync(id);
             return e;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync()
+        {
+            var employees = await this.hrmsDbContext.Employee.Select(e => new SelectListItem
+            {
+                Text = $"{e.FirstName} {e.LastName}",
+                Value = e.Id.ToString()
+            }).ToListAsync();
+            return employees;
         }
 
         public async Task<IEnumerable<EmployeeViewModel>> GetEmployeesAsync()

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Employee_Management;
+using JP = TimeManager.Backend.Models.Employee_Management.JobProfile;
 
 namespace TimeManager.Backend.Controllers.EmployeeManagement
 {
@@ -32,7 +32,7 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<JobProfile>> GetJobProfile(int id)
+        public async Task<ActionResult<JP>> GetJobProfile(int id)
         {
             var jobProfile = await _context.JobProfile.FindAsync(id);
             if (jobProfile == null)
@@ -47,9 +47,9 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpPost]
-        public async Task<ActionResult<JobProfile>> CreateJobProfile([FromBody] JobProfileDto jobProfileDto)
+        public async Task<ActionResult<JP>> CreateJobProfile([FromBody] JobProfileDto jobProfileDto)
         {
-            var jobProfile = _context.JobProfile.Add(new JobProfile { 
+            var jobProfile = _context.JobProfile.Add(new JP { 
                 EmployeeId = jobProfileDto.EmployeeId,
                 ProfileTemplateId = jobProfileDto.ProfileTemplateId,
             });
@@ -59,7 +59,7 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<JobProfile>> UpdateJobProfile(int id, [FromBody] JobProfileDto jobProfileDto)
+        public async Task<ActionResult<JP>> UpdateJobProfile(int id, [FromBody] JobProfileDto jobProfileDto)
         {
             var jobProfile = await GetJobProfileById(id);
             if (jobProfile == null)
@@ -74,7 +74,7 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<JobProfile>> DeleteJobProfile(int id)
+        public async Task<ActionResult<JP>> DeleteJobProfile(int id)
         {
             var jobProfile = await GetJobProfileById(id);
             if (jobProfile == null)
@@ -87,9 +87,9 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             return NoContent();
         }
 
-        private async Task<JobProfile?> GetJobProfileById(int id)
+        private async Task<JP?> GetJobProfileById(int id)
         {
-            JobProfile? jp = await _context.JobProfile.FindAsync(id);
+            JP? jp = await _context.JobProfile.FindAsync(id);
             return jp;
         }
     }

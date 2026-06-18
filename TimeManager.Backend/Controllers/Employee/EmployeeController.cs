@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Xml;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
@@ -9,10 +8,16 @@ namespace TimeManager.Backend.Controllers.Employee
     public class EmployeeController : Controller
     {
         private readonly IEmployeeService _employeeService;
+        private readonly IDepartmentService _departmentService;
+        private readonly IUserService _userService;
+        //private readonly IEmployeeDepartmentService _employeeDepartmentService;
 
-        public EmployeeController(IEmployeeService employeeService)
+        public EmployeeController(IEmployeeService employeeService, IDepartmentService departmentService, IUserService userService)
         {
             _employeeService = employeeService;
+            _departmentService = departmentService;
+            _userService = userService;
+            //_employeeDepartmentService = employeeDepartmentService;
         }
 
         public async Task<IActionResult> Index()
@@ -22,19 +27,30 @@ namespace TimeManager.Backend.Controllers.Employee
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create() => View(new EmployeeViewModel());
+        public async Task<IActionResult> Create()
+        {
+            EmployeeData employeeData = new EmployeeData { 
+                EmployeeView = new EmployeeViewModel(),
+                Departments = (await _departmentService.GetDepartmentOptionsAsync()),
+                Users = (await _userService.GetUserOptionsAsync())
+            };
+            return View(employeeData);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(EmployeeViewModel employeeViewModel)
+        public async Task<IActionResult> Create(EmployeeData employeeData)
         {
-            await _employeeService.CreateEmployeeAsync(new EmployeeDto
+            int id = await _employeeService.CreateEmployeeAsync(new EmployeeDto
             {
-                Email = employeeViewModel.Email,
-                UniqueId = employeeViewModel.UniqueId,
-                FirstName = employeeViewModel.FirstName,
-                LastName = employeeViewModel.LastName,
+                Email = employeeData.EmployeeView.Email,
+                UniqueId = employeeData.EmployeeView.UniqueId,
+                FirstName = employeeData.EmployeeView.FirstName,
+                LastName = employeeData.EmployeeView.LastName,
+                UserId = employeeData.UserId,
+                DepartmentId = employeeData.DepartmentId,
             });
+            //await _employeeDepartmentService.CreateEmployeeDepartment(id, employeeData.DepartmentId);
             return RedirectToAction(nameof(Index));
         }
 
@@ -44,32 +60,41 @@ namespace TimeManager.Backend.Controllers.Employee
             var e = await _employeeService.GetEmployeeByIdAsync(id);
             if (e == null) return NotFound();
             TempData["success"] = "Employee created";
-            return View(new EmployeeViewModel
+            return View(new EmployeeData
             {
-                Id = e.Id,
-                Email = e.Email,
-                UniqueId = e.UniqueId,
-                FirstName = e.FirstName, 
-                LastName = e.LastName,
+                EmployeeView = new EmployeeViewModel
+                {
+                    Id = e.Id,
+                    UniqueId = e.UniqueId,
+                    FirstName = e.FirstName, 
+                    LastName = e.LastName,
+                },
+                Users = (await _userService.GetUserOptionsAsync()),
+                Departments = (await _departmentService.GetDepartmentOptionsAsync())
             });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, EmployeeViewModel employeeViewModel)
+        public async Task<IActionResult> Edit(int id, EmployeeData employeeData)
         {
             var e = await _employeeService.UpdateEmployeeAsync(id, new EmployeeDto
             {
-                Email = employeeViewModel.Email,
-                UniqueId = employeeViewModel.UniqueId,
-                FirstName = employeeViewModel.FirstName,
-                LastName = employeeViewModel.LastName,
+                Email = employeeData.EmployeeView.Email,
+                UniqueId = employeeData.EmployeeView.UniqueId,
+                FirstName = employeeData.EmployeeView.FirstName,
+                LastName = employeeData.EmployeeView.LastName,
+                UserId = employeeData.UserId,
+                DepartmentId = employeeData.DepartmentId,
             });
             if (e == null)
             {
                 TempData["error"] = "Employee not found";
-                return View(employeeViewModel);
+                return View(employeeData);
             }
+
+            //await _employeeDepartmentService.UpdateEmployeeDepartmentAsync(e.Id, )
+
             TempData["success"] = "Employee updated";
             return RedirectToAction(nameof(Index));
         }

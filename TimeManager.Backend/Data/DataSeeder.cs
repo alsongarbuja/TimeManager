@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
+using TimeManager.Backend.Models.AuthManagement;
+using TimeManager.Backend.Models.Employee_Management;
+using TimeManager.Backend.Services;
 
 namespace TimeManager.Backend.Data
 {
@@ -13,8 +17,10 @@ namespace TimeManager.Backend.Data
             try
             {
                 var context = services.GetRequiredService<HrmsDbContext>();
-                var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-                var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = services.GetRequiredService<UserManager<User>>();
+                var roleManager = services.GetRequiredService<RoleManager<Role>>();
+                var employeeTypeManager = services.GetRequiredService<IEmployeeTypeService>();
+                var payFrequencyManager = services.GetRequiredService<IPayFrequencyService>();
 
                 var configuration = services.GetRequiredService<IConfiguration>();
             
@@ -24,6 +30,8 @@ namespace TimeManager.Backend.Data
                 }
 
                 await SeedIdentityAsync(userManager, roleManager, configuration);
+
+                await SeedOrganizationAsync(employeeTypeManager, payFrequencyManager);
 
                 await SeedHrmsLookupDataAsync(context);
             } catch (Exception ex)
@@ -35,14 +43,22 @@ namespace TimeManager.Backend.Data
             }
         }
 
-        private static async Task SeedIdentityAsync(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration) {
-            string[] roles = { "SuperAdmin", "Admin", "Manager", "Employee", "Student Employee", "Lead", "Temp Employee" };
+        private static async Task SeedIdentityAsync(UserManager<User> userManager, RoleManager<Role> roleManager, IConfiguration configuration) {
+            var roles = new[] {
+                new Role { Name = "SuperAdmin", Description = "Super user with all access" },
+                new Role { Name = "Admin", Description = "Admin user with all access in a department" },
+                new Role { Name = "Manager", Description = "Manager with department based managing tools" }, 
+                new Role { Name = "Employee", Description = "Full time employee" }, 
+                new Role { Name = "Student Employee", Description = "Student employee" }, 
+                new Role { Name = "Lead", Description = "Full time employee with few extra settings" }, 
+                new Role { Name = "Temp Employee", Description = "Temporary worker" }, 
+            };
             
             foreach (var role in roles)
             {
-                if (!await roleManager.RoleExistsAsync(role))
+                if (!await roleManager.RoleExistsAsync(role.Name!))
                 {
-                    await roleManager.CreateAsync(new IdentityRole(role));
+                    await roleManager.CreateAsync(role);
                 }
             }
 
@@ -60,7 +76,7 @@ namespace TimeManager.Backend.Data
             {
                 try
                 {
-                    var newSuperAdmin = new IdentityUser
+                    var newSuperAdmin = new User
                     {
                         UserName = "superadmin",
                         Email = defaultSuperAdmin,
@@ -83,6 +99,39 @@ namespace TimeManager.Backend.Data
                     Console.WriteLine(ex);
                 }
             }
+        }
+
+        private static async Task SeedOrganizationAsync(IEmployeeTypeService employeeTypeService, IPayFrequencyService payFrequencyService)
+        {
+            var empTypes = new[]
+            {
+                new EmployeeTypeDto { Name = "Full Time", Description = "Full time worker" },
+                new EmployeeTypeDto { Name = "Part Time", Description = "Part time worker" },
+            };
+
+            foreach (var eT in empTypes)
+            {
+                var et = await employeeTypeService.GetEmployeeTypeByNameAsync(eT.Name);
+                if (et == null)
+                {
+                    await employeeTypeService.CreateEmployeeTypeAsync(eT);
+                }
+            }
+
+            var pfs = new[]
+            {
+                new PayFrequencyDto { Name = "Bi-weekly", Description = "Pay in bi-weekly time period" },
+                new PayFrequencyDto { Name = "Monthly", Description = "Pay in monthly time period" },
+            };
+
+            foreach(var pf in pfs)
+            {
+                var p = await payFrequencyService.GetPayFrequencyByNameAsync(pf.Name);
+                if (p == null)
+                {
+                    await payFrequencyService.CreatePayFrequencyAsync(pf);
+                }
+            } 
         }
 
         private static async Task SeedHrmsLookupDataAsync(HrmsDbContext context)

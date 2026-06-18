@@ -1,0 +1,19 @@
+﻿@model TimeManager.Backend.ViewModels.UserViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "User - Edit";
+    ViewData["ModuleTitle"] = "Edit User";
+    ViewData["ModuleSubtitle"] = "Update user data";
+    ViewData["Controller"] = "User";
+}
+
+<form asp-controller="User" asp-action="Edit" method="post" asp-route-id="@Model.Id">
+    @Html.AntiForgeryToken()
+    
+    <custom-input asp-for="UserName" />
+    <custom-input asp-for="Email" />
+    <custom-input asp-for="Password" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

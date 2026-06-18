@@ -1,4 +1,4 @@
-﻿@model TimeManager.Backend.ViewModels.EmployeeViewModel
+﻿@model TimeManager.Backend.ViewModels.EmployeeData
 
 @{
     Layout = "_FormWrapper";
@@ -11,10 +11,15 @@
 <form asp-controller="Employee" asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
-    <custom-input asp-for="FirstName" />
-    <custom-input asp-for="LastName" />
-    <custom-input asp-for="Email" />
-    <custom-input asp-for="UniqueId" />
+    <custom-input asp-for="EmployeeView.FirstName" />
+    <custom-input asp-for="EmployeeView.LastName" />
+    <custom-input asp-for="EmployeeView.UniqueId" />
+    <custom-select asp-for="UserId" asp-items="@Model.Users" />
+    @* TODO: Make it dynamic on  *@
+    @if (User.IsInRole("SuperAdmin"))
+        {
+            <custom-select asp-for="DepartmentId" asp-items="@Model.Departments" />
+        }
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

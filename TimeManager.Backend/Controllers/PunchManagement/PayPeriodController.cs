@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Punch_Management;
+using PP = TimeManager.Backend.Models.Punch_Management.PayPeriod;
 
 namespace TimeManager.Backend.Controllers.PunchManagement
 {
@@ -20,7 +20,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PayPeriod>>> GetPayPeriods()
+        public async Task<ActionResult<IEnumerable<PP>>> GetPayPeriods()
         {
             var payPeriods = await _context.PayPeriod.ToListAsync();
             return payPeriods;
@@ -94,7 +94,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
                     break;
                 }
 
-                var newPeriod = new PayPeriod
+                var newPeriod = new PP
                 {
                     StartDate = startDateUtc,
                     EndDate = endDateUtc,

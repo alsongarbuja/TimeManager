@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Employee_Management;
@@ -10,9 +11,11 @@ namespace TimeManager.Backend.Services
     {
         Task<IEnumerable<PayFrequencyViewModel>> GetPayFrequenciesAsync();
         Task<PayFrequency> GetPayFrequencyByIdAsync(int id);
+        Task<PayFrequency> GetPayFrequencyByNameAsync(string name);
         Task CreatePayFrequencyAsync(PayFrequencyDto payFrequencyDto);
         Task<PayFrequency?> UpdatePayFrequencyAsync(int id, PayFrequencyDto payFrequencyDto);
         Task<int?> DeletePayFrequencyByIdAsync(int id);
+        Task<IEnumerable<SelectListItem>> GetPayFrequencyOptionsAsync();
     }
 
     public class PayFrequencyService : IPayFrequencyService
@@ -55,6 +58,22 @@ namespace TimeManager.Backend.Services
         {
             var pf = await this.hrmsDbContext.PayFrequency.FindAsync(id);
             return pf;
+        }
+
+        public async Task<PayFrequency> GetPayFrequencyByNameAsync(string name)
+        {
+            var pf = await this.hrmsDbContext.PayFrequency.Where(pf => pf.Name.Equals(name)).FirstOrDefaultAsync();
+            return pf;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetPayFrequencyOptionsAsync()
+        {
+            var payFrequencies = await hrmsDbContext.PayFrequency.Select(pf => new SelectListItem
+            {
+                Text = pf.Name,
+                Value = pf.Id.ToString(),
+            }).ToListAsync();
+            return payFrequencies;
         }
 
         public async Task<PayFrequency?> UpdatePayFrequencyAsync(int id, PayFrequencyDto payFrequencyDto)

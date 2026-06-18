@@ -45,8 +45,7 @@ namespace TimeManager.Backend.Controllers.Role
             return View(new RoleViewModel
             {
                 Id = id,
-                Name = et.Name,
-                Description = et.Description
+                Name = et.Name ?? "Default",
             });
         }
 

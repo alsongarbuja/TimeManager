@@ -1,0 +1,20 @@
+﻿@model TimeManager.Backend.ViewModels.RegisterViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "User - Add";
+    ViewData["ModuleTitle"] = "Create User";
+    ViewData["ModuleSubtitle"] = "Add new user";
+    ViewData["Controller"] = "User";
+}
+
+<form asp-controller="User" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <custom-input asp-for="Email" />
+    <custom-select asp-for="Role" asp-items="@Model.AvailableRoles" />
+    <custom-input asp-for="Password" />
+    <custom-input asp-for="ConfirmPassword" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

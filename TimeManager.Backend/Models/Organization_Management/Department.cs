@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TimeManager.Backend.Models.Employee_Management;
 
 namespace TimeManager.Backend.Models.Organization_Management
 {
@@ -14,5 +15,6 @@ namespace TimeManager.Backend.Models.Organization_Management
         public string? Description { get; set; }
 
         public virtual ICollection<Unit> Unit { get; set; } = [];
+        public virtual ICollection<Employee> Employee { get; set; } = [];
     }
 }

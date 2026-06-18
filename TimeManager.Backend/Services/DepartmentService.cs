@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
@@ -15,6 +16,7 @@ namespace TimeManager.Backend.Services
         Task CreateDepartmentAsync(DepartmentDto departmentDto);
         Task<Department?> UpdateDepartmentAsync(int id, DepartmentDto departmentDto);
         Task<int?> DeleteDepartmentByIdAsync(int id);
+        Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync();
     }
 
     public class DepartmentService: IDepartmentService
@@ -46,6 +48,16 @@ namespace TimeManager.Backend.Services
         public async Task<Department> GetDepartmentByIdAsync(int id)
         {
             var data = await _context.Department.FindAsync(id);
+            return data;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync()
+        {
+            var data = await _context.Department.Select(d => new SelectListItem
+            {
+                Text = d.Name,
+                Value = d.Id.ToString(),
+            }).ToListAsync();
             return data;
         }
 

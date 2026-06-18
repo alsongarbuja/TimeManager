@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Employee_Management;
+using PT = TimeManager.Backend.Models.Employee_Management.ProfileTemplate;
 
 namespace TimeManager.Backend.Controllers.EmployeeManagement
 {
@@ -18,9 +18,9 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProfileTemplate>>> GetProfileTemplates()
+        public async Task<ActionResult<IEnumerable<PT>>> GetProfileTemplates()
         {
-            var data = await _context.ProfileTemplate.Select(pf => new ProfileTemplate
+            var data = await _context.ProfileTemplate.Select(pf => new PT
             {
                 Id = pf.Id,
                 EarlyClockInBufferMin = pf.EarlyClockInBufferMin,
@@ -39,7 +39,7 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProfileTemplate>> GetProfileTemplate(int id)
+        public async Task<ActionResult<PT>> GetProfileTemplate(int id)
         {
             var profileTemplate = await _context.ProfileTemplate.FindAsync(id);
             if (profileTemplate == null)
@@ -54,9 +54,9 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpPost]
-        public async Task<ActionResult<ProfileTemplate>> CreateProfileTemplate([FromBody] ProfileTemplateDto profileTemplateDto)
+        public async Task<ActionResult<PT>> CreateProfileTemplate([FromBody] ProfileTemplateDto profileTemplateDto)
         {
-            var profileTemplate = _context.ProfileTemplate.Add(new ProfileTemplate { 
+            var profileTemplate = _context.ProfileTemplate.Add(new PT { 
                 UnitId = profileTemplateDto.UnitId,
                 RoleId = profileTemplateDto.RoleId,
                 PayFrequencyId = profileTemplateDto.PayFrequencyId,
@@ -70,7 +70,7 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<ProfileTemplate>> UpdateProfileTemplate(int id, [FromBody] ProfileTemplateDto profileTemplateDto)
+        public async Task<ActionResult<PT>> UpdateProfileTemplate(int id, [FromBody] ProfileTemplateDto profileTemplateDto)
         {
             var profileTemplate = await GetProfileTemplateById(id);
             if (profileTemplate == null)
@@ -85,7 +85,7 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ProfileTemplate>> DeleteProfileTemplate(int id)
+        public async Task<ActionResult<PT>> DeleteProfileTemplate(int id)
         {
             var profileTemplate = await GetProfileTemplateById(id);
             if (profileTemplate == null)
@@ -98,9 +98,9 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             return NoContent();
         }
 
-        private async Task<ProfileTemplate?> GetProfileTemplateById(int id)
+        private async Task<PT?> GetProfileTemplateById(int id)
         {
-            ProfileTemplate? pt = await _context.ProfileTemplate.FindAsync(id);
+            PT? pt = await _context.ProfileTemplate.FindAsync(id);
             return pt;
         }
     }

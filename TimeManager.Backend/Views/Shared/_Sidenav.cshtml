@@ -1,4 +1,5 @@
-﻿@{
+﻿@using TimeManager.Backend.Extensions
+@{
     List<LinkGroup> _links = [
         new LinkGroup {
         Title = "General",
@@ -8,55 +9,84 @@
         Text = "Dashboard",
         Url = "dashboard",
         IconClass = "ri-layout-grid-line",
+        Roles = ["SuperAdmin", "Admin", "Manager", "Student Employee", "Temp Employee", "Lead", "Employee"]
         },
         new LinkProps {
         Text = "Report",
         Url = "report",
         IconClass = "ri-file-chart-line",
+        Roles = ["SuperAdmin", "Admin"]
         }
         ],
         },
+
+                      new LinkGroup {
+                            Title = "Administration",
+                            ByRole = "SuperAdmin",
+                            LinkData = [
+                                 new LinkProps {
+                                    Text = "Department",
+                                    Url = "department",
+                                    IconClass = "ri-building-4-line",
+                                    Roles = ["SuperAdmin"]
+                                 },
+                                new LinkProps {
+                                    Text = "Roles",
+                                    Url = "role",
+                                    IconClass = "ri-group-3-line",
+                                    Roles = ["SuperAdmin"]
+                                },
+                                new LinkProps {
+                                    Text = "Users",
+                                    Url = "user",
+                                    IconClass = "ri-user-line",
+                                    Roles = ["SuperAdmin"]
+                                },
+                            ],
+},
 
         new LinkGroup {
         Title = "Organization",
         LinkData = [
 
-        new LinkProps {
-        Text = "Department",
-        Url = "department",
-        IconClass = "ri-layout-grid-line",
-        },
+       
         new LinkProps {
         Text = "Unit",
         Url = "unit",
-        IconClass = "ri-layout-grid-line",
+        IconClass = "ri-archive-drawer-line",
+        Roles = ["SuperAdmin", "Admin"]
         },
         new LinkProps {
         Text = "Kiosk",
         Url = "kiosk",
-        IconClass = "ri-layout-grid-line",
+        IconClass = "ri-computer-line",
+        Roles = ["SuperAdmin", "Admin"]
         },
 
         new LinkProps {
         Text = "Pay Period",
         Url = "payperiod",
-        IconClass = "ri-time-line",
+        IconClass = "ri-calendar-2-line",
+        Roles = ["SuperAdmin"]
         },
 
         new LinkProps {
         Text = "Employee Type",
         Url = "employeetype",
-        IconClass = "ri-layout-grid-line",
+        IconClass = "ri-group-line",
+        Roles = ["SuperAdmin"]
         },
-        new LinkProps {
-        Text = "Role",
-        Url = "role",
-        IconClass = "ri-layout-grid-line",
-        },
+        // new LinkProps {
+        // Text = "Role",
+        // Url = "role",
+        // IconClass = "ri-layout-grid-line",
+        // Roles = ["SuperAdmin"]
+        // },
         new LinkProps {
         Text = "Pay Frequency",
         Url = "payfrequency",
-        IconClass = "ri-layout-grid-line",
+        IconClass = "ri-bill-line",
+        Roles = ["SuperAdmin"]
         },
         ],
         },
@@ -67,22 +97,26 @@
             new LinkProps {
                 Text = "Employee",
                 Url = "employee",
-                IconClass = "ri-layout-grid-line",
+                IconClass = "ri-folder-user-line",
+                Roles = ["SuperAdmin", "Admin"]
             },
             new LinkProps {
                 Text = "Profile Template",
                 Url = "profiletemplate",
-                IconClass = "ri-layout-grid-line",
+                IconClass = "ri-file-user-line",
+                Roles = ["SuperAdmin", "Admin"]
             },
             new LinkProps {
                 Text = "Job Profile",
                 Url = "jobprofile",
-                IconClass = "ri-layout-grid-line",
+                IconClass = "ri-account-pin-box-line",
+                Roles = ["SuperAdmin", "Admin"]
             },
             new LinkProps {
                 Text = "Scheduler",
                 Url = "scheduler",
-                IconClass = "ri-calendar-line"
+                IconClass = "ri-calendar-line",
+                Roles = ["SuperAdmin", "Admin", "Manager",]
             }
         ],
     },
@@ -99,24 +133,30 @@
         <nav class="sidebar-nav-container">
             @foreach (var grp in _links)
             {
-                <div>
-                    <span class="sidebar-group-label">@grp.Title</span>
+                @if (grp.ByRole == null || User.IsInRole(grp.ByRole))
+                {
+                    <div>
+                        <span class="sidebar-group-label">@grp.Title</span>
 
-                    <ul class="sidebar-nav-list">
+                        <ul class="sidebar-nav-list">
                         @foreach (var link in grp.LinkData)
                         {
-                            var targetUrl = $"/app/{link.Url}";
+                            @if (User.IsInAnyRole(link.Roles))
+                            {
+                                var targetUrl = $"/app/{link.Url}";
 
-                            bool IsActive = string.Equals(ViewContext.HttpContext.Request.Path.ToString().Split("/")[2], link.Url, StringComparison.OrdinalIgnoreCase);
-                            <li>
-                                <a href="@targetUrl" class="sidebar-link @(IsActive ? "is-active" : "")">
-                                    <i class="@link.IconClass sidebar-link-icon"></i>
-                                    <span>@link.Text</span>
-                                </a>
-                            </li>
+                                bool IsActive = string.Equals(ViewContext.HttpContext.Request.Path.ToString().Split("/")[2], link.Url, StringComparison.OrdinalIgnoreCase);
+                                <li>
+                                    <a href="@targetUrl" class="sidebar-link @(IsActive ? "is-active" : "")">
+                                        <i class="@link.IconClass sidebar-link-icon"></i>
+                                        <span>@link.Text</span>
+                                    </a>
+                                </li>
+                            }
                         }
                     </ul>
-                </div>
+                    </div>
+                }
             }
 
             @* <div>
@@ -138,6 +178,7 @@
     {
         public string Title { get; set; }
         public List<LinkProps> LinkData { get; set; } = new();
+        public string? ByRole { get; set; }
     }
 
     public class LinkProps
@@ -145,5 +186,6 @@
         public string Text { get; set; }
         public string Url { get; set; }
         public string IconClass { get; set; }
+        public string[] Roles { get; set; }
     }
 }

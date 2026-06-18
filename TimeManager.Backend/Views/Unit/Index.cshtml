@@ -6,7 +6,7 @@
     Layout = "_ListWrapper";
     ViewData["Title"] = "Unit";
 
-    List<string> Headers = ["Name", "Department", "Description"];
+    List<string> Headers = ["Name", "Department", "Index", "Description"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Unit";
     ViewData["ModuleDesc"] = "Manage the unit data in the system";
@@ -29,6 +29,7 @@ else
         <tr class="table-row">
             <td class="table-cell">@d.Name</td>
             <td class="table-cell">@d.DepartmentName</td>
+            <td class="table-cell">@d.Index</td>
             <td class="table-cell table-desc">@d.Description</td>
             @await Html.PartialAsync("ActionTd", new ActionTdViewModel
             {

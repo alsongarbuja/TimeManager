@@ -1,0 +1,22 @@
+﻿@model TimeManager.Backend.ViewModels.ProfileTemplateViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Profile Template - Edit";
+    ViewData["ModuleTitle"] = "Update Profile Template";
+    ViewData["ModuleSubtitle"] = "Edit the profile template";
+    ViewData["Controller"] = "ProfileTemplate";
+}
+
+<form asp-controller="ProfileTemplate" asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+
+    <custom-select asp-for="UnitId" asp-items="@Model.Units" />
+    <custom-select asp-for="RoleId" asp-items="@Model.Roles" />
+    <custom-select asp-for="EmployeeTypeId" asp-items="@Model.EmployeeTypes" />
+    <custom-select asp-for="PayFrequencyId" asp-items="@Model.PayFrequencies" />
+    <custom-input asp-for="ShiftStartTime" />
+    <custom-input asp-for="EarlyClockInBufferMin" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

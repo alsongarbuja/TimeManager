@@ -35,6 +35,7 @@ namespace TimeManager.Backend.Services
                 Name = unitDto.Name,
                 Description = unitDto.Description,
                 DepartmentId = unitDto.DepartmentId,
+                Index = unitDto.Index,
             });
             await _context.SaveChangesAsync();
         }
@@ -57,6 +58,7 @@ namespace TimeManager.Backend.Services
                 Name = u.Name,
                 Description = u.Description,
                 Department = u.Department,
+                Index = u.Index,
             }).FirstOrDefaultAsync();
             return unit;
         }
@@ -79,6 +81,7 @@ namespace TimeManager.Backend.Services
                 Name = u.Name,
                 DepartmentName = u.Department.Name,
                 Description = u.Description,
+                Index = u.Index,
             }).ToListAsync();
             return units;
         }

@@ -20,10 +20,11 @@ namespace TimeManager.Backend.TagHelpers
             var inputIsRequired = isRequired ? "required" : string.Empty;
 
             var propertyValue = For.Model?.ToString() ?? string.Empty;
+            var type = For.Metadata.DataTypeName == "Password" ? "password" : "text";
 
             var input = isMultiLine
                 ? $"<textarea name='{propertyName}' value='{propertyValue}' class='form-input'></textarea>"
-                : $"<input name='{propertyName}' {inputIsRequired} value='{propertyValue}' class='form-input' type='text' />";
+                : $"<input name='{propertyName}' {inputIsRequired} value='{propertyValue}' class='form-input' type='{type}' />";
 
             output.TagName = null;
 

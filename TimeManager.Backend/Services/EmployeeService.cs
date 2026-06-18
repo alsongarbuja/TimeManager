@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Employee_Management;
@@ -10,9 +11,10 @@ namespace TimeManager.Backend.Services
     {
         Task<IEnumerable<EmployeeViewModel>> GetEmployeesAsync();
         Task<Employee> GetEmployeeByIdAsync(int id);
-        Task CreateEmployeeAsync(EmployeeDto employeeDto);
+        Task<int> CreateEmployeeAsync(EmployeeDto employeeDto);
         Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto);
         Task<int?> DeleteEmployeeByIdAsync(int id);
+        Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync();
     }
 
     public class EmployeeService : IEmployeeService
@@ -24,15 +26,19 @@ namespace TimeManager.Backend.Services
             this.hrmsDbContext = hrmsDbContext;
         }
 
-        public async Task CreateEmployeeAsync(EmployeeDto employeeDto)
+        public async Task<int> CreateEmployeeAsync(EmployeeDto employeeDto)
         {
-            this.hrmsDbContext.Employee.Add(new Employee {
-                Email = employeeDto.Email,
+            Employee employee = new Employee
+            {
                 FirstName = employeeDto.FirstName,
                 LastName = employeeDto.LastName,
                 UniqueId = employeeDto.UniqueId,
-            });
+                UserId = employeeDto.UserId,
+                DepartmentId = employeeDto.DepartmentId,
+            };
+            hrmsDbContext.Employee.Add(employee);
             await this.hrmsDbContext.SaveChangesAsync();
+            return employee.Id;
         }
 
         public async Task<int?> DeleteEmployeeByIdAsync(int id)
@@ -51,14 +57,25 @@ namespace TimeManager.Backend.Services
             return e;
         }
 
+        public async Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync()
+        {
+            var employees = await this.hrmsDbContext.Employee.Select(e => new SelectListItem
+            {
+                Text = $"{e.FirstName} {e.LastName}",
+                Value = e.Id.ToString()
+            }).ToListAsync();
+            return employees;
+        }
+
         public async Task<IEnumerable<EmployeeViewModel>> GetEmployeesAsync()
         {
             var employees = await this.hrmsDbContext.Employee.Select(e => new EmployeeViewModel { 
                 Id = e.Id,
                 FirstName = e.FirstName, 
                 LastName = e.LastName,
-                Email = e.Email,
+                Email = e.User.Email,
                 UniqueId = e.UniqueId,
+                DepartmentName = e.Department.Name,
             }).ToListAsync();
             return employees;
         }

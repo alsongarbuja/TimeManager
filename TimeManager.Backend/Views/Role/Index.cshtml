@@ -30,12 +30,12 @@ else
             <td class="table-cell">@d.Name</td>
             <td class="table-cell table-desc">@d.Description</td>
             @await Html.PartialAsync("ActionTd", new ActionTdViewModel
-{
-        Controller = "Role",
-        Id = d.Id,
-        hasEdit = true,
-        hasDelete = true,
-})
+            {
+                Controller = "Role",
+                Id = d.Id,
+                hasEdit = true,
+                hasDelete = true,
+            })
         </tr>
     }
 }

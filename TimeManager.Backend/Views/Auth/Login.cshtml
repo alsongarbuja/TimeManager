@@ -1,0 +1,41 @@
+﻿@model TimeManager.Backend.ViewModels.LoginViewModel
+
+@{
+    Layout = "_MainLayout";
+    ViewData["Title"] = "Login";
+
+    bool isLoading = false;
+    // LoginModel loginDto = new();
+}
+
+@section styles {
+    <link href="/css/login.css" rel="stylesheet" />
+}
+
+<div class="login-container">
+    <div class="form-wrapper">
+        <h2 class="form-title text-center">
+            Welcome back
+        </h2>
+        <p class="form-subtitle text-center">
+            Please sign in to your account
+        </p>
+    </div>
+
+    <div class="mt-8 form-wrapper">
+        <div class="form-card">
+            <form class="space-y-6" asp-controller="Auth" asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                <custom-input asp-for="UserName" />
+                <custom-input asp-for="Password" />
+
+                @* <custom-input asp-for="RememberMe" /> *@
+
+                <button id="login-submit" type="submit" class="btn btn-primary w-100">Log in</button>
+            </form>
+            </<div>
+        </div>
+    </div>
+    </div>
+</div>

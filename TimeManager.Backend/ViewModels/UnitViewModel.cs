@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace TimeManager.Backend.ViewModels
 {
@@ -10,16 +11,19 @@ namespace TimeManager.Backend.ViewModels
         [Display(Name = "Name")]
         public string Name { get; set; } = string.Empty;
 
-        [Required]
         [Display(Name = "Department")]
-        public string DepartmentName { get; set; } = string.Empty;
+        public string? DepartmentName { get; set; } = string.Empty;
 
         [Required]
         [Display(Name = "DepartmentId")]
         public int DepartmentId { get; set; }
 
+        public int Index { get; set; }
+
         [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
         [Display(Name = "Description")]
         public string? Description { get; set; }
+
+        public IEnumerable<SelectListItem> Departments { get; set; } = [];
     }
 }

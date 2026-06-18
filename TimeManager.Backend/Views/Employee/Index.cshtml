@@ -6,7 +6,7 @@
     Layout = "_ListWrapper";
     ViewData["Title"] = "Employee";
 
-    List<string> Headers = ["SO Id", "Name", "Email"];
+    List<string> Headers = ["SO Id", "Name", "Email", "Department"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Employee";
     ViewData["ModuleDesc"] = "Manage the employee data in the system";
@@ -30,6 +30,7 @@ else
             <td class="table-cell">@d.UniqueId</td>
             <td class="table-cell">@d.FirstName @d.LastName</td>
             <td class="table-cell">@d.Email</td>
+            <td class="table-cell">@d.DepartmentName</td>
             @await Html.PartialAsync("ActionTd", new ActionTdViewModel
 {
         Controller = "Employee",

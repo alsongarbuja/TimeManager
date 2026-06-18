@@ -1,0 +1,39 @@
+﻿@using TimeManager.Backend.Models.Components
+@using TimeManager.Backend.ViewModels
+@model IEnumerable<PayPeriodViewModel>
+
+@{
+    Layout = "_ListWrapper";
+    ViewData["Title"] = "Pay Period";
+
+    List<string> Headers = ["Start Date", "End Date"];
+    ViewData["Headers"] = Headers;
+    ViewData["ModuleTitle"] = "Pay Period";
+    ViewData["ModuleDesc"] = "Manage the pay periods in the system";
+}
+
+@if (Model.Count() <= 0)
+{
+    <tr>
+        <td colspan="@Headers.Count"
+            class="table-empty-cell">
+            No data available
+        </td>
+    </tr>
+}
+else
+{
+    foreach (var d in Model)
+    {
+        <tr class="table-row">
+            <td class="table-cell">@d.StartDate</td>
+            <td class="table-cell table-desc">@d.EndDate</td>
+        </tr>
+    }
+}
+
+@section CustomCreate {
+    <form asp-action="Generate" asp-controller="PayPeriod" method="post">
+        <button type="submit" class="btn-create">Generate Pay periods</button>
+    </form>
+}

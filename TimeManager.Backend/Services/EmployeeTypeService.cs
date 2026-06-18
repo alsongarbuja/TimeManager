@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Employee_Management;
@@ -10,9 +11,11 @@ namespace TimeManager.Backend.Services
     {
         Task<IEnumerable<EmployeeTypeViewModel>> GetEmployeeTypesAsync();
         Task<EmployeeType> GetEmployeeTypeByIdAsync(int id);
+        Task<EmployeeType> GetEmployeeTypeByNameAsync(string name);
         Task CreateEmployeeTypeAsync(EmployeeTypeDto employeeTypeDto);
         Task<EmployeeType?> UpdateEmployeeTypeAsync(int id, EmployeeTypeDto employeeTypeDto);
         Task<int?> DeleteEmployeeTypeByIdAsync(int id);
+        Task<IEnumerable<SelectListItem>> GetEmployeeTypeOptionsAsync();
     }
 
     public class EmployeeTypeService : IEmployeeTypeService
@@ -49,6 +52,16 @@ namespace TimeManager.Backend.Services
             return et;
         }
 
+        public async Task<IEnumerable<SelectListItem>> GetEmployeeTypeOptionsAsync()
+        {
+            var roles = await hrmsDbContext.EmployeeType.Select(r => new SelectListItem
+            {
+                Text = r.Name,
+                Value = r.Id.ToString(),
+            }).ToListAsync();
+            return roles;
+        }
+
         public async Task<EmployeeType?> UpdateEmployeeTypeAsync(int id, EmployeeTypeDto employeeTypeDto)
         {
             var et = await this.hrmsDbContext.EmployeeType.FindAsync(id);
@@ -67,6 +80,12 @@ namespace TimeManager.Backend.Services
                 Description = et.Description,
             }).ToListAsync();
             return ets;
+        }
+
+        public async Task<EmployeeType> GetEmployeeTypeByNameAsync(string name)
+        {
+            var et = await hrmsDbContext.EmployeeType.Where(et => et.Name.Equals(name)).FirstOrDefaultAsync();
+            return et;
         }
     }
 }

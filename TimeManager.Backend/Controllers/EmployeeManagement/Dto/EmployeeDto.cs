@@ -20,5 +20,10 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement.Dto
         [StringLength(50, ErrorMessage = "Email cannot exceed 50 characters")]
         public string Email { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "User id is required")]
+        public int UserId { get; set; }
+
+        [Required(ErrorMessage = "Department Id is required")]
+        public int DepartmentId { get; set; }
     }
 }

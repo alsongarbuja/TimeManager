@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.Shared;
 
@@ -13,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+builder.Services.AddIdentity<User, Role>(options =>
 {
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 8;
@@ -114,8 +115,15 @@ app.MapControllers();
 
 // MVC view route setup 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}"
+    name: "login",
+    pattern: "auth/login",
+    defaults: new { controller = "Auth", action = "Login" }
+);
+
+app.MapControllerRoute(
+    name: "accessdenied",
+    pattern: "auth/accessdenied",
+    defaults: new { controller = "Auth", action = "AccessDenied" }
 );
 
 app.MapControllerRoute(

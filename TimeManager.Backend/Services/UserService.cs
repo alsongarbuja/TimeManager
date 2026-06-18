@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Organization_Management;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Services
@@ -13,6 +13,7 @@ namespace TimeManager.Backend.Services
         Task CreateUserAsync(UserViewModel uvm);
         Task<IdentityUser?> UpdateUserAsync(int id, UserViewModel uvm);
         Task<int?> DeleteUserByIdAsync(int id);
+        Task<IEnumerable<SelectListItem>> GetUserOptionsAsync();
     }
 
     public class UserService: IUserService
@@ -37,6 +38,15 @@ namespace TimeManager.Backend.Services
         public Task<IdentityUser> GetUserByIdAsync(int id)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync()
+        {
+            var users = await hrmsDbContext.Users.Select(u => new SelectListItem { 
+                Text = u.UserName,
+                Value = u.Id.ToString(),
+            }).ToListAsync();
+            return users;
         }
 
         public async Task<IEnumerable<UserViewModel>> GetUsersAsync()

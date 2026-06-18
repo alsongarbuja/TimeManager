@@ -1,23 +1,6 @@
 ﻿@using TimeManager.Backend.Extensions
 @{
     List<LinkGroup> _links = [
-                new LinkGroup {
-                            Title = "Admin",
-                            LinkData = [
-                                new LinkProps {
-                                    Text = "Users",
-                                    Url = "user",
-                                    IconClass = "ri-user-line",
-                                    Roles = ["SuperAdmin"]
-                                },
-                                new LinkProps {
-                                    Text = "Roles",
-                                    Url = "role",
-                                    IconClass = "ri-user-line",
-                                    Roles = ["SuperAdmin"]
-                                },
-                            ],
-},
         new LinkGroup {
         Title = "General",
         LinkData = [
@@ -37,40 +20,60 @@
         ],
         },
 
+                      new LinkGroup {
+                            Title = "Administration",
+                            ByRole = "SuperAdmin",
+                            LinkData = [
+                                 new LinkProps {
+                                    Text = "Department",
+                                    Url = "department",
+                                    IconClass = "ri-building-4-line",
+                                    Roles = ["SuperAdmin"]
+                                 },
+                                new LinkProps {
+                                    Text = "Roles",
+                                    Url = "role",
+                                    IconClass = "ri-group-3-line",
+                                    Roles = ["SuperAdmin"]
+                                },
+                                new LinkProps {
+                                    Text = "Users",
+                                    Url = "user",
+                                    IconClass = "ri-user-line",
+                                    Roles = ["SuperAdmin"]
+                                },
+                            ],
+},
+
         new LinkGroup {
         Title = "Organization",
         LinkData = [
 
-        new LinkProps {
-        Text = "Department",
-        Url = "department",
-        IconClass = "ri-layout-grid-line",
-        Roles = ["SuperAdmin"]
-        },
+       
         new LinkProps {
         Text = "Unit",
         Url = "unit",
-        IconClass = "ri-layout-grid-line",
+        IconClass = "ri-archive-drawer-line",
         Roles = ["SuperAdmin", "Admin"]
         },
         new LinkProps {
         Text = "Kiosk",
         Url = "kiosk",
-        IconClass = "ri-layout-grid-line",
+        IconClass = "ri-computer-line",
         Roles = ["SuperAdmin", "Admin"]
         },
 
         new LinkProps {
         Text = "Pay Period",
         Url = "payperiod",
-        IconClass = "ri-time-line",
+        IconClass = "ri-calendar-2-line",
         Roles = ["SuperAdmin"]
         },
 
         new LinkProps {
         Text = "Employee Type",
         Url = "employeetype",
-        IconClass = "ri-layout-grid-line",
+        IconClass = "ri-group-line",
         Roles = ["SuperAdmin"]
         },
         // new LinkProps {
@@ -82,7 +85,7 @@
         new LinkProps {
         Text = "Pay Frequency",
         Url = "payfrequency",
-        IconClass = "ri-layout-grid-line",
+        IconClass = "ri-bill-line",
         Roles = ["SuperAdmin"]
         },
         ],
@@ -94,19 +97,19 @@
             new LinkProps {
                 Text = "Employee",
                 Url = "employee",
-                IconClass = "ri-layout-grid-line",
+                IconClass = "ri-folder-user-line",
                 Roles = ["SuperAdmin", "Admin"]
             },
             new LinkProps {
                 Text = "Profile Template",
                 Url = "profiletemplate",
-                IconClass = "ri-layout-grid-line",
+                IconClass = "ri-file-user-line",
                 Roles = ["SuperAdmin", "Admin"]
             },
             new LinkProps {
                 Text = "Job Profile",
                 Url = "jobprofile",
-                IconClass = "ri-layout-grid-line",
+                IconClass = "ri-account-pin-box-line",
                 Roles = ["SuperAdmin", "Admin"]
             },
             new LinkProps {
@@ -130,10 +133,12 @@
         <nav class="sidebar-nav-container">
             @foreach (var grp in _links)
             {
-                <div>
-                    <span class="sidebar-group-label">@grp.Title</span>
+                @if (grp.ByRole == null || User.IsInRole(grp.ByRole))
+                {
+                    <div>
+                        <span class="sidebar-group-label">@grp.Title</span>
 
-                    <ul class="sidebar-nav-list">
+                        <ul class="sidebar-nav-list">
                         @foreach (var link in grp.LinkData)
                         {
                             @if (User.IsInAnyRole(link.Roles))
@@ -150,7 +155,8 @@
                             }
                         }
                     </ul>
-                </div>
+                    </div>
+                }
             }
 
             @* <div>
@@ -172,6 +178,7 @@
     {
         public string Title { get; set; }
         public List<LinkProps> LinkData { get; set; } = new();
+        public string? ByRole { get; set; }
     }
 
     public class LinkProps

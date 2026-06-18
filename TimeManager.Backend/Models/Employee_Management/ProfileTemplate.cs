@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using TimeManager.Backend.Models.Organization_Management;
+using TimeManager.Backend.Models.AuthManagement;
 
 namespace TimeManager.Backend.Models.Employee_Management
 {

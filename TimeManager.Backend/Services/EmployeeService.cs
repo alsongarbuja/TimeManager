@@ -10,7 +10,7 @@ namespace TimeManager.Backend.Services
     {
         Task<IEnumerable<EmployeeViewModel>> GetEmployeesAsync();
         Task<Employee> GetEmployeeByIdAsync(int id);
-        Task CreateEmployeeAsync(EmployeeDto employeeDto);
+        Task<int> CreateEmployeeAsync(EmployeeDto employeeDto);
         Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto);
         Task<int?> DeleteEmployeeByIdAsync(int id);
     }
@@ -24,15 +24,19 @@ namespace TimeManager.Backend.Services
             this.hrmsDbContext = hrmsDbContext;
         }
 
-        public async Task CreateEmployeeAsync(EmployeeDto employeeDto)
+        public async Task<int> CreateEmployeeAsync(EmployeeDto employeeDto)
         {
-            this.hrmsDbContext.Employee.Add(new Employee {
-                Email = employeeDto.Email,
+            Employee employee = new Employee
+            {
                 FirstName = employeeDto.FirstName,
                 LastName = employeeDto.LastName,
                 UniqueId = employeeDto.UniqueId,
-            });
+                UserId = employeeDto.UserId,
+                DepartmentId = employeeDto.DepartmentId,
+            };
+            hrmsDbContext.Employee.Add(employee);
             await this.hrmsDbContext.SaveChangesAsync();
+            return employee.Id;
         }
 
         public async Task<int?> DeleteEmployeeByIdAsync(int id)
@@ -57,8 +61,9 @@ namespace TimeManager.Backend.Services
                 Id = e.Id,
                 FirstName = e.FirstName, 
                 LastName = e.LastName,
-                Email = e.Email,
+                Email = e.User.Email,
                 UniqueId = e.UniqueId,
+                DepartmentName = e.Department.Name,
             }).ToListAsync();
             return employees;
         }

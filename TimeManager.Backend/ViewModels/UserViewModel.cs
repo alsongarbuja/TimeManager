@@ -5,7 +5,7 @@ namespace TimeManager.Backend.ViewModels
 {
     public class UserViewModel
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         public string? UserName { get; set; }
 
@@ -19,11 +19,10 @@ namespace TimeManager.Backend.ViewModels
         [Required, EmailAddress]
         public string Email { get; set; } = string.Empty;
 
-        [Required, MinLength(8)]
+        [MinLength(8)]
         [DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
 
-        [Required]
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;

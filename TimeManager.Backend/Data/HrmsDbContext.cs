@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.Models.Device_Management;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.Models.Organization_Management;
@@ -8,7 +8,7 @@ using TimeManager.Backend.Models.Punch_Management;
 
 namespace TimeManager.Backend.Data
 {
-    public class HrmsDbContext: IdentityDbContext<IdentityUser, IdentityRole, string>
+    public class HrmsDbContext: IdentityDbContext<User, Role, int>
     {
         public HrmsDbContext(DbContextOptions<HrmsDbContext> options): base(options)
         {
@@ -17,10 +17,10 @@ namespace TimeManager.Backend.Data
         // Employee Management Models
         public DbSet<Employee> Employee { get; set; }
         public DbSet<EmployeeType> EmployeeType { get; set; }
-        public DbSet<Role> Role { get; set; }
         public DbSet<PayFrequency> PayFrequency { get; set; }
         public DbSet<ProfileTemplate> ProfileTemplate { get; set; }
         public DbSet<JobProfile> JobProfile { get; set; }
+        //public DbSet<EmployeeDepartment> EmployeeDepartment { get; set; }
 
         // Organization Management Models
         public DbSet<Department> Department { get; set; }
@@ -41,9 +41,36 @@ namespace TimeManager.Backend.Data
                 .HasIndex(p => new { p.RoleId, p.EmployeeTypeId, p.UnitId, p.PayFrequencyId })
                 .IsUnique();
 
+            //modelBuilder.Entity<Employee>()
+            //    .HasOne(e => e.User)
+            //    .WithOne()
+            //    .HasForeignKey<Employee>(e => e.UserId)
+            //    .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Employee>()
-                .HasIndex(e => new { e.UniqueId, e.Email })
+                .HasIndex(e => new { e.UniqueId })
                 .IsUnique();
+
+            modelBuilder.Entity<EmployeeType>()
+                .HasIndex(et => new { et.Name })
+                .IsUnique();
+
+            modelBuilder.Entity<PayFrequency>()
+                .HasIndex(pf => new { pf.Name })
+                .IsUnique();
+
+            //modelBuilder.Entity<EmployeeDepartment>()
+            //    .HasKey(ed => new { ed.EmployeeId, ed.DepartmentId });
+
+            //modelBuilder.Entity<EmployeeDepartment>()
+            //    .HasOne(ed => ed.Employee)
+            //    .WithMany(e => e.EmployeeDepartments)
+            //    .HasForeignKey(ed => ed.EmployeeId);
+
+            //modelBuilder.Entity<EmployeeDepartment>()
+            //    .HasOne(ed => ed.Department)
+            //    .WithMany(d => d.EmployeeDepartments)
+            //    .HasForeignKey(ed => ed.DepartmentId);
         }
     }
 }

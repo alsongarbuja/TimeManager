@@ -10,6 +10,7 @@ namespace TimeManager.Backend.Services
     {
         Task<IEnumerable<EmployeeTypeViewModel>> GetEmployeeTypesAsync();
         Task<EmployeeType> GetEmployeeTypeByIdAsync(int id);
+        Task<EmployeeType> GetEmployeeTypeByNameAsync(string name);
         Task CreateEmployeeTypeAsync(EmployeeTypeDto employeeTypeDto);
         Task<EmployeeType?> UpdateEmployeeTypeAsync(int id, EmployeeTypeDto employeeTypeDto);
         Task<int?> DeleteEmployeeTypeByIdAsync(int id);
@@ -67,6 +68,12 @@ namespace TimeManager.Backend.Services
                 Description = et.Description,
             }).ToListAsync();
             return ets;
+        }
+
+        public async Task<EmployeeType> GetEmployeeTypeByNameAsync(string name)
+        {
+            var et = await hrmsDbContext.EmployeeType.Where(et => et.Name.Equals(name)).FirstAsync();
+            return et;
         }
     }
 }

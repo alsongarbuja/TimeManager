@@ -27,7 +27,6 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
             foreach (var d in data) {
                 employees.Add(new Emp {
                     Id = d.Id,
-                    Email = d.Email,
                     UniqueId = d.UniqueId,
                     FirstName = d.FirstName,
                     LastName = d.LastName,

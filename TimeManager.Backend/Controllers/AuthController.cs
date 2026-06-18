@@ -2,16 +2,17 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.ViewModels;
+using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers
 {
     [AllowAnonymous]
     public class AuthController : Controller
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<U> _signInManager;
         
 
-        public AuthController(SignInManager<IdentityUser> signInManager)
+        public AuthController(SignInManager<U> signInManager)
         {
             _signInManager = signInManager;
         }

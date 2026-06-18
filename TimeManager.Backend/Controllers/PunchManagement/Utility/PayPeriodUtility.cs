@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Punch_Management;
+using PP = TimeManager.Backend.Models.Punch_Management.PayPeriod;
 
 namespace TimeManager.Backend.Controllers.PunchManagement.Utility
 {
@@ -13,19 +13,19 @@ namespace TimeManager.Backend.Controllers.PunchManagement.Utility
             _hrmsDbContext = hrmsDbContext;
         }
 
-        public async Task<PayPeriod> GetCurrentPayPeriod() { 
+        public async Task<PP?> GetCurrentPayPeriod() { 
             DateTimeOffset dateNow = DateTimeOffset.Now.UtcDateTime;
 
-            PayPeriod pp = await _hrmsDbContext.PayPeriod.Where(
+            PP? pp = await _hrmsDbContext.PayPeriod.Where(
                 pp => dateNow >= pp.StartDate && dateNow <= pp.EndDate
-                ).FirstAsync();
+                ).FirstOrDefaultAsync();
 
-            return pp;
+            return pp ?? null;
         }
 
-        public async Task<PayPeriod?> GetPayPeriodByIdAsync(int id)
+        public async Task<PP?> GetPayPeriodByIdAsync(int id)
         {
-            PayPeriod pp = await _hrmsDbContext.PayPeriod.FindAsync(id);
+            PP pp = await _hrmsDbContext.PayPeriod.FindAsync(id);
             return pp;
         }
 
@@ -33,7 +33,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement.Utility
         {
             var map = new Dictionary<string, string>();
 
-            PayPeriod pp = await GetCurrentPayPeriod();
+            PP pp = await GetCurrentPayPeriod();
 
             return map;
         }

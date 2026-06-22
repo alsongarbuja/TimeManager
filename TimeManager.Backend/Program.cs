@@ -11,7 +11,6 @@ DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 builder.Services.AddIdentity<User, Role>(options =>
@@ -33,19 +32,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
 });
-
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-//    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-//    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
-//})
-//    .AddCookie(IdentityConstants.ApplicationScheme)
-//    .AddBearerToken(IdentityConstants.BearerScheme);
-//builder.Services.AddIdentityCore<IdentityUser>()
-//    .AddRoles<IdentityRole>()
-//    .AddEntityFrameworkStores<HrmsDbContext>()
-//    .AddApiEndpoints();
 
 builder.Services.AddControllersWithViews(options =>
 {
@@ -69,8 +55,10 @@ builder.Services.AddCors(options =>
 //builder.Services.AddDbContext<HrmsDbContext>(options =>
 //    options.UseMySql(connectionString, serverVersion));
 
+var connectionString = builder.Configuration.GetConnectionString("SQLConnectionString");
+
 builder.Services.AddDbContext<HrmsDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLServerConnection")));
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<PayPeriodUtility>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();

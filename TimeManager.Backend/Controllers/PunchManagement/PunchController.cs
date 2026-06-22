@@ -42,6 +42,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
                 ).FirstOrDefaultAsync();
 
             var msg = "";
+            bool isClockedOut = false;
 
             if (punchEntry != null)
             {
@@ -49,6 +50,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
                     ClockOut = DateTime.UtcNow
                 });
                 msg = "Succefully clocked out!!";
+                isClockedOut = true;
             } else
             {
                 if (IsClockInAllowed(jobProfile.shiftStartTime, jobProfile.earlyBufferMin))
@@ -66,7 +68,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = msg });
+            return Ok(new { message = msg, isClockedOut = isClockedOut });
         }
         private bool IsClockInAllowed(TimeOnly startShiftTime, int EarlyBufferMin)
         {

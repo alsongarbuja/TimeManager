@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Controllers.Organization.Dto;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Unit
 {
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class UnitController : Controller
     {
         private readonly IUnitService unitService;

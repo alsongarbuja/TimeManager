@@ -9,7 +9,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IUnitService
     {
-        Task<IEnumerable<UnitViewModel>> GetUnitsAysnc();
+        Task<IEnumerable<UnitViewModel>> GetUnitsAysnc(int? departmentId);
         Task<Unit> GetUnitByIdAsync(int id);
         Task CreateUnitAsync(UnitDto departmentDto);
         Task<Unit?> UpdateUnitAsync(int id, UnitDto departmentDto);
@@ -73,7 +73,7 @@ namespace TimeManager.Backend.Services
             return units;
         }
 
-        public async Task<IEnumerable<UnitViewModel>> GetUnitsAysnc()
+        public async Task<IEnumerable<UnitViewModel>> GetUnitsAysnc(int? departmentId)
         {
             var units = await _context.Unit.Select(u => new UnitViewModel
             {
@@ -82,7 +82,14 @@ namespace TimeManager.Backend.Services
                 DepartmentName = u.Department.Name,
                 Description = u.Description,
                 Index = u.Index,
+                DepartmentId = u.DepartmentId,
             }).ToListAsync();
+
+            if (departmentId != null)
+            {
+                Console.WriteLine("Filtering....");
+                units = units.Where(u => u.DepartmentId == (int)departmentId).ToList();
+            }
             return units;
         }
 

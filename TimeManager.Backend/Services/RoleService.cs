@@ -54,7 +54,7 @@ namespace TimeManager.Backend.Services
                 .Where(r => r.Name != SuperAdminRole)
                 .Select(r => new SelectListItem {
                     Text = r.Name,
-                    Value = r.Id.ToString(),
+                    Value = r.Name,
                 }).ToListAsync();
             return roles;
         }

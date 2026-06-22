@@ -11,16 +11,20 @@ namespace TimeManager.Backend.Controllers.Unit
     {
         private readonly IUnitService unitService;
         private readonly IDepartmentService departmentService;
+        private readonly CurrentEmployeeService currentEmployeeService;
 
-        public UnitController(IUnitService unitService, IDepartmentService departmentService)
+        public UnitController(IUnitService unitService, IDepartmentService departmentService, CurrentEmployeeService currentEmployeeService)
         {
             this.unitService = unitService;
             this.departmentService = departmentService;
+            this.currentEmployeeService = currentEmployeeService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var units = await this.unitService.GetUnitsAysnc();
+            int departmentId = await currentEmployeeService.GetCurrentEmployeeDepartmentIdAsync(null);
+
+            var units = await this.unitService.GetUnitsAysnc(departmentId);
             return View(units);
         }
 
@@ -53,11 +57,13 @@ namespace TimeManager.Backend.Controllers.Unit
                 }
                 return View(unitViewModel);
             }
+            int departmentId = await currentEmployeeService.GetCurrentEmployeeDepartmentIdAsync(unitViewModel.DepartmentId);
+
             await this.unitService.CreateUnitAsync(new UnitDto
             {
                 Name = unitViewModel.Name,
                 Description = unitViewModel.Description,
-                DepartmentId = unitViewModel.DepartmentId,
+                DepartmentId = departmentId,
                 Index = unitViewModel.Index,
             });
             TempData["Success"] = "Unit created";
@@ -86,12 +92,13 @@ namespace TimeManager.Backend.Controllers.Unit
         public async Task<IActionResult> Edit(int id, UnitViewModel uvm)
         {
             if (!ModelState.IsValid) return View(uvm);
+            int departmentId = await currentEmployeeService.GetCurrentEmployeeDepartmentIdAsync(uvm.DepartmentId);
             var d = await this.unitService.UpdateUnitAsync(id, new UnitDto
             {
                 Name = uvm.Name,
                 Index = uvm.Index,
                 Description = uvm.Description,
-                DepartmentId = uvm.DepartmentId,
+                DepartmentId = departmentId,
             });
 
             if (d == null)

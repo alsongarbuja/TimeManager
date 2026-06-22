@@ -23,12 +23,19 @@ namespace TimeManager.Backend.Services
         private readonly HrmsDbContext hrmsDbContext;
         private readonly UserManager<User> userManager;
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IConfiguration configuration;
 
-        public UserService(HrmsDbContext hrmsDbContext, IHttpContextAccessor httpContextAccessor, UserManager<User> userManager)
+        public UserService(
+            HrmsDbContext hrmsDbContext, 
+            IHttpContextAccessor httpContextAccessor, 
+            UserManager<User> userManager,
+            IConfiguration configuration
+        )
         {
             this.hrmsDbContext = hrmsDbContext;
             this.httpContextAccessor = httpContextAccessor;
             this.userManager = userManager;
+            this.configuration = configuration;
         }
 
         public Task CreateUserAsync(UserViewModel uvm)
@@ -48,17 +55,41 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync()
         {
-            var users = await hrmsDbContext.Users
+            var currUser = await userManager.GetUserAsync(httpContextAccessor.HttpContext!.User);
+            var currUserRole = await userManager.GetRolesAsync(currUser!);
+
+            var superAdminRole = configuration["Auth:SuperAdminRole"] ?? throw new InvalidOperationException("Super admin role must be configured in the env");
+            var isSuperUser = currUserRole.Contains(superAdminRole);
+
+            IEnumerable<SelectListItem> users = [];
+
+            if (isSuperUser)
+            {
+                users = await hrmsDbContext.Users
                 .Where(u => !hrmsDbContext.UserRoles
-                .Join(hrmsDbContext.Roles, ur => ur.RoleId, r => r.Id, 
+                .Join(hrmsDbContext.Roles, ur => ur.RoleId, r => r.Id,
                     (ur, r) => new { ur.UserId, r.Name })
-                .Any(ur => ur.UserId == u.Id && (ur.Name == "SuperAdmin" || ur.Name == "Admin")))
+                .Any(ur => ur.UserId == u.Id && ur.Name == "SuperAdmin"))
                 .Select(u => new SelectListItem
-                    {
-                        Text = u.UserName,
-                        Value = u.Id.ToString(),
-                    })
+                {
+                    Text = u.UserName,
+                    Value = u.Id.ToString(),
+                })
                 .ToListAsync();
+            } else
+            {
+                users = await hrmsDbContext.Users
+                    .Where(u => !hrmsDbContext.UserRoles
+                    .Join(hrmsDbContext.Roles, ur => ur.RoleId, r => r.Id, 
+                        (ur, r) => new { ur.UserId, r.Name })
+                    .Any(ur => ur.UserId == u.Id && (ur.Name == "SuperAdmin" || ur.Name == "Admin")))
+                    .Select(u => new SelectListItem
+                        {
+                            Text = u.UserName,
+                            Value = u.Id.ToString(),
+                        })
+                    .ToListAsync();
+            }
 
             return users;
         }

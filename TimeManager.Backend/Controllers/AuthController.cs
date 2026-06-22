@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 using U = TimeManager.Backend.Models.AuthManagement.User;
 
@@ -10,11 +11,12 @@ namespace TimeManager.Backend.Controllers
     public class AuthController : Controller
     {
         private readonly SignInManager<U> _signInManager;
-        
+        private readonly IDepartmentService departmentService;
 
-        public AuthController(SignInManager<U> signInManager)
+        public AuthController(SignInManager<U> signInManager, IDepartmentService departmentService)
         {
             _signInManager = signInManager;
+            this.departmentService = departmentService;
         }
 
         [HttpGet]

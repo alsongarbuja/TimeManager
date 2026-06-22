@@ -150,7 +150,6 @@ kbd {
 }
 
 .success-modal {
-    background: #000000;
     color: #ffffff;
     padding: 3rem 2.5rem;
     border-radius: 16px;
@@ -161,6 +160,14 @@ kbd {
     overflow: hidden;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
     animation: modalScaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.success-modal-out {
+    background: red;
+}
+
+.success-modal-in {
+    background: green;
 }
 
 @keyframes modalScaleUp {
@@ -190,7 +197,7 @@ kbd {
 .modal-time {
     font-size: 1.1rem;
     font-weight: 500;
-    color: #888888;
+    color: navajowhite;
     margin-bottom: 1.5rem;
 }
 

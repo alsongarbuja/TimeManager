@@ -39,7 +39,8 @@ namespace TimeManager.Backend.Data
 
             modelBuilder.Entity<ProfileTemplate>()
                 .HasIndex(p => new { p.RoleId, p.EmployeeTypeId, p.UnitId, p.PayFrequencyId })
-                .IsUnique();
+                .IsUnique()
+                .HasDatabaseName("UX_ProfileTemplate_EmployeeType_Role_PayFrequency_Unit");
 
             //modelBuilder.Entity<Employee>()
             //    .HasOne(e => e.User)
@@ -71,6 +72,12 @@ namespace TimeManager.Backend.Data
             //    .HasOne(ed => ed.Department)
             //    .WithMany(d => d.EmployeeDepartments)
             //    .HasForeignKey(ed => ed.DepartmentId);
+
+            modelBuilder.Entity<JobProfile>()
+                .HasOne(jp => jp.ProfileTemplate)
+                .WithMany(pt => pt.JobProfile)
+                .HasForeignKey(jp => jp.ProfileTemplateId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -63,11 +63,15 @@ builder.Services.AddCors(options =>
     });
 });
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-var serverVersion = ServerVersion.AutoDetect(connectionString);
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//var serverVersion = ServerVersion.AutoDetect(connectionString);
+
+//builder.Services.AddDbContext<HrmsDbContext>(options =>
+//    options.UseMySql(connectionString, serverVersion));
 
 builder.Services.AddDbContext<HrmsDbContext>(options =>
-    options.UseMySql(connectionString, serverVersion));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLServerConnection")));
+
 builder.Services.AddScoped<PayPeriodUtility>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
@@ -80,9 +84,6 @@ builder.Services.AddScoped<IProfileTemplateService, ProfileTemplateService>();
 builder.Services.AddScoped<IJobProfileService, JobProfileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUserService, UserService>();
-
-//builder.Services.AddDbContext<HrmsDbContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultServer")));
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

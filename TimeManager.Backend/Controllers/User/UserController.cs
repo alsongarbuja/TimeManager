@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TimeManager.Backend.Services;
@@ -8,17 +9,18 @@ using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers.User
 {
+    [Authorize(Roles = "SuperAdmin")]
     public class UserController : Controller
     {
         private readonly UserManager<U> _userManager;
-        private readonly RoleManager<R> _roleManager;
+        private readonly IRoleService roleService;
         private readonly IUserService userService;
         private readonly IConfiguration _configuration;
 
-        public UserController(UserManager<U> userManager, IUserService userService, RoleManager<R> roleManager, IConfiguration configuration)
+        public UserController(UserManager<U> userManager, IUserService userService, IRoleService roleService, IConfiguration configuration)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
+            this.roleService = roleService;
             this.userService = userService;
             _configuration = configuration;
         }
@@ -33,10 +35,10 @@ namespace TimeManager.Backend.Controllers.User
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            string superAdminRole = _configuration["Auth:SuperAdminRole"] ?? throw new InvalidOperationException("Super admin role must be configured in the env");
             var model = new RegisterViewModel
             {
-                AvailableRoles = _roleManager.Roles
-            .Select(r => new SelectListItem { Value = r.Name, Text = r.Name })
+                AvailableRoles = (await roleService.GetRoleOptionsAsync(superAdminRole))
             };
             return View(model);
         }

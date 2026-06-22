@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Department
 {
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class DepartmentController : Controller
     {
         private readonly IDepartmentService departmentService;

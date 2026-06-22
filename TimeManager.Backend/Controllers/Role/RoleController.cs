@@ -1,22 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Role
 {
+    [Authorize(Roles = "SuperAdmin")]
     public class RoleController : Controller
     {
         private readonly IRoleService _roleService;
+        private readonly IConfiguration _configuration;
 
-        public RoleController(IRoleService roleService)
+        public RoleController(IRoleService roleService, IConfiguration configuration)
         {
             _roleService = roleService;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Index()
         {
-            var roles = await _roleService.GetRolesAsync();
+            string superAdminRole = _configuration["Auth:SuperAdminRole"] ?? throw new InvalidOperationException("Super Admin Role name is not configured in env");
+            Console.WriteLine(superAdminRole);
+            var roles = await _roleService.GetRolesAsync(superAdminRole);
             return View(roles);
         }
 

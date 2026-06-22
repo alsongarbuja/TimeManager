@@ -29,7 +29,7 @@ namespace TimeManager.Backend.TagHelpers
             output.TagName = null;
 
             output.Content.SetHtmlContent(
-                $"<div class='form-group>'" +
+                $"<div class='form-group'>" +
                     $"<label class='form-label'>{labelText}{required}</label>" +
                     $"<div class='form-input-wrapper'>{input}</div>" +
                 $"</div>"

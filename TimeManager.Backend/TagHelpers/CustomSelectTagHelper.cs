@@ -42,13 +42,13 @@ namespace TimeManager.Backend.TagHelpers
             }
 
             output.Content.SetHtmlContent($@"
-                <div class='col-md-4'>
+                <div class='form-group'>
                     <label for='{propertyName}' class='form-label fw-semibold'>
                         {labelText} {requiredSpan}
                     </label>
                     <select id='{propertyName}'
                             name='{propertyName}'
-                            class='form-select'
+                            class='form-input'
                             {requiredAttr}>
                         {options}
                     </select>

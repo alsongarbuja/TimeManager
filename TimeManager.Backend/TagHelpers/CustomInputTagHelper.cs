@@ -25,7 +25,21 @@ namespace TimeManager.Backend.TagHelpers
             var inputIsRequired = isRequired ? "required" : string.Empty;
 
             var propertyValue = For.Model?.ToString() ?? string.Empty;
-            var type = For.Metadata.DataTypeName == "Password" ? "password" : "text";
+
+            string type = "text";
+            
+            if (For.Metadata.DataTypeName == "Password")
+            {
+                type = "password";
+            } else if (For.Metadata.DataTypeName == "Time" || For.ModelExplorer.ModelType == typeof(TimeOnly) || For.ModelExplorer.ModelType == typeof(TimeOnly?))
+            {
+                type = "time";
+            }
+            else if (For.ModelExplorer.ModelType == typeof(int) || For.ModelExplorer.ModelType == typeof(int?) ||
+            For.ModelExplorer.ModelType == typeof(decimal) || For.ModelExplorer.ModelType == typeof(decimal?))
+            {
+                type = "number";
+            }
 
             var hasErrors = ViewContext.ModelState.TryGetValue(propertyName, out var modelStateEntry) && modelStateEntry.Errors.Any();
 

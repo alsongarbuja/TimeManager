@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.Device.Dto;
 using TimeManager.Backend.Data;
-using TimeManager.Backend.Models.Device_Management;
+using K = TimeManager.Backend.Models.Device_Management.Kiosk;
 
 namespace TimeManager.Backend.Controllers.Device
 {
@@ -18,14 +18,14 @@ namespace TimeManager.Backend.Controllers.Device
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Kiosk>>> GetKiosks()
+        public async Task<ActionResult<IEnumerable<K>>> GetKiosks()
         {
             var data = await _context.Kiosk.ToListAsync();
             return data;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Kiosk>> GetKiosk(int id)
+        public async Task<ActionResult<K>> GetKiosk(int id)
         {
             var kiosk = await _context.Kiosk.FindAsync(id);
 
@@ -38,9 +38,9 @@ namespace TimeManager.Backend.Controllers.Device
         }
 
         [HttpPost]
-        public async Task<ActionResult<Kiosk>> CreateKiosk([FromBody] KioskDto kioskDto)
+        public async Task<ActionResult<K>> CreateKiosk([FromBody] KioskDto kioskDto)
         {
-            var data = _context.Kiosk.Add(new Kiosk
+            var data = _context.Kiosk.Add(new K
             {
                 Name = kioskDto.Name,
                 Description = kioskDto.Description,
@@ -53,7 +53,7 @@ namespace TimeManager.Backend.Controllers.Device
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<Kiosk>> UpdateKiosk(int id, [FromBody] KioskDto kioskDto)
+        public async Task<ActionResult<K>> UpdateKiosk(int id, [FromBody] KioskDto kioskDto)
         {
             var kiosk = await GetKiosk(id);
 
@@ -83,9 +83,9 @@ namespace TimeManager.Backend.Controllers.Device
             return NoContent();
         }
 
-        private async Task<Kiosk?> GetKioskById(int id)
+        private async Task<K?> GetKioskById(int id)
         {
-            Kiosk? k = await _context.Kiosk.FindAsync(id);
+            K? k = await _context.Kiosk.FindAsync(id);
             return k;
         }
     }

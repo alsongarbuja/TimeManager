@@ -46,18 +46,13 @@ namespace TimeManager.Backend.Controllers.User
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Where(x => x.Value.Errors.Count > 0)
-                           .Select(x => new
-                           {
-                               Key = x.Key,
-                               Errors = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
-                           });
-
-                foreach (var error in errors)
-                {
-                    Console.WriteLine($"Field: {error.Key} | Error: {error.Errors}");
-                }
-                return View(rvm);
+                return View(new RegisterViewModel {
+                    Email = rvm.Email,
+                    Role = rvm.Role,
+                    Password = rvm.Password,
+                    ConfirmPassword = rvm.ConfirmPassword,
+                    AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role))
+                });
             }
 
             var user = new U { UserName = rvm.Email.Split("@")[0], Email = rvm.Email, EmailConfirmed = true };
@@ -72,9 +67,18 @@ namespace TimeManager.Backend.Controllers.User
             }
 
             foreach (var error in result.Errors)
-                ModelState.AddModelError("", error.Description);
+            {
+                ModelState.AddModelError(error.Code, error.Description);
+            }
 
-            return View(rvm);
+            return View(new RegisterViewModel
+            {
+                Email = rvm.Email,
+                Role = rvm.Role,
+                Password = rvm.Password,
+                ConfirmPassword = rvm.ConfirmPassword,
+                AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role))
+            });
         }
 
         [HttpGet]
@@ -98,6 +102,14 @@ namespace TimeManager.Backend.Controllers.User
         {
             var u = await userService.UpdateUserAsync(id, rvm);
             if (u == null) return View(rvm);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await userService.DeleteUserByIdAsync(id);
             return RedirectToAction(nameof(Index));
         }
     }

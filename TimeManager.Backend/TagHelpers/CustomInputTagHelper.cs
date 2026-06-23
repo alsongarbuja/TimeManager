@@ -60,7 +60,7 @@ namespace TimeManager.Backend.TagHelpers
             }
 
             var errorSpan = hasErrors
-                   ? $"<span>{errorMessage}</span>"
+                   ? $"<span class='form-error'>{errorMessage}</span>"
                    : string.Empty;
 
             output.TagName = null;

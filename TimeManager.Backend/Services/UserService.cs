@@ -12,7 +12,7 @@ namespace TimeManager.Backend.Services
     {
         Task<IEnumerable<UserViewModel>> GetUsersAsync();
         Task<(User User, IList<string> Roles)> GetUserByIdAsync(int id);
-        Task CreateUserAsync(UserViewModel uvm);
+        //Task CreateUserAsync(UserViewModel uvm);
         Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm);
         Task<int?> DeleteUserByIdAsync(int id);
         Task<IEnumerable<SelectListItem>> GetUserOptionsAsync();
@@ -38,14 +38,15 @@ namespace TimeManager.Backend.Services
             this.configuration = configuration;
         }
 
-        public Task CreateUserAsync(UserViewModel uvm)
+        public async Task<int?> DeleteUserByIdAsync(int id)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<int?> DeleteUserByIdAsync(int id)
-        {
-            throw new NotImplementedException();
+            var user = await userManager.FindByIdAsync(id.ToString());
+            if (user == null) return null;
+            var DeleteResult = await userManager.DeleteAsync(user);
+            if (!DeleteResult.Succeeded) {
+                return null;
+            }
+            return id;
         }
 
         public async Task<(User User, IList<string> Roles)> GetUserByIdAsync(int id)

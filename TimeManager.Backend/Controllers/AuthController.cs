@@ -32,16 +32,6 @@ namespace TimeManager.Backend.Controllers
         {
             if (!ModelState.IsValid)
             {
-                //var errors = ModelState.Where(x => x.Value.Errors.Count > 0)
-                //           .Select(x => new {
-                //               Key = x.Key,
-                //               Errors = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
-                //           });
-
-                //foreach (var error in errors)
-                //{
-                //    Console.WriteLine($"Field: {error.Key} | Error: {error.Errors}");
-                //}
                 return View(model);
             }
 

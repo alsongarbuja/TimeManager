@@ -8,6 +8,10 @@
     ViewData["Controller"] = "User";
 }
 
+@section scripts {
+    <script src="~/js/passwordtoggle.js" defer></script>
+}
+
 <form asp-controller="User" asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 

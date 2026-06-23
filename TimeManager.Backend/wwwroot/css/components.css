@@ -74,6 +74,32 @@
     color: #dc2626;
 }
 
+.password-toggle-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-toggle-wrapper .form-input {
+    padding-right: 2.5rem;
+    width: 100%;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0;
+    color: #666;
+}
+
+input::-ms-reveal {
+    display: none;
+}
+
 /* Custom Table Styling */
 .tbl {
 

@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
-using R = TimeManager.Backend.Models.AuthManagement.Role;
 using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers.User
@@ -35,10 +33,9 @@ namespace TimeManager.Backend.Controllers.User
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            string superAdminRole = _configuration["Auth:SuperAdminRole"] ?? throw new InvalidOperationException("Super admin role must be configured in the env");
             var model = new RegisterViewModel
             {
-                AvailableRoles = (await roleService.GetRoleOptionsAsync(superAdminRole))
+                AvailableRoles = (await roleService.GetRoleOptionsAsync())
             };
             return View(model);
         }
@@ -78,6 +75,30 @@ namespace TimeManager.Backend.Controllers.User
                 ModelState.AddModelError("", error.Description);
 
             return View(rvm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var (user, role) = await userService.GetUserByIdAsync(id);
+
+            var model = new RegisterViewModel
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Role = role[0],
+                AvailableRoles = (await roleService.GetRoleOptionsAsync(role[0]))
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, RegisterViewModel rvm)
+        {
+            var u = await userService.UpdateUserAsync(id, rvm);
+            if (u == null) return View(rvm);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

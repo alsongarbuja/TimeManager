@@ -45,7 +45,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
             ProfileTemplateViewModel pvm = new ProfileTemplateViewModel
             {
                 Units = (await unitService.GetUnitReportOptionsAsync()),
-                Roles = (await roleService.GetRoleOptionsAsync(superAdminRole)),
+                Roles = (await roleService.GetRoleOptionsAsync()),
                 EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
                 PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
             };
@@ -74,7 +74,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
                 PayFrequencyId = pt.PayFrequencyId,
                 RoleId = pt.RoleId,
                 Units = (await unitService.GetUnitReportOptionsAsync()),
-                Roles = (await roleService.GetRoleOptionsAsync(superAdminRole)),
+                Roles = (await roleService.GetRoleOptionsAsync()),
                 EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
                 PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
             };
@@ -95,7 +95,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
                 PayFrequencyId = pt.PayFrequencyId,
                 RoleId = pt.RoleId,
                 Units = (await unitService.GetUnitReportOptionsAsync()),
-                Roles = (await roleService.GetRoleOptionsAsync(superAdminRole)),
+                Roles = (await roleService.GetRoleOptionsAsync()),
                 EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
                 PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
             };

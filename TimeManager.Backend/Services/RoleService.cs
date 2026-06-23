@@ -9,12 +9,12 @@ namespace TimeManager.Backend.Services
 {
     public interface IRoleService
     {
-        Task<IEnumerable<RoleViewModel>> GetRolesAsync(string SuperAdminRole);
+        Task<IEnumerable<RoleViewModel>> GetRolesAsync();
         Task<Role> GetRoleByIdAsync(int id);
         Task CreateRoleAsync(RoleDto roleDto);
         Task<Role?> UpdateRoleAsync(int id, RoleDto roleDto);
         Task<int?> DeleteRoleByIdAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(string SuperAdminRole);
+        Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(string selectedItem = "");
     }
 
     public class RoleService: IRoleService
@@ -48,21 +48,22 @@ namespace TimeManager.Backend.Services
             return r;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(string SuperAdminRole)
+        public async Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(string selectedItem = "")
         {
             var roles = await hrmsDbContext.Roles
-                .Where(r => r.Name != SuperAdminRole)
+                .Where(r => r.Name != "SuperAdmin")
                 .Select(r => new SelectListItem {
                     Text = r.Name,
                     Value = r.Name,
+                    Selected = r.Name == selectedItem,
                 }).ToListAsync();
             return roles;
         }
 
-        public async Task<IEnumerable<RoleViewModel>> GetRolesAsync(string SuperAdminRole)
+        public async Task<IEnumerable<RoleViewModel>> GetRolesAsync()
         {
             var roles = await this.hrmsDbContext.Roles
-                .Where(r => r.Name != SuperAdminRole)
+                .Where(r => r.Name != "SuperAdmin")
                 .Select(r => new RoleViewModel
                     {
                         Id = r.Id,

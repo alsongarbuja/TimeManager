@@ -11,9 +11,9 @@ namespace TimeManager.Backend.Services
     public interface IUserService
     {
         Task<IEnumerable<UserViewModel>> GetUsersAsync();
-        Task<IdentityUser> GetUserByIdAsync(int id);
+        Task<(User User, IList<string> Roles)> GetUserByIdAsync(int id);
         Task CreateUserAsync(UserViewModel uvm);
-        Task<IdentityUser?> UpdateUserAsync(int id, UserViewModel uvm);
+        Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm);
         Task<int?> DeleteUserByIdAsync(int id);
         Task<IEnumerable<SelectListItem>> GetUserOptionsAsync();
     }
@@ -48,9 +48,14 @@ namespace TimeManager.Backend.Services
             throw new NotImplementedException();
         }
 
-        public Task<IdentityUser> GetUserByIdAsync(int id)
+        public async Task<(User User, IList<string> Roles)> GetUserByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var user = await userManager.FindByIdAsync(id.ToString());
+            if (user == null) return (null, null);
+
+            var roles = await userManager.GetRolesAsync(user);
+
+            return (user, roles);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync()
@@ -105,9 +110,26 @@ namespace TimeManager.Backend.Services
             return users;
         }
 
-        public Task<IdentityUser?> UpdateUserAsync(int id, UserViewModel uvm)
+        public async Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm)
         {
-            throw new NotImplementedException();
+            var u = await userManager.FindByIdAsync(id.ToString());
+            if (u == null) return null;
+
+            u.Email = rvm.Email;
+            u.UserName = rvm.Email.Split("@")[0];
+
+            var updatedUser = await userManager.UpdateAsync(u);
+            if (!updatedUser.Succeeded) return null;
+
+            if (!string.IsNullOrEmpty(rvm.Password))
+            {
+                await userManager.RemovePasswordAsync(u);
+                var passwordUpdated = await userManager.AddPasswordAsync(u, rvm.Password);
+
+                if (!passwordUpdated.Succeeded) return null; 
+            }
+            
+            return u;
         }
     }
 }

@@ -10,19 +10,15 @@ namespace TimeManager.Backend.Controllers.Role
     public class RoleController : Controller
     {
         private readonly IRoleService _roleService;
-        private readonly IConfiguration _configuration;
 
-        public RoleController(IRoleService roleService, IConfiguration configuration)
+        public RoleController(IRoleService roleService)
         {
             _roleService = roleService;
-            _configuration = configuration;
         }
 
         public async Task<IActionResult> Index()
         {
-            string superAdminRole = _configuration["Auth:SuperAdminRole"] ?? throw new InvalidOperationException("Super Admin Role name is not configured in env");
-            Console.WriteLine(superAdminRole);
-            var roles = await _roleService.GetRolesAsync(superAdminRole);
+            var roles = await _roleService.GetRolesAsync();
             return View(roles);
         }
 

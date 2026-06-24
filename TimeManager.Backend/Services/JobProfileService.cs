@@ -8,7 +8,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IJobProfileService
     {
-        Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync();
+        Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId);
         Task<JobProfile> GetJobProfileByIdAsync(int id);
         Task CreateJobProfileAsync(JobProfileViewModel jpvm);
         Task<JobProfile?> UpdateJobProfileASync(int id, JobProfileViewModel jpvm);
@@ -48,15 +48,33 @@ namespace TimeManager.Backend.Services
             return jp;
         }
 
-        public async Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync()
+        public async Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId)
         {
-            var jobprofiles = await _context.JobProfile.Select(jp =>
-            new JobProfileViewModel {
-                Id = jp.Id,
-                EmployeeId = jp.EmployeeId,
-                EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
-            }).ToListAsync();
+            IEnumerable<JobProfileViewModel> jobprofiles = [];
+            
+            if (departmentId == null)
+            {
+                jobprofiles = await _context.JobProfile.Select(jp =>
+                new JobProfileViewModel {
+                    Id = jp.Id,
+                    EmployeeId = jp.EmployeeId,
+                    EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
+                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
+                }).ToListAsync();
+            } else
+            {
+                jobprofiles = await _context.JobProfile
+                    .Where(jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId)
+                    .Select(jp =>
+                new JobProfileViewModel
+                {
+                    Id = jp.Id,
+                    EmployeeId = jp.EmployeeId,
+                    EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
+                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
+                }).ToListAsync();
+            }
+
             return jobprofiles;
         }
 

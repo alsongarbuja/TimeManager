@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
@@ -34,7 +35,8 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
 
         public async Task<IActionResult> Index()
         {
-            var profileTemplates = await profileTemplateService.GetProfileTemplatesAsync();
+            int? departmentId = HttpContext.Session.GetDepartmentId();
+            var profileTemplates = await profileTemplateService.GetProfileTemplatesAsync(departmentId);
             return View(profileTemplates);
         }
 

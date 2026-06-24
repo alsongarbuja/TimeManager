@@ -96,6 +96,7 @@ namespace TimeManager.Backend.Controllers
 
                 if (role.Contains("SuperAdmin"))
                 {
+                    HttpContext.Session.Remove("DepartmentId");
                     return LocalRedirect(returnUrl ?? "/app/dashboard");
                 }
 

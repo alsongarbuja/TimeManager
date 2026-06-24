@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
@@ -17,7 +18,8 @@ namespace TimeManager.Backend.Controllers.Kiosk
 
         public async Task<IActionResult> Index()
         {
-            var kiosks = await kioskService.GetKiosksAsync();
+            int? departmentId = HttpContext.Session.GetDepartmentId();
+            var kiosks = await kioskService.GetKiosksAsync(departmentId);
             return View(kiosks);
         }
 
@@ -35,7 +37,13 @@ namespace TimeManager.Backend.Controllers.Kiosk
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(KioskViewModel kvm)
         {
-            await kioskService.CreateKioskAsync(kvm);
+            int? departmentId = HttpContext.Session.GetDepartmentId();
+            await kioskService.CreateKioskAsync(new KioskViewModel {
+                AllowedIPAddress = kvm.AllowedIPAddress,
+                DepartmentId = departmentId ?? kvm.DepartmentId,
+                Name = kvm.Name,
+                Description = kvm.Description,
+            });
             return RedirectToAction(nameof(Index));
         }
 

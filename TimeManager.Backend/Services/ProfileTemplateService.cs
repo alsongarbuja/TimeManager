@@ -8,7 +8,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IProfileTemplateService
     {
-        Task<IEnumerable<ProfileTemplateViewModel>> GetProfileTemplatesAsync();
+        Task<IEnumerable<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId);
         Task<ProfileTemplate> GetProfileTemplateByIdAsync(int id);
         Task CreateProfileTemplateAsync(ProfileTemplateViewModel pvm);
         Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm);
@@ -64,17 +64,36 @@ namespace TimeManager.Backend.Services
             return profileTemplates;
         }
 
-        public async Task<IEnumerable<ProfileTemplateViewModel>> GetProfileTemplatesAsync()
+        public async Task<IEnumerable<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId)
         {
-            var profileTemplates = await this.hrmsDbContext.ProfileTemplate.Select(pt => new ProfileTemplateViewModel
+            IEnumerable<ProfileTemplateViewModel> profileTemplates = [];
+            
+            if (departmentId == null)
             {
-                Id = pt.Id,
-                Unit = pt.Unit.Name,
-                Role = pt.Role.Name ?? "Default",
-                EmployeeType = pt.EmployeeType.Name,
-                ShiftStartTime = pt.ShiftStartTime,
-                EarlyClockInBufferMin = pt.EarlyClockInBufferMin,
-            }).ToListAsync();
+                profileTemplates = await this.hrmsDbContext.ProfileTemplate.Select(pt => new ProfileTemplateViewModel
+                {
+                    Id = pt.Id,
+                    Unit = pt.Unit.Name,
+                    Role = pt.Role.Name ?? "Default",
+                    EmployeeType = pt.EmployeeType.Name,
+                    ShiftStartTime = pt.ShiftStartTime,
+                    EarlyClockInBufferMin = pt.EarlyClockInBufferMin,
+                }).ToListAsync();
+            } else
+            {
+                profileTemplates = await this.hrmsDbContext.ProfileTemplate
+                    .Where(pt => pt.Unit.DepartmentId == departmentId)
+                    .Select(pt => new ProfileTemplateViewModel
+                    {
+                        Id = pt.Id,
+                        Unit = pt.Unit.Name,
+                        Role = pt.Role.Name ?? "Default",
+                        EmployeeType = pt.EmployeeType.Name,
+                        ShiftStartTime = pt.ShiftStartTime,
+                        EarlyClockInBufferMin = pt.EarlyClockInBufferMin,
+                    }).ToListAsync();
+            }
+
             return profileTemplates;
         }
 

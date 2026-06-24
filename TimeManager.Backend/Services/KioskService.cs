@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Controllers.Device.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Device_Management;
 using TimeManager.Backend.ViewModels;
@@ -9,7 +8,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IKioskService
     {
-        Task<IEnumerable<KioskViewModel>> GetKiosksAsync();
+        Task<IEnumerable<KioskViewModel>> GetKiosksAsync(int? departmentId);
         Task<Kiosk> GetKioskByIdAsync(int id);
         Task CreateKioskAsync(KioskViewModel kvm);
         Task<Kiosk?> UpdateKioskAsync(int id, KioskViewModel kvm);
@@ -20,12 +19,10 @@ namespace TimeManager.Backend.Services
     public class KioskService : IKioskService
     {
         private readonly HrmsDbContext hrmsDbContext;
-        private readonly CurrentEmployeeService currentEmployeeService;
 
-        public KioskService(HrmsDbContext hrmsDbContext, CurrentEmployeeService currentEmployeeService)
+        public KioskService(HrmsDbContext hrmsDbContext)
         {
             this.hrmsDbContext = hrmsDbContext;
-            this.currentEmployeeService = currentEmployeeService;
         }
 
         public async Task CreateKioskAsync(KioskViewModel kvm)
@@ -65,13 +62,12 @@ namespace TimeManager.Backend.Services
             return options;
         }
 
-        public async Task<IEnumerable<KioskViewModel>> GetKiosksAsync()
+        public async Task<IEnumerable<KioskViewModel>> GetKiosksAsync(int? departmentId)
         {
-            var isSuperUser = currentEmployeeService.IsCurrentUserSuperAdmin();
 
             IEnumerable<KioskViewModel> kiosks = [];
             
-             if (isSuperUser)
+             if (departmentId == null)
             {
                 kiosks = await hrmsDbContext.Kiosk.Select(k => new KioskViewModel
                 {
@@ -83,8 +79,7 @@ namespace TimeManager.Backend.Services
                 }).ToListAsync();
             } else
             {
-                int dId = await currentEmployeeService.GetCurrentEmployeeDepartmentIdAsync(null);
-                kiosks = await hrmsDbContext.Kiosk.Where(k => k.DepartmentId == dId).Select(k => new KioskViewModel
+                kiosks = await hrmsDbContext.Kiosk.Where(k => k.DepartmentId == departmentId).Select(k => new KioskViewModel
                 {
                     Id = k.Id,
                     Name = k.Name,

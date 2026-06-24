@@ -9,12 +9,14 @@ namespace TimeManager.Backend.Services
 {
     public interface IEmployeeService
     {
-        Task<IEnumerable<EmployeeViewModel>> GetEmployeesAsync();
+        Task<IEnumerable<EmployeeViewModel>> GetEmployeesAsync(int? departmentId);
         Task<Employee> GetEmployeeByIdAsync(int id);
         Task<int> CreateEmployeeAsync(EmployeeDto employeeDto);
         Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto);
         Task<int?> DeleteEmployeeByIdAsync(int id);
         Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync();
+        Task<Employee?> GetEmployeeByUserIdAsync(int id);
+        Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id);
     }
 
     public class EmployeeService : IEmployeeService
@@ -57,6 +59,12 @@ namespace TimeManager.Backend.Services
             return e;
         }
 
+        public async Task<Employee?> GetEmployeeByUserIdAsync(int id)
+        {
+            var employee = await hrmsDbContext.Employee.Where(e => e.UserId == id).FirstOrDefaultAsync();
+            return employee;
+        }
+
         public async Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync()
         {
             var employees = await this.hrmsDbContext.Employee.Select(e => new SelectListItem
@@ -67,17 +75,58 @@ namespace TimeManager.Backend.Services
             return employees;
         }
 
-        public async Task<IEnumerable<EmployeeViewModel>> GetEmployeesAsync()
+        public async Task<IEnumerable<EmployeeViewModel>> GetEmployeesAsync(int? departmentId)
         {
-            var employees = await this.hrmsDbContext.Employee.Select(e => new EmployeeViewModel { 
-                Id = e.Id,
-                FirstName = e.FirstName, 
-                LastName = e.LastName,
-                Email = e.User.Email,
-                UniqueId = e.UniqueId,
-                DepartmentName = e.Department.Name,
-            }).ToListAsync();
+            IEnumerable<EmployeeViewModel> employees = [];
+            if (departmentId == null)
+            {
+                employees = await this.hrmsDbContext.Employee.Select(e => new EmployeeViewModel { 
+                    Id = e.Id,
+                    FirstName = e.FirstName, 
+                    LastName = e.LastName,
+                    Email = e.User.Email,
+                    UniqueId = e.UniqueId,
+                    DepartmentName = e.Department.Name,
+                }).ToListAsync();
+            } else
+            {
+                var excludedUserIds = await hrmsDbContext.UserRoles
+                    .Join(hrmsDbContext.Roles,
+                        ur => ur.RoleId,
+                        r => r.Id,
+                        (ur, r) => new { ur.UserId, r.Name })
+                    .Where(x => x.Name == "SuperAdmin" || x.Name == "Admin")
+                    .Select(x => x.UserId)
+                    .ToHashSetAsync();
+
+                employees = await this.hrmsDbContext.Employee
+                    .Where(e => e.DepartmentId == departmentId && !excludedUserIds.Contains(e.UserId))
+                    .Select(e => new EmployeeViewModel
+                        {
+                            Id = e.Id,
+                            FirstName = e.FirstName,
+                            LastName = e.LastName,
+                            Email = e.User.Email,
+                            UniqueId = e.UniqueId,
+                            DepartmentName = e.Department.Name,
+                        }).ToListAsync();
+            }
             return employees;
+        }
+
+        public async Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id)
+        {
+            var employee = await hrmsDbContext.Employee.Where(e => e.UserId == id).FirstOrDefaultAsync();
+            if (employee == null) return [];
+
+            var jobProfiles = await hrmsDbContext.JobProfile
+                .Include(jp => jp.ProfileTemplate)
+                    .ThenInclude(pt => pt.Unit)
+                    .ThenInclude(u => u.Department)
+                .Include(jp => jp.ProfileTemplate)
+                    .ThenInclude(pt => pt.Role)
+                .Where(jp => jp.EmployeeId == employee.Id).ToListAsync();
+            return jobProfiles;
         }
 
         public async Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto)

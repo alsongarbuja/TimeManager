@@ -1,0 +1,69 @@
+﻿@model TimeManager.Backend.ViewModels.SelectProfileViewModel
+
+@{
+    Layout = "_MainLayout";
+    ViewData["Title"] = "Select Profile";
+}
+
+@section styles {
+    <link href="/css/login.css" rel="stylesheet" />
+    <link href="/css/select-profile.css" rel="stylesheet" />
+}
+
+@section scripts {
+    <script defer>
+        document.querySelectorAll('.profile-option input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                console.log('hello');
+                document.getElementById('continueBtn').disabled = false;
+            });
+        });
+    </script>
+}
+
+<div class="login-container">
+    <div class="form-wrapper">
+        <h2 class="form-title text-center">Select a profile</h2>
+        <p class="form-subtitle text-center">
+            You have multiple profiles. Choose one to continue.
+        </p>
+    </div>
+
+    <div class="mt-8 form-wrapper">
+        <div class="form-card">
+            <form asp-controller="Auth" asp-action="SelectProfile" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="error-alert" role="alert"></div>
+
+                <div class="profile-list">
+                    @foreach (var profile in Model.Profiles)
+                    {
+                        <label class="profile-option" for="profile_@profile.Id">
+                            <input type="radio"
+                                   id="profile_@profile.Id"
+                                   name="SelectedProfileId"
+                                   value="@profile.Id"
+                                   required />
+                            <div class="radio-indicator">
+                                <div class="radio-dot"></div>
+                            </div>
+                            <div class="profile-info">
+                                <div class="profile-title">@profile.Title</div>
+                                <div class="profile-dept">@profile.DepartmentName</div>
+                            </div>
+                        </label>
+                    }
+                </div>
+
+                <button type="submit" class="btn-submit" id="continueBtn">
+                    Continue to dashboard
+                </button>
+
+                <p class="profile-hint">
+                    You can switch profiles later from your account settings.
+                </p>
+            </form>
+        </div>
+    </div>
+</div>

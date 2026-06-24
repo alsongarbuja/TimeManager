@@ -41,7 +41,6 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var superAdminRole = configuration["Auth:SuperAdminRole"] ?? throw new InvalidOperationException("Super admin role must be configured in env");
             ProfileTemplateViewModel pvm = new ProfileTemplateViewModel
             {
                 Units = (await unitService.GetUnitReportOptionsAsync()),

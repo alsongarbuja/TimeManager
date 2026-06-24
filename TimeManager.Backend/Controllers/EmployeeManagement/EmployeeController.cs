@@ -3,6 +3,7 @@ using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using Emp = TimeManager.Backend.Models.Employee_Management.Employee;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
+using TimeManager.Backend.Extensions;
 
 namespace TimeManager.Backend.Controllers.EmployeeManagement
 {
@@ -20,7 +21,8 @@ namespace TimeManager.Backend.Controllers.EmployeeManagement
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Emp>>> GetEmployees()
         {
-            IEnumerable<EmployeeViewModel> data = await _employeeService.GetEmployeesAsync();
+            int? departmentId = HttpContext.Session.GetDepartmentId();
+            IEnumerable<EmployeeViewModel> data = await _employeeService.GetEmployeesAsync(departmentId);
 
             List<Emp> employees = new List<Emp>();
 

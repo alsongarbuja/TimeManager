@@ -102,12 +102,20 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<UserViewModel>> GetUsersAsync()
         {
-            var users = await hrmsDbContext.Users.Where(u => !hrmsDbContext.UserRoles.Join(hrmsDbContext.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name }).Any(ur => ur.UserId == u.Id && ur.Name == "SuperAdmin")).Select(u => new UserViewModel
-            {
-                Id = u.Id,
-                UserName = u.UserName,
-                Email = u.Email,
-            }).ToListAsync();
+            IEnumerable<UserViewModel> users = [];
+            users = await hrmsDbContext.Users
+                .Where(u => !hrmsDbContext.UserRoles.
+                    Join(hrmsDbContext.Roles, 
+                        ur => ur.RoleId, 
+                        r => r.Id, 
+                        (ur, r) => new { ur.UserId, r.Name })
+                    .Any(ur => ur.UserId == u.Id && ur.Name == "SuperAdmin"))
+                    .Select(u => new UserViewModel
+                        {
+                            Id = u.Id,
+                            UserName = u.UserName,
+                            Email = u.Email,
+                        }).ToListAsync();
             return users;
         }
 

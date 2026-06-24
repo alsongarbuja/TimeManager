@@ -16,7 +16,7 @@ namespace TimeManager.Backend.Services
         Task CreateDepartmentAsync(DepartmentDto departmentDto);
         Task<Department?> UpdateDepartmentAsync(int id, DepartmentDto departmentDto);
         Task<int?> DeleteDepartmentByIdAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync();
+        Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync(int selectedId = 0);
     }
 
     public class DepartmentService: IDepartmentService
@@ -51,12 +51,13 @@ namespace TimeManager.Backend.Services
             return data;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync()
+        public async Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync(int selectedItem = 0)
         {
             var data = await _context.Department.Select(d => new SelectListItem
             {
                 Text = d.Name,
                 Value = d.Id.ToString(),
+                Selected = d.Id == selectedItem,
             }).ToListAsync();
             return data;
         }

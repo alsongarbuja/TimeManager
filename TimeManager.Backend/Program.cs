@@ -24,6 +24,14 @@ builder.Services.AddIdentity<User, Role>(options =>
 }).AddEntityFrameworkStores<HrmsDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Auth/Login";
@@ -78,6 +86,8 @@ builder.Services.AddScoped<CurrentEmployeeService>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -100,6 +110,7 @@ app.UseHttpsRedirection();
 app.UseCors("AllowBlazor");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 //app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 app.MapControllers();

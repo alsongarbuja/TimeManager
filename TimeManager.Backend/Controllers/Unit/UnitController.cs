@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Controllers.Organization.Dto;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
@@ -11,18 +12,16 @@ namespace TimeManager.Backend.Controllers.Unit
     {
         private readonly IUnitService unitService;
         private readonly IDepartmentService departmentService;
-        private readonly CurrentEmployeeService currentEmployeeService;
 
-        public UnitController(IUnitService unitService, IDepartmentService departmentService, CurrentEmployeeService currentEmployeeService)
+        public UnitController(IUnitService unitService, IDepartmentService departmentService)
         {
             this.unitService = unitService;
             this.departmentService = departmentService;
-            this.currentEmployeeService = currentEmployeeService;
         }
 
         public async Task<IActionResult> Index()
         {
-            int departmentId = await currentEmployeeService.GetCurrentEmployeeDepartmentIdAsync(null);
+            int? departmentId = HttpContext.Session.GetDepartmentId();
 
             var units = await this.unitService.GetUnitsAysnc(departmentId);
             return View(units);
@@ -57,13 +56,13 @@ namespace TimeManager.Backend.Controllers.Unit
                 }
                 return View(unitViewModel);
             }
-            int departmentId = await currentEmployeeService.GetCurrentEmployeeDepartmentIdAsync(unitViewModel.DepartmentId);
+            int? departmentId = HttpContext.Session.GetDepartmentId();
 
             await this.unitService.CreateUnitAsync(new UnitDto
             {
                 Name = unitViewModel.Name,
                 Description = unitViewModel.Description,
-                DepartmentId = departmentId,
+                DepartmentId = departmentId ?? (int)unitViewModel.DepartmentId,
                 Index = unitViewModel.Index,
             });
             TempData["Success"] = "Unit created";
@@ -83,7 +82,7 @@ namespace TimeManager.Backend.Controllers.Unit
                 Description = unit.Description,
                 DepartmentName = unit.Department.Name,
                 DepartmentId = unit.DepartmentId,
-                Departments = (await departmentService.GetDepartmentOptionsAsync())
+                Departments = (await departmentService.GetDepartmentOptionsAsync(unit.DepartmentId))
             });
         }
 
@@ -92,13 +91,13 @@ namespace TimeManager.Backend.Controllers.Unit
         public async Task<IActionResult> Edit(int id, UnitViewModel uvm)
         {
             if (!ModelState.IsValid) return View(uvm);
-            int departmentId = await currentEmployeeService.GetCurrentEmployeeDepartmentIdAsync(uvm.DepartmentId);
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             var d = await this.unitService.UpdateUnitAsync(id, new UnitDto
             {
                 Name = uvm.Name,
                 Index = uvm.Index,
                 Description = uvm.Description,
-                DepartmentId = departmentId,
+                DepartmentId = departmentId ?? (int)uvm.DepartmentId,
             });
 
             if (d == null)

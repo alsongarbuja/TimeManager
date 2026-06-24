@@ -20,6 +20,11 @@ namespace TimeManager.Backend.Shared
             
             )
         {
+            if (httpContext.Request.Path.StartsWithSegments("/error"))
+            {
+                return false;
+            }
+
             _logger.LogError(ex, "An unhandled exception occured: {Message}", ex.Message);
 
             var statusCode = ex switch

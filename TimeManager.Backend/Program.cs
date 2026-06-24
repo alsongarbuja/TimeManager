@@ -90,6 +90,8 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -98,7 +100,7 @@ if (app.Environment.IsDevelopment())
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
@@ -106,6 +108,8 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
+
+app.UseRouting();
 
 app.UseCors("AllowBlazor");
 app.UseAuthentication();

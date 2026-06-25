@@ -74,14 +74,14 @@ namespace TimeManager.Backend.Controllers.Department
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var data = await this.departmentService.DeleteDepartmentByIdAsync(id);
-            if (data == null)
-            {
-                TempData["error"] = "Error while deleting the data";
-            } else
-            {
-                TempData["success"] = "Successfully removed the data";
-            }
+            //var data = await this.departmentService.DeleteDepartmentByIdAsync(id);
+            //if (data == null)
+            //{
+            //    TempData["error"] = "Error while deleting the data";
+            //} else
+            //{
+            //    TempData["success"] = "Successfully removed the data";
+            //}
 
             return RedirectToAction(nameof(Index));
         }

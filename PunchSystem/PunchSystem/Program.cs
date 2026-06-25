@@ -1,5 +1,6 @@
 using PunchSystem.Client.Pages;
 using PunchSystem.Components;
+using PunchSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7263/") });
+
+builder.Services.AddScoped<KioskSessionService>();
 
 var app = builder.Build();
 

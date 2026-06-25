@@ -43,9 +43,10 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             ProfileTemplateViewModel pvm = new ProfileTemplateViewModel
             {
-                Units = (await unitService.GetUnitReportOptionsAsync()),
+                Units = (await unitService.GetUnitReportOptionsAsync(departmentId)),
                 Roles = (await roleService.GetRoleOptionsAsync()),
                 EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
                 PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
@@ -66,7 +67,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         {
             var pt = await profileTemplateService.GetProfileTemplateByIdAsync(id);
             if (pt == null) return NotFound();
-            var superAdminRole = configuration["Auth:SuperAdminRole"] ?? throw new InvalidOperationException("Super admin role must be configured in env");
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             ProfileTemplateViewModel pvm = new ProfileTemplateViewModel
             {
                 Id = id,
@@ -74,7 +75,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
                 EmployeeTypeId = pt.EmployeeTypeId,
                 PayFrequencyId = pt.PayFrequencyId,
                 RoleId = pt.RoleId,
-                Units = (await unitService.GetUnitReportOptionsAsync()),
+                Units = (await unitService.GetUnitReportOptionsAsync(departmentId)),
                 Roles = (await roleService.GetRoleOptionsAsync()),
                 EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
                 PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
@@ -87,7 +88,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         public async Task<IActionResult> Edit(int id, ProfileTemplateViewModel pvm)
         {
             var pt = await profileTemplateService.UpdateProfileTemplateASync(id, pvm);
-            var superAdminRole = configuration["Auth:SuperAdminRole"] ?? throw new InvalidOperationException("Super admin role must be configured in env");
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             ProfileTemplateViewModel pv = new ProfileTemplateViewModel
             {
                 Id = id,
@@ -95,7 +96,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
                 EmployeeTypeId = pt.EmployeeTypeId,
                 PayFrequencyId = pt.PayFrequencyId,
                 RoleId = pt.RoleId,
-                Units = (await unitService.GetUnitReportOptionsAsync()),
+                Units = (await unitService.GetUnitReportOptionsAsync(departmentId)),
                 Roles = (await roleService.GetRoleOptionsAsync()),
                 EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
                 PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())

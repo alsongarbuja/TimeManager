@@ -9,8 +9,13 @@ namespace TimeManager.Backend.ViewModels
         public IEnumerable<SelectListItem> Units { get; set; }
         public IEnumerable<SelectListItem> Users { get; set; }
 
+        [Display(Name = "Pay Period")]
         public int? PayPeriodId { get; set; }
+
+        [Display(Name = "Unit")]
         public int? UnitId { get; set; }
+
+        [Display(Name = "Employee")]
         public int? UserId { get; set; }
     }
 

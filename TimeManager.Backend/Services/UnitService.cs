@@ -15,7 +15,7 @@ namespace TimeManager.Backend.Services
         Task<Unit?> UpdateUnitAsync(int id, UnitDto departmentDto);
         Task<int?> DeleteUnitByIdAsync(int id);
 
-        Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync();
+        Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId);
     }
 
     public class UnitService: IUnitService
@@ -63,13 +63,26 @@ namespace TimeManager.Backend.Services
             return unit;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync()
+        public async Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId)
         {
-            var units = await _context.Unit.Select(u => new SelectListItem
+            IEnumerable<SelectListItem> units = [];
+            if (departmentId == null)
             {
-                Value = u.Id.ToString(),
-                Text = $"{u.Name} - {u.Department.Name}",
-            }).ToListAsync();
+                units = await _context.Unit.Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = $"{u.Name} - {u.Department.Name}",
+                }).ToListAsync();
+            } else
+            {
+                units = await _context.Unit
+                    .Where(u => u.DepartmentId == departmentId)
+                    .Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = $"{u.Name}",
+                }).ToListAsync();
+            }
             return units;
         }
 

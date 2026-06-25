@@ -1,10 +1,8 @@
-using PunchSystem.Client.Pages;
 using PunchSystem.Components;
 using PunchSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();

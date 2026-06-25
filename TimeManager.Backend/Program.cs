@@ -48,16 +48,16 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.Add(new AuthorizeFilter());
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowBlazor", policy =>
-    {
-        policy.WithOrigins("https://localhost:7046")
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials();
-    });
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowBlazor", policy =>
+//    {
+//        policy.WithOrigins("https://localhost:7046")
+//        .AllowAnyMethod()
+//        .AllowAnyHeader()
+//        .AllowCredentials();
+//    });
+//});
 
 //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 //var serverVersion = ServerVersion.AutoDetect(connectionString);

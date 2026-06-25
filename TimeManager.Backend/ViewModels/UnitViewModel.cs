@@ -14,9 +14,8 @@ namespace TimeManager.Backend.ViewModels
         [Display(Name = "Department")]
         public string? DepartmentName { get; set; } = string.Empty;
 
-        [Required]
         [Display(Name = "DepartmentId")]
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
 
         public int Index { get; set; }
 

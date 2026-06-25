@@ -25,6 +25,6 @@ namespace TimeManager.Backend.Models.Organization_Management
         [ForeignKey("DepartmentId")]
         public virtual Department Department { get; set; } = null!;
 
-        public virtual ProfileTemplate? ProfileTemplate { get; set; }
+        public virtual ICollection<ProfileTemplate> ProfileTemplate { get; set; } = [];
     }
 }

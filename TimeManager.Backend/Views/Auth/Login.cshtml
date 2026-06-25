@@ -12,6 +12,10 @@
     <link href="/css/login.css" rel="stylesheet" />
 }
 
+@section scripts {
+    <script src="/js/passwordtoggle.js" defer></script>
+}
+
 <div class="login-container">
     <div class="form-wrapper">
         <h2 class="form-title text-center">
@@ -25,14 +29,14 @@
     <div class="mt-8 form-wrapper">
         <div class="form-card">
             <form class="space-y-6" asp-controller="Auth" asp-action="Login" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                <div asp-validation-summary="ModelOnly" class="error-alert" role="alert"></div>
 
                 <custom-input asp-for="UserName" />
                 <custom-input asp-for="Password" />
 
                 @* <custom-input asp-for="RememberMe" /> *@
 
-                <button id="login-submit" type="submit" class="btn btn-primary w-100">Log in</button>
+                <button id="login-submit" type="submit" class="btn btn-primary btn-login w-100">Log in</button>
             </form>
             </<div>
         </div>

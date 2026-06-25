@@ -8,12 +8,12 @@ namespace TimeManager.Backend.Services
 {
     public interface IJobProfileService
     {
-        Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync();
+        Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId);
         Task<JobProfile> GetJobProfileByIdAsync(int id);
         Task CreateJobProfileAsync(JobProfileViewModel jpvm);
         Task<JobProfile?> UpdateJobProfileASync(int id, JobProfileViewModel jpvm);
         Task<int?> DeleteJobProfileAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetUserOptionsAsync();
+        Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId);
     }
 
     public class JobProfileService: IJobProfileService
@@ -48,25 +48,57 @@ namespace TimeManager.Backend.Services
             return jp;
         }
 
-        public async Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync()
+        public async Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId)
         {
-            var jobprofiles = await _context.JobProfile.Select(jp =>
-            new JobProfileViewModel {
-                Id = jp.Id,
-                EmployeeId = jp.EmployeeId,
-                EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
-            }).ToListAsync();
+            IEnumerable<JobProfileViewModel> jobprofiles = [];
+            
+            if (departmentId == null)
+            {
+                jobprofiles = await _context.JobProfile.Select(jp =>
+                new JobProfileViewModel {
+                    Id = jp.Id,
+                    EmployeeId = jp.EmployeeId,
+                    EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
+                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
+                }).ToListAsync();
+            } else
+            {
+                jobprofiles = await _context.JobProfile
+                    .Where(jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId)
+                    .Select(jp =>
+                new JobProfileViewModel
+                {
+                    Id = jp.Id,
+                    EmployeeId = jp.EmployeeId,
+                    EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
+                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
+                }).ToListAsync();
+            }
+
             return jobprofiles;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync()
+        public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId)
         {
-            var users = await _context.JobProfile.Select(jp => new SelectListItem
+            IEnumerable<SelectListItem> users = [];
+
+            if (departmentId == null)
             {
-                Value = jp.Id.ToString(),
-                Text = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-            }).ToListAsync();
+                users = await _context.JobProfile.Select(jp => new SelectListItem
+                {
+                    Value = jp.Id.ToString(),
+                    Text = $"{jp.Employee.FirstName} {jp.Employee.LastName} / {jp.ProfileTemplate.Unit.Name}",
+                }).ToListAsync();
+            } else
+            {
+                users = await _context.JobProfile
+                    .Where(jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId)
+                    .Select(jp => new SelectListItem
+                        {
+                            Value = jp.Id.ToString(),
+                            Text = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
+                        }).ToListAsync();
+            }
 
             return users;
         }

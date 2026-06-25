@@ -1,0 +1,58 @@
+﻿.main-container, .inner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-container {
+    gap: .5em;
+    height: 100dvh;
+}
+
+.inner-container {
+    gap: .1em;
+}
+
+.alert-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fadcdc;
+    color: darkred;
+    padding: 2em;
+    border-radius: 100%;
+    border: 2px solid darkred;
+}
+
+.alert-icon-wrapper i {
+    font-size: 1.5rem;
+}
+
+.subtitle-text {
+    font-size: .85rem;
+    font-weight: bold;
+}
+
+.text-danger {
+    color: red;
+}
+
+.title-text {
+    line-height: 0.1em;
+    font-weight: bolder;
+}
+
+.desc-text {
+    max-width: 40%;
+    text-align: center;
+    color: dimgray;
+}
+
+.btn-back {
+    background: #000;
+    color: #fff;
+    display: flex;
+    gap: 1em;
+    text-decoration: none;
+}

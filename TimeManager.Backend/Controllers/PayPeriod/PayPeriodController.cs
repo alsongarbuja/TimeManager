@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Services;
 
 namespace TimeManager.Backend.Controllers.PayPeriod
 {
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class PayPeriodController : Controller
     {
         private readonly IPayPeriodService payPeriodService;

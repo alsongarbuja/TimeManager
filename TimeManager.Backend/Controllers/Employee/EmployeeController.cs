@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Employee
 {
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class EmployeeController : Controller
     {
         private readonly IEmployeeService _employeeService;
@@ -22,7 +25,8 @@ namespace TimeManager.Backend.Controllers.Employee
 
         public async Task<IActionResult> Index()
         {
-            var employees = await _employeeService.GetEmployeesAsync();
+            int? departmentId = HttpContext.Session.GetDepartmentId();
+            var employees = await _employeeService.GetEmployeesAsync(departmentId);
             return View(employees);
         }
 

@@ -1,7 +1,21 @@
 ﻿@{
+    Layout = "_MainLayout";
 }
 
-<div>
-    <h2>Access Denied</h2>
-    <a href="/app/dashboard">Go back to dashboard</a>
+@section styles {
+    <link href="/css/extra-pages.css" rel="stylesheet" />
+}
+
+<div class="main-container">
+    <div class="alert-icon-wrapper">
+        <i class="ri-lock-line"></i>
+    </div>
+    <span class="subtitle-text text-danger">403 — Forbidden</span>
+    <div class="inner-container">
+        <h2 class="title-text">Access Denied</h2>
+        <p class="desc-text">You don't have permission to view this page. Contact your administrator if you think this is a mistake.</p>
+        <a href="/app/dashboard" class="btn btn-back">
+            <i class="ri-arrow-left-line"></i>
+            Back to dashboard</a>
+    </div>
 </div>

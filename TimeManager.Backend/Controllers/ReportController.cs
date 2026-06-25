@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
@@ -21,9 +22,10 @@ namespace TimeManager.Backend.Controllers
 
         public async Task<IActionResult> Index()
         {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             var payPeriods = await payPeriodService.GetPayPeriodOptionsAsync();
-            var users = await jobProfileService.GetUserOptionsAsync();
-            var units = await unitService.GetUnitReportOptionsAsync();
+            var users = await jobProfileService.GetUserOptionsAsync(departmentId);
+            var units = await unitService.GetUnitReportOptionsAsync(departmentId);
             
             return View(new ReportViewModel
             {

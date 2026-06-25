@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Controllers.Organization.Dto;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Unit
 {
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class UnitController : Controller
     {
         private readonly IUnitService unitService;
@@ -18,7 +21,9 @@ namespace TimeManager.Backend.Controllers.Unit
 
         public async Task<IActionResult> Index()
         {
-            var units = await this.unitService.GetUnitsAysnc();
+            int? departmentId = HttpContext.Session.GetDepartmentId();
+
+            var units = await this.unitService.GetUnitsAysnc(departmentId);
             return View(units);
         }
 
@@ -51,11 +56,13 @@ namespace TimeManager.Backend.Controllers.Unit
                 }
                 return View(unitViewModel);
             }
+            int? departmentId = HttpContext.Session.GetDepartmentId();
+
             await this.unitService.CreateUnitAsync(new UnitDto
             {
                 Name = unitViewModel.Name,
                 Description = unitViewModel.Description,
-                DepartmentId = unitViewModel.DepartmentId,
+                DepartmentId = departmentId ?? (int)unitViewModel.DepartmentId,
                 Index = unitViewModel.Index,
             });
             TempData["Success"] = "Unit created";
@@ -75,7 +82,7 @@ namespace TimeManager.Backend.Controllers.Unit
                 Description = unit.Description,
                 DepartmentName = unit.Department.Name,
                 DepartmentId = unit.DepartmentId,
-                Departments = (await departmentService.GetDepartmentOptionsAsync())
+                Departments = (await departmentService.GetDepartmentOptionsAsync(unit.DepartmentId))
             });
         }
 
@@ -84,12 +91,13 @@ namespace TimeManager.Backend.Controllers.Unit
         public async Task<IActionResult> Edit(int id, UnitViewModel uvm)
         {
             if (!ModelState.IsValid) return View(uvm);
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             var d = await this.unitService.UpdateUnitAsync(id, new UnitDto
             {
                 Name = uvm.Name,
                 Index = uvm.Index,
                 Description = uvm.Description,
-                DepartmentId = uvm.DepartmentId,
+                DepartmentId = departmentId ?? (int)uvm.DepartmentId,
             });
 
             if (d == null)

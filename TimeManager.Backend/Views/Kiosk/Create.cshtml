@@ -1,0 +1,25 @@
+﻿@model TimeManager.Backend.ViewModels.KioskViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Kiosk - Add";
+    ViewData["ModuleTitle"] = "Create Kiosk";
+    ViewData["ModuleSubtitle"] = "Add new kiosk";
+    ViewData["Controller"] = "Kiosk";
+}
+
+<form asp-controller="Kiosk" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <custom-input asp-for="Name" />
+    <ip-input asp-for="AllowedIPAddress" />
+
+    @if (User.IsInRole("SuperAdmin"))
+        {
+    <custom-select asp-for="DepartmentId" asp-items="@Model.Departments" />
+        }
+
+    <custom-input asp-for="Description" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

@@ -105,7 +105,7 @@ namespace TimeManager.Backend.Services
 
             for (int i = 0; i < jps.Count; i++)
             {
-                var r = await this.GenerateReportByJobProfileId(jps[i].Id);
+                var r = await this.GenerateReportByJobProfileId(jps[i].Id, pp.Id);
                 if (r == null) continue;
                 reports.Add(r);
             }

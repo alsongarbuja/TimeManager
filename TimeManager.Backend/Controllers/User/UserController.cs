@@ -1,24 +1,24 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
-using R = TimeManager.Backend.Models.AuthManagement.Role;
 using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers.User
 {
+    [Authorize(Roles = "SuperAdmin")]
     public class UserController : Controller
     {
         private readonly UserManager<U> _userManager;
-        private readonly RoleManager<R> _roleManager;
+        private readonly IRoleService roleService;
         private readonly IUserService userService;
         private readonly IConfiguration _configuration;
 
-        public UserController(UserManager<U> userManager, IUserService userService, RoleManager<R> roleManager, IConfiguration configuration)
+        public UserController(UserManager<U> userManager, IUserService userService, IRoleService roleService, IConfiguration configuration)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
+            this.roleService = roleService;
             this.userService = userService;
             _configuration = configuration;
         }
@@ -35,8 +35,7 @@ namespace TimeManager.Backend.Controllers.User
         {
             var model = new RegisterViewModel
             {
-                AvailableRoles = _roleManager.Roles
-            .Select(r => new SelectListItem { Value = r.Name, Text = r.Name })
+                AvailableRoles = (await roleService.GetRoleOptionsAsync())
             };
             return View(model);
         }
@@ -47,18 +46,13 @@ namespace TimeManager.Backend.Controllers.User
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Where(x => x.Value.Errors.Count > 0)
-                           .Select(x => new
-                           {
-                               Key = x.Key,
-                               Errors = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
-                           });
-
-                foreach (var error in errors)
-                {
-                    Console.WriteLine($"Field: {error.Key} | Error: {error.Errors}");
-                }
-                return View(rvm);
+                return View(new RegisterViewModel {
+                    Email = rvm.Email,
+                    Role = rvm.Role,
+                    Password = rvm.Password,
+                    ConfirmPassword = rvm.ConfirmPassword,
+                    AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role))
+                });
             }
 
             var user = new U { UserName = rvm.Email.Split("@")[0], Email = rvm.Email, EmailConfirmed = true };
@@ -73,9 +67,50 @@ namespace TimeManager.Backend.Controllers.User
             }
 
             foreach (var error in result.Errors)
-                ModelState.AddModelError("", error.Description);
+            {
+                ModelState.AddModelError(error.Code, error.Description);
+            }
 
-            return View(rvm);
+            return View(new RegisterViewModel
+            {
+                Email = rvm.Email,
+                Role = rvm.Role,
+                Password = rvm.Password,
+                ConfirmPassword = rvm.ConfirmPassword,
+                AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role))
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var (user, role) = await userService.GetUserByIdAsync(id);
+
+            var model = new RegisterViewModel
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Role = role[0],
+                AvailableRoles = (await roleService.GetRoleOptionsAsync(role[0]))
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, RegisterViewModel rvm)
+        {
+            var u = await userService.UpdateUserAsync(id, rvm);
+            if (u == null) return View(rvm);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await userService.DeleteUserByIdAsync(id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

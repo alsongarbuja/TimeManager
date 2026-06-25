@@ -87,8 +87,6 @@ namespace TimeManager.Backend.Data
 
                     if (createResult.Succeeded)
                     {
-                        Console.WriteLine("created new");
-
                         await userManager.AddToRoleAsync(newSuperAdmin, "SuperAdmin");
                     } else
                     {

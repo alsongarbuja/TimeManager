@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Role
 {
+    [Authorize(Roles = "SuperAdmin")]
     public class RoleController : Controller
     {
         private readonly IRoleService _roleService;

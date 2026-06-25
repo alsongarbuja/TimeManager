@@ -11,7 +11,6 @@ DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 builder.Services.AddIdentity<User, Role>(options =>
@@ -25,6 +24,14 @@ builder.Services.AddIdentity<User, Role>(options =>
 }).AddEntityFrameworkStores<HrmsDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Auth/Login";
@@ -33,19 +40,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
 });
-
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-//    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-//    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
-//})
-//    .AddCookie(IdentityConstants.ApplicationScheme)
-//    .AddBearerToken(IdentityConstants.BearerScheme);
-//builder.Services.AddIdentityCore<IdentityUser>()
-//    .AddRoles<IdentityRole>()
-//    .AddEntityFrameworkStores<HrmsDbContext>()
-//    .AddApiEndpoints();
 
 builder.Services.AddControllersWithViews(options =>
 {
@@ -63,11 +57,17 @@ builder.Services.AddCors(options =>
     });
 });
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-var serverVersion = ServerVersion.AutoDetect(connectionString);
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//var serverVersion = ServerVersion.AutoDetect(connectionString);
+
+//builder.Services.AddDbContext<HrmsDbContext>(options =>
+//    options.UseMySql(connectionString, serverVersion));
+
+var connectionString = builder.Configuration.GetConnectionString("SQLConnectionString");
 
 builder.Services.AddDbContext<HrmsDbContext>(options =>
-    options.UseMySql(connectionString, serverVersion));
+    options.UseSqlServer(connectionString));
+
 builder.Services.AddScoped<PayPeriodUtility>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
@@ -80,14 +80,17 @@ builder.Services.AddScoped<IProfileTemplateService, ProfileTemplateService>();
 builder.Services.AddScoped<IJobProfileService, JobProfileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUserService, UserService>();
-
-//builder.Services.AddDbContext<HrmsDbContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultServer")));
+builder.Services.AddScoped<IKioskService, KioskService>();
+builder.Services.AddScoped<CurrentEmployeeService>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+
+
 var app = builder.Build();
+
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -97,7 +100,7 @@ if (app.Environment.IsDevelopment())
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
@@ -106,9 +109,12 @@ app.UseStaticFiles();
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 app.UseCors("AllowBlazor");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 //app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 app.MapControllers();

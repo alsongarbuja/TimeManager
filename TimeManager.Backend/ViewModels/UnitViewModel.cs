@@ -11,7 +11,6 @@ namespace TimeManager.Backend.ViewModels
         [Display(Name = "Name")]
         public string Name { get; set; } = string.Empty;
 
-        [Display(Name = "Department")]
         public string? DepartmentName { get; set; } = string.Empty;
 
         [Display(Name = "DepartmentId")]

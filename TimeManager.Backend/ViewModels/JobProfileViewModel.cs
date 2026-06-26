@@ -7,12 +7,12 @@ namespace TimeManager.Backend.ViewModels
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Profile template Id is required")]
+        [Required(ErrorMessage = "Profile template is required")]
         [Display(Name = "Profile Template")]
         public int ProfileTemplateId { get; set; }
 
 
-        [Required(ErrorMessage = "Employee Id is required")]
+        [Required(ErrorMessage = "Employee is required")]
         [Display(Name = "Employee")]
         public int EmployeeId { get; set; }
 

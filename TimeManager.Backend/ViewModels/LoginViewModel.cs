@@ -4,10 +4,10 @@ namespace TimeManager.Backend.ViewModels
 {
     public class LoginViewModel
     {
-        [Required, Display(Name = "Username")]
+        [Required(ErrorMessage = "Username is required"), Display(Name = "Username")]
         public string UserName { get; set; } = string.Empty;
 
-        [Required, DataType(DataType.Password)]
+        [Required(ErrorMessage = "Password is required"), DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
 
         [Display(Name = "Remember me")]

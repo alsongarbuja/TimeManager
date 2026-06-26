@@ -10,4 +10,10 @@ namespace TimeManager.Backend.Controllers.PunchManagement.Dto
         [Required(ErrorMessage = "Department Id is required")]
         public int DepartmentId { get; set; }
     }
+
+    public class PunchDto
+    {
+        public DateTime ClockIn { get; set; }
+        public DateTime? ClockOut { get; set; }
+    }
 }

@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using TimeManager.Backend.Controllers.Device.Dto;
-using TimeManager.Backend.Data;
-using K = TimeManager.Backend.Models.Device_Management.Kiosk;
+using TimeManager.Backend.Services;
 
 namespace TimeManager.Backend.Controllers.Device
 {
@@ -10,83 +10,53 @@ namespace TimeManager.Backend.Controllers.Device
     [Route("api/[controller]")]
     public class KioskController : ControllerBase
     {
-        private readonly HrmsDbContext _context;
+        private readonly IKioskService kioskService;
 
-        public KioskController(HrmsDbContext context)
+        public KioskController(IKioskService kioskService)
         {
-            this._context = context;
+            this.kioskService = kioskService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<K>>> GetKiosks()
+        [HttpPost("init")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Init()
         {
-            var data = await _context.Kiosk.ToListAsync();
-            return data;
-        }
+            var clientIp = GetClientIp();
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<K>> GetKiosk(int id)
-        {
-            var kiosk = await _context.Kiosk.FindAsync(id);
-
-            if (kiosk == null)
+            if (clientIp == null)
             {
-                return NotFound(new { message = "Kiosk not found" });
+                return Unauthorized(new { error = "Unable to determine client Ip address" });
             }
 
-            return kiosk;
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<K>> CreateKiosk([FromBody] KioskDto kioskDto)
-        {
-            var data = _context.Kiosk.Add(new K
-            {
-                Name = kioskDto.Name,
-                Description = kioskDto.Description,
-                DepartmentId = kioskDto.DepartmentId,
-                AllowedIPAddress = kioskDto.AllowedIPAddress,
-            });
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetKiosk), new { id = data.Entity.Id }, data.Entity);
-        }
-
-        [HttpPatch("{id}")]
-        public async Task<ActionResult<K>> UpdateKiosk(int id, [FromBody] KioskDto kioskDto)
-        {
-            var kiosk = await GetKiosk(id);
-
+            var kiosk = await kioskService.ResolveKioskByIpAsync(clientIp);
             if (kiosk == null)
             {
-                return NotFound(new { message = "Kiosk not found" });
+                return Unauthorized(new { error = "This device is not authorized as a kiosk" });
             }
 
-            _context.Entry(kiosk).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            var token = kioskService.GenerateKisokToken(kiosk);
 
-            return NoContent();
+            return Ok(new KioskSessionResponse(
+                Token: token,
+                KioskName: kiosk.Name,
+                DepartmentId: kiosk.DepartmentId,
+                DepartmentName: kiosk.Department.Name,
+                ExpiresAt: DateTime.UtcNow.AddHours(12)
+            ));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteKiosk(int id)
+        private IPAddress? GetClientIp()
         {
-            var kiosk = await GetKioskById(id);
-            
-            if (kiosk == null)
+            // In production, scope to known proxy IPs.
+            var forwarded = Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(forwarded))
             {
-                return NotFound(new { message = "Kiosk not found" });
+                var firstIp = forwarded.Split(',')[0].Trim();
+                if (IPAddress.TryParse(firstIp, out _))
+                    return IPAddress.Parse(firstIp);
             }
 
-            _context.Kiosk.Remove(kiosk);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        private async Task<K?> GetKioskById(int id)
-        {
-            K? k = await _context.Kiosk.FindAsync(id);
-            return k;
+            return HttpContext.Connection.RemoteIpAddress?.MapToIPv4();
         }
     }
 }

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.AuthManagement;
@@ -46,16 +48,16 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.Add(new AuthorizeFilter());
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowBlazor", policy =>
-    {
-        policy.WithOrigins("https://localhost:7046")
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials();
-    });
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowBlazor", policy =>
+//    {
+//        policy.WithOrigins("https://localhost:7046")
+//        .AllowAnyMethod()
+//        .AllowAnyHeader()
+//        .AllowCredentials();
+//    });
+//});
 
 //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 //var serverVersion = ServerVersion.AutoDetect(connectionString);
@@ -80,12 +82,27 @@ builder.Services.AddScoped<IProfileTemplateService, ProfileTemplateService>();
 builder.Services.AddScoped<IJobProfileService, JobProfileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPunchServices, PunchServices>();
 builder.Services.AddScoped<IKioskService, KioskService>();
 builder.Services.AddScoped<CurrentEmployeeService>();
 
+builder.Services.AddAuthentication()
+    .AddJwtBearer("Kiosk", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:KioskAudience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:KioskSecret"]!)),
+        };
+    });
+
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-
 
 
 var app = builder.Build();
@@ -104,6 +121,17 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Redirect to login page on home page visit
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/" || context.Request.Path == "/index.html")
+    {
+        context.Response.Redirect("/auth/login");
+        return;
+    }
+    await next();
+});
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseExceptionHandler();
@@ -116,7 +144,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 
-//app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 app.MapControllers();
 
 // MVC view route setup 

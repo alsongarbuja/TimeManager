@@ -1,8 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Claims;
+using System.Text;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Device_Management;
 using TimeManager.Backend.ViewModels;
+using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace TimeManager.Backend.Services
 {
@@ -14,15 +20,19 @@ namespace TimeManager.Backend.Services
         Task<Kiosk?> UpdateKioskAsync(int id, KioskViewModel kvm);
         Task<int?> DeleteKioskByIdAsync(int id);
         Task<IEnumerable<SelectListItem>> GetKioskOptionsAsync();
+        Task<Kiosk?> ResolveKioskByIpAsync(IPAddress ipAddress);
+        string GenerateKisokToken(Kiosk kiosk);
     }
 
     public class KioskService : IKioskService
     {
         private readonly HrmsDbContext hrmsDbContext;
+        private readonly IConfiguration configuration;
 
-        public KioskService(HrmsDbContext hrmsDbContext)
+        public KioskService(HrmsDbContext hrmsDbContext, IConfiguration configuration)
         {
             this.hrmsDbContext = hrmsDbContext;
+            this.configuration = configuration;
         }
 
         public async Task CreateKioskAsync(KioskViewModel kvm)
@@ -44,6 +54,33 @@ namespace TimeManager.Backend.Services
             hrmsDbContext.Kiosk.Remove(kiosk);
             await hrmsDbContext.SaveChangesAsync();
             return id;
+        }
+
+        public string GenerateKisokToken(Kiosk kiosk)
+        {
+            string kioskSecret = configuration["JWT:KioskSecret"] ?? throw new InvalidOperationException("JWT kiosk secret not configured in env");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(kioskSecret));
+
+            var claims = new[]
+            {
+                new Claim("kiosk_id", kiosk.Id.ToString()),
+                new Claim("kiosk_name", kiosk.Name),
+                new Claim("department_id", kiosk.DepartmentId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            string issuer = configuration["JWT:Issuer"] ?? throw new InvalidOperationException("JWT issuer is not configured in the env");
+            string audience = configuration["JWT:KioskAudience"] ?? throw new InvalidOperationException("JWT kiosk audience is not configured in the env");
+            int expiryHours = configuration.GetValue<int>("JWT:KioskExpiryHours", 12);
+
+            var token = new JwtSecurityToken(
+                issuer, audience, 
+                claims,
+                expires: DateTime.UtcNow.AddHours(expiryHours),
+                signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         public async Task<Kiosk> GetKioskByIdAsync(int id)
@@ -90,6 +127,11 @@ namespace TimeManager.Backend.Services
             }
 
             return kiosks;
+        }
+
+        public async Task<Kiosk?> ResolveKioskByIpAsync(IPAddress ipAddress)
+        {
+            return await hrmsDbContext.Kiosk.Include(k => k.Department).FirstOrDefaultAsync(k => k.AllowedIPAddress == ipAddress);
         }
 
         public async Task<Kiosk?> UpdateKioskAsync(int id, KioskViewModel kvm)

@@ -40,14 +40,37 @@ namespace TimeManager.Backend.TagHelpers
             {
                 type = "number";
             }
+            else if (For.ModelExplorer.ModelType == typeof(DateTimeOffset) || For.ModelExplorer.ModelType == typeof(DateTimeOffset?) || For.ModelExplorer.ModelType == typeof(DateTime) || For.ModelExplorer.ModelType == typeof(DateTime?))
+            {
+                type = "datetime-local";
+            }
+
+            var formattedValue = propertyValue;
+
+            if (type == "datetime-local")
+            {
+                if (For.Model is DateTimeOffset dto)
+                {
+                    formattedValue = dto.ToLocalTime().ToString("yyyy-MM-ddTHH:mm");
+                } else if (For.Model is DateTime dt)
+                {
+                    formattedValue = dt.ToLocalTime().ToString("yyyy-MM-ddTHH:mm");
+                }
+            } else if (type == "time")
+            {
+                if (For.Model is TimeOnly t)
+                {
+                    formattedValue = t.ToString("HH:mm");
+                }
+            }
 
             var hasErrors = ViewContext.ModelState.TryGetValue(propertyName, out var modelStateEntry) && modelStateEntry.Errors.Any();
 
             var errorMessage = hasErrors ? modelStateEntry.Errors.First().ErrorMessage : string.Empty;
 
             var input = isMultiLine
-                ? $"<textarea name='{propertyName}' value='{propertyValue}' class='form-input'></textarea>"
-                : $"<input name='{propertyName}' {inputIsRequired} value='{propertyValue}' class='form-input' type='{type}' />";
+                ? $"<textarea name='{propertyName}' value='{formattedValue}' class='form-input'></textarea>"
+                : $"<input name='{propertyName}' {inputIsRequired} value='{formattedValue}' class='form-input' type='{type}' />";
 
             if (type == "password")
             {
@@ -58,6 +81,17 @@ namespace TimeManager.Backend.TagHelpers
                             $"</button>" +
                         $"</div>";
             }
+
+            if (type == "datetime-local")
+            {
+                input = $"<div class='datetime-clear-wrapper'>" +
+                            $"{input}" +
+                            $"<button type='button' class='datetime-clear-btn' onclick='this.previousElementSibling.value=\"\"; this.previousElementSibling.dispatchEvent(new Event(\"change\"))'>" +
+                                $"<i class='ri-close-line'></i>" +
+                            $"</button>" +
+                        $"</div>";
+            }
+
 
             var errorSpan = hasErrors
                    ? $"<span class='form-error'>{errorMessage}</span>"

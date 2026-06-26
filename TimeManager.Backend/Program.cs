@@ -120,6 +120,17 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Redirect to login page on home page visit
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/" || context.Request.Path == "/index.html")
+    {
+        context.Response.Redirect("/auth/login");
+        return;
+    }
+    await next();
+});
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseExceptionHandler();
@@ -132,7 +143,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 
-//app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 app.MapControllers();
 
 // MVC view route setup 

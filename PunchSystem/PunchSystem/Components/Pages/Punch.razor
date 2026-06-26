@@ -3,14 +3,14 @@
 @rendermode InteractiveServer
 
 @using System.Net.Http.Json
-@using Services
+@* @using Services *@
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@inject KioskSessionService KioskSession 
+@* @inject KioskSessionService KioskSession  *@
 
 <PageTitle>Clock In Out</PageTitle>
 
-@if (isInitializing)
+@* @if (isInitializing)
 {
     <div class="punch-container">
         <div class="punch-card">
@@ -30,7 +30,7 @@ else if (initFailed)
     </div>
 }
 else
-{
+{ *@
     <div class="punch-container">
         <div class="punch-card">
             <div class="scanner-zone">
@@ -79,7 +79,7 @@ else
             </div>
         </div>
     }
-}
+@* } *@
 
 @code {
     private ElementReference myIdeo;
@@ -102,29 +102,29 @@ else
 
     public record ApiErrorResponse(string Message, bool IsClockedOut, string Status, string Time, string Greeting);
 
-    protected override async Task OnInitializedAsync()
-    {
-        await InitializeKiosk();
-    }
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     await InitializeKiosk();
+    // }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!isInitializing && !initFailed)
-            await myIdeo.FocusAsync();
+        // if (!isInitializing && !initFailed)
+        await myIdeo.FocusAsync();
     }
 
-    private async Task InitializeKiosk()
-    {
-        isInitializing = true;
-        initFailed = false;
+    // private async Task InitializeKiosk()
+    // {
+    //     isInitializing = true;
+    //     initFailed = false;
 
-        var success = await KioskSession.InitializedAsync();
+    //     var success = await KioskSession.InitializedAsync();
 
-        isInitializing = false;
-        initFailed = !success;
+    //     isInitializing = false;
+    //     initFailed = !success;
 
-        StateHasChanged();
-    }
+    //     StateHasChanged();
+    // }
 
     private async Task HandleClockInOut()
     {
@@ -132,25 +132,26 @@ else
         {
             errorMessage = "";
 
-            if (!KioskSession.IsInitialized)
-            {
-                await InitializeKiosk();
-                if (initFailed) return;
-            }
+            // if (!KioskSession.IsInitialized)
+            // {
+            //     await InitializeKiosk();
+            //     if (initFailed) return;
+            // }
 
             var res = await Http.PostAsJsonAsync("api/punch", new
             {
-                UniqueId = cioModel.UniqueId
+                UniqueId = cioModel.UniqueId,
+                DepartmentId = 1,
             });
 
-            if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                KioskSession.Invalidate();
-                await InitializeKiosk();
-                if (initFailed) return;
+            // if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            // {
+            //     KioskSession.Invalidate();
+            //     await InitializeKiosk();
+            //     if (initFailed) return;
 
-                res = await Http.PostAsJsonAsync("api/punch", new { UniqueId = cioModel.UniqueId });
-            }
+            //     res = await Http.PostAsJsonAsync("api/punch", new { UniqueId = cioModel.UniqueId });
+            // }
 
             var result = await res.Content.ReadFromJsonAsync<ApiErrorResponse>();
             if (result is not null)

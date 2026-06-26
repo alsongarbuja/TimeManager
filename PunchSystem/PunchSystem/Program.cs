@@ -6,7 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7263/") });
+
+var backendUrl = builder.Configuration["BackendUrl"]
+    ?? throw new InvalidOperationException("BackendUrl not configured");
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(backendUrl) });
 
 builder.Services.AddScoped<KioskSessionService>();
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+//using System.Security.Claims;
 using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Punch_Management;
@@ -21,18 +21,19 @@ namespace TimeManager.Backend.Controllers.PunchManagement
             _logger = logger;
         }
 
-        [Authorize(AuthenticationSchemes = "Kiosk")]
+        //[Authorize(AuthenticationSchemes = "Kiosk")]
+        [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<PunchEntry>> ClockInOut([FromBody] PunchEntryDto punchEntryDto) {
-            var departmentIdClaim = User.FindFirstValue("department_id");
-            if (departmentIdClaim is null || !int.TryParse(departmentIdClaim, out int departmentId))
-            {
-                return Unauthorized(new { message = "Invalid or missing Kiosk session" });
-            }
+            //var departmentIdClaim = User.FindFirstValue("department_id");
+            //if (departmentIdClaim is null || !int.TryParse(departmentIdClaim, out int departmentId))
+            //{
+            //    return Unauthorized(new { message = "Invalid or missing Kiosk session" });
+            //}
 
             var jobProfile = await _context.JobProfile.Where(
                 jp => jp.Employee.UniqueId == punchEntryDto.UniqueId &&
-                    jp.ProfileTemplate.Unit.DepartmentId == departmentId
+                    jp.ProfileTemplate.Unit.DepartmentId == punchEntryDto.DepartmentId
                 ).Select(jp => new { 
                     id = (int?)jp.Id,
                     earlyBufferMin = jp.ProfileTemplate.EarlyClockInBufferMin,

@@ -1,0 +1,82 @@
+﻿@using TimeManager.Backend.Models.Components
+@using TimeManager.Backend.ViewModels
+@model PunchViewOverall
+
+@{
+    Layout = "_ListWrapper";
+    ViewData["Title"] = "Punch entries";
+
+    List<string> Headers = ["Name", "Clock in", "Clock Out"];
+    ViewData["Headers"] = Headers;
+    ViewData["ModuleTitle"] = "Punches";
+    ViewData["ModuleDesc"] = "Manage the punches in the system";
+
+    IEnumerable<PunchViewModel> punches = Model.punches;
+}
+
+@if (punches.Count() <= 0)
+{
+    <tr>
+        <td colspan="@Headers.Count"
+            class="table-empty-cell">
+            No data available
+        </td>
+    </tr>
+}
+else
+{
+    @section CustomCreate {
+        <div>
+            <div class='form-group'>
+                <label for='emp-select' class='form-label fw-semibold'>
+                    Filter by employee
+                </label>
+                <select id='emp-select'
+                        name='emp-select'
+                        class='form-input'>
+                    <option value="all">All</option>
+                @foreach(var e in Model.employees)
+                    {
+                        <option value="@e.Id">@e.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+    }
+    foreach (var d in punches)
+    {
+        <tr class="table-row" data-employee-id="@d.EmployeeId">
+            <td class="table-cell">@d.Name</td>
+            <td class="table-cell">@DateTime.Parse(d.ClockInTime.ToString()).ToLocalTime().ToString("hh:mm tt, MMM dd yyyy")</td>
+            @if(d.ClockOutTime is not null)
+            {
+                <td class="table-cell">@DateTime.Parse(d.ClockOutTime.ToString()!).ToLocalTime().ToString("hh:mm tt, MMM dd yyyy")</td>
+            } else
+            {
+                <td class="table-cell">-</td>
+            }
+            @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+            {
+                Controller = "Punch",
+                Id = d.Id,
+                hasEdit = true,
+                hasDelete = false,
+            })
+        </tr>
+    }
+}
+
+@section scripts {
+    <script>
+        document.getElementById("emp-select").addEventListener("change", (e) => {
+            let id = e.target.value;
+            document.querySelectorAll("tr.table-row").forEach(row => {
+                if (id === "all" || row.dataset.employeeId === id) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            })
+        })
+    </script>
+}

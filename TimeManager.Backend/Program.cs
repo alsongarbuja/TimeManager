@@ -82,6 +82,7 @@ builder.Services.AddScoped<IProfileTemplateService, ProfileTemplateService>();
 builder.Services.AddScoped<IJobProfileService, JobProfileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPunchServices, PunchServices>();
 builder.Services.AddScoped<IKioskService, KioskService>();
 builder.Services.AddScoped<CurrentEmployeeService>();
 

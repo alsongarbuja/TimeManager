@@ -104,3 +104,22 @@ input::-ms-reveal {
 .tbl {
 
 }
+
+.datetime-clear-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.datetime-clear-btn {
+    position: absolute;
+    right: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+}
+
+    .datetime-clear-btn:hover {
+        color: #333;
+    }

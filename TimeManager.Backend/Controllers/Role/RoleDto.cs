@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TimeManager.Backend.Controllers.EmployeeManagement.Dto
+namespace TimeManager.Backend.Controllers.Role
 {
-    public class PayFrequencyDto
+    public class RoleDto
     {
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = string.Empty;

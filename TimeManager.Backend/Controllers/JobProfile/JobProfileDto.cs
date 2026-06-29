@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TimeManager.Backend.Controllers.EmployeeManagement.Dto
+namespace TimeManager.Backend.Controllers.JobProfile
 {
     public class JobProfileDto
     {

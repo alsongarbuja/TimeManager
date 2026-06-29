@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
+using TimeManager.Backend.Controllers.Role;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.ViewModels;

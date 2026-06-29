@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TimeManager.Backend.Controllers.EmployeeManagement.Dto
+namespace TimeManager.Backend.Controllers.PayFrequency
 {
-    public class EmployeeTypeDto
+    public class PayFrequencyDto
     {
         [Required(ErrorMessage = "Name is required")]
-        public string Name {  get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
         [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
         public string? Description { get; set; } = string.Empty;

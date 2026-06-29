@@ -11,6 +11,7 @@ namespace TimeManager.Backend.ViewModels
         public string Name { get; set; } = string.Empty;
 
         [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
+        [DataType(DataType.MultilineText)]
         public string? Description { get; set; }
     }
 }

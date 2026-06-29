@@ -25,7 +25,7 @@ namespace TimeManager.Backend.TagHelpers
             output.TagName = null;
 
             var requiredAttr = isRequired ? "required" : string.Empty;
-            var requiredSpan = isRequired ? "<span class='text-danger'>*</span>" : string.Empty;
+            var requiredSpan = isRequired ? "<span class='form-required'>*</span>" : string.Empty;
 
             var options = string.Empty;
 
@@ -42,7 +42,7 @@ namespace TimeManager.Backend.TagHelpers
             }
 
             output.Content.SetHtmlContent($@"
-                <div class='form-group'>
+                <div class='form-group grid-col-2'>
                     <label for='{propertyName}' class='form-label fw-semibold'>
                         {labelText} {requiredSpan}
                     </label>

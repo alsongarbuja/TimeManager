@@ -36,14 +36,14 @@
 }
 
 .form-input-wrapper {
-    max-width: 100%;
+/*    max-width: 100%;*/
     border-radius: 0.375rem;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .form-input {
     appearance: none;
-    width: 95%;
+    width: 100%;
     padding: 0.625rem 0.75rem;
     font-size: 0.875rem;
     color: #000000;
@@ -54,6 +54,11 @@
     transition-property: all;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
+    resize: vertical;
+}
+
+.form-input-error {
+    border: 1px solid red !important;
 }
 
 .form-input::placeholder {
@@ -120,6 +125,10 @@ input::-ms-reveal {
     color: #888;
 }
 
-    .datetime-clear-btn:hover {
-        color: #333;
-    }
+.datetime-clear-btn:hover {
+    color: #333;
+}
+
+.grid-col-2 {
+    grid-column: span 2;
+}

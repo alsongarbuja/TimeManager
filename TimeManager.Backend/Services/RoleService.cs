@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Controllers.Role;
+using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.ViewModels;
@@ -17,34 +17,27 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(string selectedItem = "");
     }
 
-    public class RoleService: IRoleService
+    public class RoleService(HrmsDbContext hrmsDbContext) : IRoleService
     {
-        private readonly HrmsDbContext hrmsDbContext;
-
-        public RoleService(HrmsDbContext hrmsDbContext)
-        {
-            this.hrmsDbContext = hrmsDbContext;
-        }
-
         public async Task CreateRoleAsync(RoleDto roleDto)
         {
-            this.hrmsDbContext.Roles.Add(new Role { Name = roleDto.Name, Description = roleDto.Description });
-            await this.hrmsDbContext.SaveChangesAsync();
+            hrmsDbContext.Roles.Add(new Role { Name = roleDto.Name, Description = roleDto.Description });
+            await hrmsDbContext.SaveChangesAsync();
         }
 
         public async Task<int?> DeleteRoleByIdAsync(int id)
         {
-            var r = await this.hrmsDbContext.Roles.FindAsync(id);
+            var r = await hrmsDbContext.Roles.FindAsync(id);
             if (r == null) return null;
 
-            this.hrmsDbContext.Roles.Remove(r);
-            await this.hrmsDbContext.SaveChangesAsync();
+            hrmsDbContext.Roles.Remove(r);
+            await hrmsDbContext.SaveChangesAsync();
             return id;
         }
 
         public async Task<Role> GetRoleByIdAsync(int id)
         {
-            var r = await this.hrmsDbContext.Roles.FindAsync(id);
+            var r = await hrmsDbContext.Roles.FindAsync(id);
             return r;
         }
 
@@ -62,7 +55,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<RoleViewModel>> GetRolesAsync()
         {
-            var roles = await this.hrmsDbContext.Roles
+            var roles = await hrmsDbContext.Roles
                 .Where(r => r.Name != "SuperAdmin")
                 .Select(r => new RoleViewModel
                     {
@@ -75,12 +68,21 @@ namespace TimeManager.Backend.Services
 
         public async Task<Role?> UpdateRoleAsync(int id, RoleDto roleDto)
         {
-            var r = await this.hrmsDbContext.Roles.FindAsync(id);
+            var r = await hrmsDbContext.Roles.FindAsync(id);
             if (r == null) return null;
 
-            this.hrmsDbContext.Entry(r).CurrentValues.SetValues(roleDto);
-            await this.hrmsDbContext.SaveChangesAsync();
+            hrmsDbContext.Entry(r).CurrentValues.SetValues(roleDto);
+            await hrmsDbContext.SaveChangesAsync();
             return r;
         }
+    }
+
+    public class RoleDto
+    {
+        [Required(ErrorMessage = "Name is required")]
+        public string Name { get; set; } = string.Empty;
+
+        [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
+        public string? Description { get; set; } = string.Empty;
     }
 }

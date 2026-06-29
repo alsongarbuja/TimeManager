@@ -38,7 +38,10 @@
         </div>
     </main>
 
+    @await Html.PartialAsync("_Notifications")
+
     <script src="~/js/sidebartoggle.js"></script>
+    <script src="~/js/notification.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

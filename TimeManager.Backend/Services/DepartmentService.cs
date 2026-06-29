@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Organization_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -27,19 +28,15 @@ namespace TimeManager.Backend.Services
 
         public async Task<int?> DeleteDepartmentByIdAsync(int id)
         {
-            var dept = await context.Department.FindAsync(id);
-            if (dept == null) return null;
-
+            var dept = await context.Department.FindOrThrowAsync(id);
             context.Department.Remove(dept);
             await context.SaveChangesAsync();
-
             return id;
         }
 
         public async Task<Department> GetDepartmentByIdAsync(int id)
         {
-            var data = await context.Department.FindAsync(id);
-            return data;
+            return await context.Department.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync(int selectedItem = 0)

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -38,9 +39,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<int?> DeleteEmployeeByIdAsync(int id)
         {
-            var e = await hrmsDbContext.Employee.FindAsync(id);
-            if (e == null) return null;
-
+            var e = await hrmsDbContext.Employee.FindOrThrowAsync(id);
             hrmsDbContext.Employee.Remove(e);
             await hrmsDbContext.SaveChangesAsync();
             return id;
@@ -48,8 +47,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<Employee> GetEmployeeByIdAsync(int id)
         {
-            var e = await hrmsDbContext.Employee.FindAsync(id);
-            return e;
+            return await hrmsDbContext.Employee.FindOrThrowAsync(id);
         }
 
         public async Task<Employee?> GetEmployeeByUserIdAsync(int id)

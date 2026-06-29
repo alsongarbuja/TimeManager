@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Punch_Management;
@@ -16,22 +14,12 @@ namespace TimeManager.Backend.Services
         Task AutoGeneratePayPeriod();
     }
 
-    public class PayPeriodService : IPayPeriodService
+    public class PayPeriodService(HrmsDbContext context, ILogger<PayPeriodService> logger, PayPeriodUtility payPeriodUtility) : IPayPeriodService
     {
-        private readonly HrmsDbContext _context;
-        private readonly ILogger<PayPeriodService> _logger;
-        private readonly PayPeriodUtility _payPeriodUtility;
-
-        public PayPeriodService(HrmsDbContext context, ILogger<PayPeriodService> logger, PayPeriodUtility payPeriodUtility) {
-            _context = context;
-            _logger = logger;
-            _payPeriodUtility = payPeriodUtility;
-        }
-
         public async Task<IEnumerable<SelectListItem>> GetPayPeriodOptionsAsync()
         {
-            var currentPp = await _payPeriodUtility.GetCurrentPayPeriod();
-            var payPeriods = await _context.PayPeriod.Where(pp => pp.StartDate >= currentPp.StartDate).Select(pp => new SelectListItem
+            var currentPp = await payPeriodUtility.GetCurrentPayPeriod();
+            var payPeriods = await context.PayPeriod.Where(pp => pp.StartDate >= currentPp.StartDate).Select(pp => new SelectListItem
             {
                 Value = pp.Id.ToString(),
                 Text = $"{pp.StartDate.ToString("MMM d, yyyy")} - {pp.EndDate.ToString("MMM d, yyyy")}"
@@ -42,11 +30,11 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<PayPeriodViewModel>> GetPayPeriodsAsync()
         {
-            var currentPayPeriod = await _payPeriodUtility.GetCurrentPayPeriod();
+            var currentPayPeriod = await payPeriodUtility.GetCurrentPayPeriod();
 
             if (currentPayPeriod == null) return [];
 
-            var payperiods = await _context.PayPeriod.Where(pp => currentPayPeriod.StartDate <= pp.StartDate).Select(p => new PayPeriodViewModel { 
+            var payperiods = await context.PayPeriod.Where(pp => currentPayPeriod.StartDate <= pp.StartDate).Select(p => new PayPeriodViewModel { 
                 StartDate = p.StartDate.ToString("MMM d yyyy"),
                 EndDate = p.EndDate.ToString("MMM d yyyy")
             }).ToListAsync();
@@ -60,7 +48,7 @@ namespace TimeManager.Backend.Services
 
             DateTimeOffset effectiveStartLocalDt;
 
-            var latestPayPeriod = await _context.PayPeriod.OrderByDescending(p => p.EndDate)
+            var latestPayPeriod = await context.PayPeriod.OrderByDescending(p => p.EndDate)
                     .FirstOrDefaultAsync();
 
             if (latestPayPeriod != null)
@@ -108,7 +96,7 @@ namespace TimeManager.Backend.Services
                 DateTimeOffset startDateUtc = currentStartLocalDt.ToUniversalTime();
                 DateTimeOffset endDateUtc = currentEndLocalDate.ToUniversalTime();
 
-                bool hasOverlap = await _context.PayPeriod.AnyAsync(p =>
+                bool hasOverlap = await context.PayPeriod.AnyAsync(p =>
                     p.StartDate <= endDateUtc && p.EndDate >= startDateUtc &&
                     !(p.StartDate == startDateUtc && p.EndDate == endDateUtc));
 
@@ -124,7 +112,7 @@ namespace TimeManager.Backend.Services
                     EndDate = endDateUtc,
                 };
 
-                _context.PayPeriod.Add(newPeriod);
+                context.PayPeriod.Add(newPeriod);
 
                 createdCount++;
 
@@ -134,7 +122,7 @@ namespace TimeManager.Backend.Services
 
             if (createdCount > 0)
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
         }
     }

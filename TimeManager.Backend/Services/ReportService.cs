@@ -20,24 +20,15 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<ReportGeneratedViewModel>> GenerateReportByUnitId(int id, int payPeriodId = 0);
     }
 
-    public class ReportService: IReportService
+    public class ReportService(HrmsDbContext hrmsDbContext, PayPeriodUtility payPeriodUtility) : IReportService
     {
-        private readonly HrmsDbContext hrmsDbContext;
-        private readonly PayPeriodUtility _payPeriodUtility;
-
-        public ReportService(HrmsDbContext hrmsDbContext, PayPeriodUtility payPeriodUtility)
-        {
-            this.hrmsDbContext = hrmsDbContext;
-            _payPeriodUtility = payPeriodUtility;
-        }
-
         public async Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id, int payPeriodId = 0)
         {
             JobProfile? jp = await hrmsDbContext.JobProfile.Include(jp => jp.Employee).FirstOrDefaultAsync(j => j.Id == id);
 
             if (jp == null) return null;
 
-            PayPeriod? pp = payPeriodId != 0 ? await _payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await _payPeriodUtility.GetCurrentPayPeriod();
+            PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetCurrentPayPeriod();
 
             if (pp == null) return null;
 
@@ -46,7 +37,7 @@ namespace TimeManager.Backend.Services
                 && pe.ClockOut > pp.StartDate && pe.ClockOut <= pp.EndDate && pe.ClockOut != null
             ).ToListAsync();
 
-            ReportGeneratedViewModel report = new ReportGeneratedViewModel
+            ReportGeneratedViewModel report = new()
             {
                 Name = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
                 JobProfileId = id,
@@ -92,16 +83,16 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<ReportGeneratedViewModel>> GenerateReportByUnitId(int id, int payPeriodId = 0)
         {
-            Unit? unit = await this.hrmsDbContext.Unit.FindAsync(id);
+            Unit? unit = await hrmsDbContext.Unit.FindAsync(id);
             if (unit == null) return [];
 
-            PayPeriod? pp = payPeriodId != 0 ? await _payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await _payPeriodUtility.GetCurrentPayPeriod();
+            PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetCurrentPayPeriod();
 
             if (pp == null) return [];
 
             List<ReportGeneratedViewModel> reports = new List<ReportGeneratedViewModel>();
 
-            List<JobProfile> jps = await this.hrmsDbContext.JobProfile.Where(jp => jp.ProfileTemplate.UnitId == id).ToListAsync();
+            List<JobProfile> jps = await hrmsDbContext.JobProfile.Where(jp => jp.ProfileTemplate.UnitId == id).ToListAsync();
 
             for (int i = 0; i < jps.Count; i++)
             {

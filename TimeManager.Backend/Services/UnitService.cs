@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Organization_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -18,7 +19,7 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId);
     }
 
-    public class UnitService(HrmsDbContext context, ILogger<UnitService> logger) : IUnitService
+    public class UnitService(HrmsDbContext context) : IUnitService
     {
         public async Task CreateUnitAsync(UnitDto unitDto)
         {
@@ -34,25 +35,15 @@ namespace TimeManager.Backend.Services
 
         public async Task<int?> DeleteUnitByIdAsync(int id)
         {
-            var unit = await context.Unit.FindAsync(id);
-            if (unit == null) return null;
-
+            var unit = await context.Unit.FindOrThrowAsync(id);
             context.Unit.Remove(unit);
             await context.SaveChangesAsync();
-
             return id;
         }
 
         public async Task<Unit> GetUnitByIdAsync(int id)
         {
-            var unit = await context.Unit.Where(u => u.Id == id).Select(u => new Unit { 
-                Id = u.Id,
-                Name = u.Name,
-                Description = u.Description,
-                Department = u.Department,
-                Index = u.Index,
-            }).FirstOrDefaultAsync();
-            return unit;
+            return await context.Unit.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId)
@@ -92,8 +83,7 @@ namespace TimeManager.Backend.Services
 
             if (departmentId != null)
             {
-                Console.WriteLine("Filtering....");
-                units = units.Where(u => u.DepartmentId == (int)departmentId).ToList();
+                units = [.. units.Where(u => u.DepartmentId == (int)departmentId)];
             }
             return units;
         }

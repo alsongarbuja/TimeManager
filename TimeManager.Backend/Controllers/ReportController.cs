@@ -50,7 +50,7 @@ namespace TimeManager.Backend.Controllers
             var d = await reportService.GenerateReportByUnitId(rvm.UnitId ?? 0, rvm.PayPeriodId ?? 0);
             return View("ResultByUnit", new ReportGeneratedUnitViewModel
             {
-                Reports = d.ToList(),
+                Reports = [.. d],
             });
         }
     }

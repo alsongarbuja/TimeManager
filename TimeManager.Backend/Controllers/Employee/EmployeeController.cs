@@ -106,14 +106,15 @@ namespace TimeManager.Backend.Controllers.Employee
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var e = await _employeeService.DeleteEmployeeByIdAsync(id);
-            if (e == null)
+            try
             {
-                TempData["error"] = "Employee not found";
-            } else
-            {
+                await _employeeService.DeleteEmployeeByIdAsync(id);
                 TempData["success"] = "Employee deleted";
+            } catch (KeyNotFoundException ex)
+            {
+                TempData["error"] = ex.Message;
             }
+            
             return RedirectToAction(nameof(Index));
         }
 

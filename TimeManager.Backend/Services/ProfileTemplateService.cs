@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -34,9 +35,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<int?> DeleteProfileTemplateAsync(int id)
         {
-            var profileTemplate = await hrmsDbContext.ProfileTemplate.FindAsync(id);
-            if (profileTemplate == null) return null;
-
+            var profileTemplate = await hrmsDbContext.ProfileTemplate.FindOrThrowAsync(id);
             hrmsDbContext.ProfileTemplate.Remove(profileTemplate);
             await hrmsDbContext.SaveChangesAsync();
             return id;
@@ -44,8 +43,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<ProfileTemplate> GetProfileTemplateByIdAsync(int id)
         {
-            var profileTemplate = await hrmsDbContext.ProfileTemplate.FindAsync(id);
-            return profileTemplate;
+            return await hrmsDbContext.ProfileTemplate.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync()

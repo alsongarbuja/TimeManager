@@ -108,7 +108,15 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            await profileTemplateService.DeleteProfileTemplateAsync(id);
+            try
+            {
+                await profileTemplateService.DeleteProfileTemplateAsync(id);
+                TempData["success"] = "Successfully removed the data";
+            }
+            catch (KeyNotFoundException ex)
+            {
+                TempData["error"] = ex.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
     }

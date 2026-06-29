@@ -73,14 +73,13 @@ namespace TimeManager.Backend.Controllers.Role
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var et = await _roleService.DeleteRoleByIdAsync(id);
-            if (et == null)
+            try
             {
-                TempData["error"] = "Role not found";
-            }
-            else
+                await _roleService.DeleteRoleByIdAsync(id);
+                TempData["success"] = "Successfully removed the data";
+            } catch (KeyNotFoundException ex)
             {
-                TempData["success"] = "Role deleted";
+                TempData["error"] = ex.Message;
             }
 
             return RedirectToAction(nameof(Index));

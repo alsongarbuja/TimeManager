@@ -17,26 +17,13 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetUserOptionsAsync();
     }
 
-    public class UserService: IUserService
+    public class UserService(
+        HrmsDbContext hrmsDbContext,
+        IHttpContextAccessor httpContextAccessor,
+        UserManager<User> userManager,
+        IConfiguration configuration
+        ) : IUserService
     {
-        private readonly HrmsDbContext hrmsDbContext;
-        private readonly UserManager<User> userManager;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IConfiguration configuration;
-
-        public UserService(
-            HrmsDbContext hrmsDbContext, 
-            IHttpContextAccessor httpContextAccessor, 
-            UserManager<User> userManager,
-            IConfiguration configuration
-        )
-        {
-            this.hrmsDbContext = hrmsDbContext;
-            this.httpContextAccessor = httpContextAccessor;
-            this.userManager = userManager;
-            this.configuration = configuration;
-        }
-
         public async Task<int?> DeleteUserByIdAsync(int id)
         {
             var user = await userManager.FindByIdAsync(id.ToString());

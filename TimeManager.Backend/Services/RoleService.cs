@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.ViewModels;
 
@@ -27,9 +28,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<int?> DeleteRoleByIdAsync(int id)
         {
-            var r = await hrmsDbContext.Roles.FindAsync(id);
-            if (r == null) return null;
-
+            var r = await hrmsDbContext.Roles.FindOrThrowAsync(id);
             hrmsDbContext.Roles.Remove(r);
             await hrmsDbContext.SaveChangesAsync();
             return id;
@@ -37,8 +36,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<Role> GetRoleByIdAsync(int id)
         {
-            var r = await hrmsDbContext.Roles.FindAsync(id);
-            return r;
+            return await hrmsDbContext.Roles.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(string selectedItem = "")

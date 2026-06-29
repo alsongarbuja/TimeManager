@@ -74,16 +74,15 @@ namespace TimeManager.Backend.Controllers.PayFrequency
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var et = await _payFrequencyService.DeletePayFrequencyByIdAsync(id);
-            if (et == null)
+            try
+            {
+                await _payFrequencyService.DeletePayFrequencyByIdAsync(id);
+                TempData["success"] = "Pay frequency deleted";
+            } catch (KeyNotFoundException ex)
             {
                 TempData["error"] = "Pay frequency not found";
             }
-            else
-            {
-                TempData["success"] = "Pay frequency deleted";
-            }
-
+            
             return RedirectToAction(nameof(Index));
         }
     }

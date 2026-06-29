@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -17,7 +18,7 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId);
     }
 
-    public class JobProfileService(HrmsDbContext context, ILogger<JobProfileService> logger) : IJobProfileService
+    public class JobProfileService(HrmsDbContext context) : IJobProfileService
     {
         public async Task CreateJobProfileAsync(JobProfileViewModel jpvm)
         {
@@ -27,8 +28,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<int?> DeleteJobProfileAsync(int id)
         {
-            var jp = await context.JobProfile.FindAsync(id);
-            if (jp == null) return null;
+            var jp = await context.JobProfile.FindOrThrowAsync(id);
             context.JobProfile.Remove(jp);
             await context.SaveChangesAsync();
             return id;
@@ -36,8 +36,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<JobProfile> GetJobProfileByIdAsync(int id)
         {
-            var jp = await context.JobProfile.FindAsync(id);
-            return jp;
+            return await context.JobProfile.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId)

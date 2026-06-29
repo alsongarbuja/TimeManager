@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
+using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -18,34 +19,25 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetPayFrequencyOptionsAsync();
     }
 
-    public class PayFrequencyService : IPayFrequencyService
+    public class PayFrequencyService(HrmsDbContext hrmsDbContext) : IPayFrequencyService
     {
-        private readonly HrmsDbContext hrmsDbContext;
-
-        public PayFrequencyService(HrmsDbContext hrmsDbContext)
-        {
-            this.hrmsDbContext = hrmsDbContext;
-        }
-
         public async Task CreatePayFrequencyAsync(PayFrequencyDto payFrequencyDto)
         {
-            this.hrmsDbContext.PayFrequency.Add(new PayFrequency { Name = payFrequencyDto.Name, Description = payFrequencyDto.Description });
-            await this.hrmsDbContext.SaveChangesAsync();
+            hrmsDbContext.PayFrequency.Add(new PayFrequency { Name = payFrequencyDto.Name, Description = payFrequencyDto.Description });
+            await hrmsDbContext.SaveChangesAsync();
         }
 
         public async Task<int?> DeletePayFrequencyByIdAsync(int id)
         {
-            var pf = await this.hrmsDbContext.PayFrequency.FindAsync(id);
-            if (pf == null) return null;
-
-            this.hrmsDbContext.PayFrequency.Remove(pf);
-            await this.hrmsDbContext.SaveChangesAsync();
+            var pf = await hrmsDbContext.PayFrequency.FindOrThrowAsync(id);
+            hrmsDbContext.PayFrequency.Remove(pf);
+            await hrmsDbContext.SaveChangesAsync();
             return id;
         }
 
         public async Task<IEnumerable<PayFrequencyViewModel>> GetPayFrequenciesAsync()
         {
-            var payFrequencies = await this.hrmsDbContext.PayFrequency.Select(pf => new PayFrequencyViewModel
+            var payFrequencies = await hrmsDbContext.PayFrequency.Select(pf => new PayFrequencyViewModel
             {
                 Id = pf.Id,
                 Name = pf.Name,
@@ -56,13 +48,12 @@ namespace TimeManager.Backend.Services
 
         public async Task<PayFrequency> GetPayFrequencyByIdAsync(int id)
         {
-            var pf = await this.hrmsDbContext.PayFrequency.FindAsync(id);
-            return pf;
+            return await hrmsDbContext.PayFrequency.FindOrThrowAsync(id);
         }
 
         public async Task<PayFrequency> GetPayFrequencyByNameAsync(string name)
         {
-            var pf = await this.hrmsDbContext.PayFrequency.Where(pf => pf.Name.Equals(name)).FirstOrDefaultAsync();
+            var pf = await hrmsDbContext.PayFrequency.Where(pf => pf.Name.Equals(name)).FirstOrDefaultAsync();
             return pf;
         }
 
@@ -78,12 +69,21 @@ namespace TimeManager.Backend.Services
 
         public async Task<PayFrequency?> UpdatePayFrequencyAsync(int id, PayFrequencyDto payFrequencyDto)
         {
-            var pf = await this.hrmsDbContext.PayFrequency.FindAsync(id);
+            var pf = await hrmsDbContext.PayFrequency.FindAsync(id);
             if (pf == null) return null;
 
-            this.hrmsDbContext.Entry(pf).CurrentValues.SetValues(payFrequencyDto);
-            await this.hrmsDbContext.SaveChangesAsync();
+            hrmsDbContext.Entry(pf).CurrentValues.SetValues(payFrequencyDto);
+            await hrmsDbContext.SaveChangesAsync();
             return pf;
         }
+    }
+
+    public class PayFrequencyDto
+    {
+        [Required(ErrorMessage = "Name is required")]
+        public string Name { get; set; } = string.Empty;
+
+        [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
+        public string? Description { get; set; } = string.Empty;
     }
 }

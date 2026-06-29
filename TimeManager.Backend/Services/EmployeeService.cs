@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
+using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -19,15 +20,8 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id);
     }
 
-    public class EmployeeService : IEmployeeService
+    public class EmployeeService(HrmsDbContext hrmsDbContext) : IEmployeeService
     {
-        private readonly HrmsDbContext hrmsDbContext;
-
-        public EmployeeService(HrmsDbContext hrmsDbContext)
-        {
-            this.hrmsDbContext = hrmsDbContext;
-        }
-
         public async Task<int> CreateEmployeeAsync(EmployeeDto employeeDto)
         {
             Employee employee = new Employee
@@ -39,24 +33,21 @@ namespace TimeManager.Backend.Services
                 DepartmentId = employeeDto.DepartmentId,
             };
             hrmsDbContext.Employee.Add(employee);
-            await this.hrmsDbContext.SaveChangesAsync();
+            await hrmsDbContext.SaveChangesAsync();
             return employee.Id;
         }
 
         public async Task<int?> DeleteEmployeeByIdAsync(int id)
         {
-            var e = await this.hrmsDbContext.Employee.FindAsync(id);
-            if (e == null) return null;
-
-            this.hrmsDbContext.Employee.Remove(e);
-            await this.hrmsDbContext.SaveChangesAsync();
+            var e = await hrmsDbContext.Employee.FindOrThrowAsync(id);
+            hrmsDbContext.Employee.Remove(e);
+            await hrmsDbContext.SaveChangesAsync();
             return id;
         }
 
         public async Task<Employee> GetEmployeeByIdAsync(int id)
         {
-            var e = await this.hrmsDbContext.Employee.FindAsync(id);
-            return e;
+            return await hrmsDbContext.Employee.FindOrThrowAsync(id);
         }
 
         public async Task<Employee?> GetEmployeeByUserIdAsync(int id)
@@ -67,7 +58,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync()
         {
-            var employees = await this.hrmsDbContext.Employee.Select(e => new SelectListItem
+            var employees = await hrmsDbContext.Employee.Select(e => new SelectListItem
             {
                 Text = $"{e.FirstName} {e.LastName}",
                 Value = e.Id.ToString()
@@ -80,7 +71,7 @@ namespace TimeManager.Backend.Services
             IEnumerable<EmployeeViewModel> employees = [];
             if (departmentId == null)
             {
-                employees = await this.hrmsDbContext.Employee.Select(e => new EmployeeViewModel { 
+                employees = await hrmsDbContext.Employee.Select(e => new EmployeeViewModel { 
                     Id = e.Id,
                     FirstName = e.FirstName, 
                     LastName = e.LastName,
@@ -99,7 +90,7 @@ namespace TimeManager.Backend.Services
                     .Select(x => x.UserId)
                     .ToHashSetAsync();
 
-                employees = await this.hrmsDbContext.Employee
+                employees = await hrmsDbContext.Employee
                     .Where(e => e.DepartmentId == departmentId && !excludedUserIds.Contains(e.UserId))
                     .Select(e => new EmployeeViewModel
                         {
@@ -131,12 +122,37 @@ namespace TimeManager.Backend.Services
 
         public async Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto)
         {
-            var e = await this.hrmsDbContext.Employee.FindAsync(id);
+            var e = await hrmsDbContext.Employee.FindAsync(id);
             if (e == null) return null;
 
-            this.hrmsDbContext.Entry(e).CurrentValues.SetValues(employeeDto);
-            await this.hrmsDbContext.SaveChangesAsync();
+            hrmsDbContext.Entry(e).CurrentValues.SetValues(employeeDto);
+            await hrmsDbContext.SaveChangesAsync();
             return e;
         }
+    }
+
+    public class EmployeeDto
+    {
+        [Required(ErrorMessage = "Unique Id is required")]
+        [StringLength(20, ErrorMessage = "Unique Id cannot exceed 20 characters")]
+        public string UniqueId { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "First name is required")]
+        [StringLength(50, ErrorMessage = "First name cannot exceed 50 characters")]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Last name is required")]
+        [StringLength(50, ErrorMessage = "Last name cannot exceed 50 characters")]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Email is required")]
+        [StringLength(50, ErrorMessage = "Email cannot exceed 50 characters")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "User id is required")]
+        public int UserId { get; set; }
+
+        [Required(ErrorMessage = "Department Id is required")]
+        public int DepartmentId { get; set; }
     }
 }

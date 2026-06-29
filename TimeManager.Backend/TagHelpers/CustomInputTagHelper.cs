@@ -14,6 +14,9 @@ namespace TimeManager.Backend.TagHelpers
         [ViewContext]
         public ViewContext ViewContext { get; set; }
 
+        [HtmlAttributeName("classes")]
+        public string? Classes { get; set; }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             var propertyName = For.Name;
@@ -68,9 +71,11 @@ namespace TimeManager.Backend.TagHelpers
 
             var errorMessage = hasErrors ? modelStateEntry.Errors.First().ErrorMessage : string.Empty;
 
+            var classes = hasErrors ? "form-input form-input-error" : "form-input";
+
             var input = isMultiLine
-                ? $"<textarea name='{propertyName}' value='{formattedValue}' class='form-input'></textarea>"
-                : $"<input name='{propertyName}' {inputIsRequired} value='{formattedValue}' class='form-input' type='{type}' />";
+                ? $"<textarea name='{propertyName}' class='{classes}'>{System.Net.WebUtility.HtmlEncode(formattedValue)}</textarea>"
+                : $"<input name='{propertyName}' {inputIsRequired} value='{formattedValue}' class='{classes}' type='{type}' />";
 
             if (type == "password")
             {
@@ -100,7 +105,7 @@ namespace TimeManager.Backend.TagHelpers
             output.TagName = null;
 
             output.Content.SetHtmlContent(
-                $"<div class='form-group'>" +
+                $"<div class='form-group {Classes}'>" +
                     $"<label class='form-label'>{labelText}{required}</label>" +
                     $"<div class='form-input-wrapper'>{input}</div>" +
                     $"{errorSpan}" +

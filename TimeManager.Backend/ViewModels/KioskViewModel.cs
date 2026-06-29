@@ -15,6 +15,7 @@ namespace TimeManager.Backend.ViewModels
 
         [Display(Name = "Description")]
         [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
+        [DataType(DataType.MultilineText)]
         public string? Description { get; set; } = string.Empty;
 
         [Display(Name = "Allowed Ip address")]

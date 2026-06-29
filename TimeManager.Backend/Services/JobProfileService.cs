@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -16,36 +18,25 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId);
     }
 
-    public class JobProfileService: IJobProfileService
+    public class JobProfileService(HrmsDbContext context) : IJobProfileService
     {
-        private readonly HrmsDbContext _context;
-        private readonly ILogger<JobProfileService> _logger;
-
-        public JobProfileService(HrmsDbContext context, ILogger<JobProfileService> logger)
-        {
-            _context = context;
-            _logger = logger;
-        }
-
         public async Task CreateJobProfileAsync(JobProfileViewModel jpvm)
         {
-            _context.JobProfile.Add(new JobProfile { EmployeeId = jpvm.EmployeeId, ProfileTemplateId = jpvm.ProfileTemplateId });
-            await _context.SaveChangesAsync();
+            context.JobProfile.Add(new JobProfile { EmployeeId = jpvm.EmployeeId, ProfileTemplateId = jpvm.ProfileTemplateId });
+            await context.SaveChangesAsync();
         }
 
         public async Task<int?> DeleteJobProfileAsync(int id)
         {
-            var jp = await _context.JobProfile.FindAsync(id);
-            if (jp == null) return null;
-            _context.JobProfile.Remove(jp);
-            await _context.SaveChangesAsync();
+            var jp = await context.JobProfile.FindOrThrowAsync(id);
+            context.JobProfile.Remove(jp);
+            await context.SaveChangesAsync();
             return id;
         }
 
         public async Task<JobProfile> GetJobProfileByIdAsync(int id)
         {
-            var jp = await _context.JobProfile.FindAsync(id);
-            return jp;
+            return await context.JobProfile.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId)
@@ -54,7 +45,7 @@ namespace TimeManager.Backend.Services
             
             if (departmentId == null)
             {
-                jobprofiles = await _context.JobProfile.Select(jp =>
+                jobprofiles = await context.JobProfile.Select(jp =>
                 new JobProfileViewModel {
                     Id = jp.Id,
                     EmployeeId = jp.EmployeeId,
@@ -63,7 +54,7 @@ namespace TimeManager.Backend.Services
                 }).ToListAsync();
             } else
             {
-                jobprofiles = await _context.JobProfile
+                jobprofiles = await context.JobProfile
                     .Where(jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId)
                     .Select(jp =>
                 new JobProfileViewModel
@@ -84,14 +75,14 @@ namespace TimeManager.Backend.Services
 
             if (departmentId == null)
             {
-                users = await _context.JobProfile.Select(jp => new SelectListItem
+                users = await context.JobProfile.Select(jp => new SelectListItem
                 {
                     Value = jp.Id.ToString(),
                     Text = $"{jp.Employee.FirstName} {jp.Employee.LastName} / {jp.ProfileTemplate.Unit.Name}",
                 }).ToListAsync();
             } else
             {
-                users = await _context.JobProfile
+                users = await context.JobProfile
                     .Where(jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId)
                     .Select(jp => new SelectListItem
                         {
@@ -105,11 +96,25 @@ namespace TimeManager.Backend.Services
 
         public async Task<JobProfile?> UpdateJobProfileASync(int id, JobProfileViewModel jpvm)
         {
-            var jp = await _context.JobProfile.FindAsync(id);
+            var jp = await context.JobProfile.FindAsync(id);
             if (jp == null) return null;
-            _context.Entry(jp).CurrentValues.SetValues(jpvm);
-            await _context.SaveChangesAsync();
+            context.Entry(jp).CurrentValues.SetValues(jpvm);
+            await context.SaveChangesAsync();
             return jp;
         }
+    }
+
+    public class JobProfileDto
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Profile template Id is required")]
+        public int ProfileTemplateId { get; set; }
+
+        [Required(ErrorMessage = "Employee Id is required")]
+        public int EmployeeId { get; set; }
+
+        public string ProfileTemplateString { get; set; } = string.Empty;
+        public string EmployeeString { get; set; } = string.Empty;
     }
 }

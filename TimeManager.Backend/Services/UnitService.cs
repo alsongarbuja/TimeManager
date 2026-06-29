@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Controllers.Organization.Dto;
+using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Organization_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -18,49 +19,31 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId);
     }
 
-    public class UnitService: IUnitService
+    public class UnitService(HrmsDbContext context) : IUnitService
     {
-        private readonly HrmsDbContext _context;
-        private readonly ILogger<UnitService> _logger;
-
-        public UnitService(HrmsDbContext context, ILogger<UnitService> logger) {
-            _context = context;
-            _logger = logger;
-        }
-
         public async Task CreateUnitAsync(UnitDto unitDto)
         {
-            _context.Unit.Add(new Unit
+            context.Unit.Add(new Unit
             {
                 Name = unitDto.Name,
                 Description = unitDto.Description,
                 DepartmentId = unitDto.DepartmentId,
                 Index = unitDto.Index,
             });
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task<int?> DeleteUnitByIdAsync(int id)
         {
-            var unit = await _context.Unit.FindAsync(id);
-            if (unit == null) return null;
-
-            _context.Unit.Remove(unit);
-            await _context.SaveChangesAsync();
-
+            var unit = await context.Unit.FindOrThrowAsync(id);
+            context.Unit.Remove(unit);
+            await context.SaveChangesAsync();
             return id;
         }
 
         public async Task<Unit> GetUnitByIdAsync(int id)
         {
-            var unit = await _context.Unit.Where(u => u.Id == id).Select(u => new Unit { 
-                Id = u.Id,
-                Name = u.Name,
-                Description = u.Description,
-                Department = u.Department,
-                Index = u.Index,
-            }).FirstOrDefaultAsync();
-            return unit;
+            return await context.Unit.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId)
@@ -68,14 +51,14 @@ namespace TimeManager.Backend.Services
             IEnumerable<SelectListItem> units = [];
             if (departmentId == null)
             {
-                units = await _context.Unit.Select(u => new SelectListItem
+                units = await context.Unit.Select(u => new SelectListItem
                 {
                     Value = u.Id.ToString(),
                     Text = $"{u.Name} - {u.Department.Name}",
                 }).ToListAsync();
             } else
             {
-                units = await _context.Unit
+                units = await context.Unit
                     .Where(u => u.DepartmentId == departmentId)
                     .Select(u => new SelectListItem
                 {
@@ -88,7 +71,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<UnitViewModel>> GetUnitsAysnc(int? departmentId)
         {
-            var units = await _context.Unit.Select(u => new UnitViewModel
+            var units = await context.Unit.Select(u => new UnitViewModel
             {
                 Id = u.Id,
                 Name = u.Name,
@@ -100,21 +83,35 @@ namespace TimeManager.Backend.Services
 
             if (departmentId != null)
             {
-                Console.WriteLine("Filtering....");
-                units = units.Where(u => u.DepartmentId == (int)departmentId).ToList();
+                units = [.. units.Where(u => u.DepartmentId == (int)departmentId)];
             }
             return units;
         }
 
         public async Task<Unit?> UpdateUnitAsync(int id, UnitDto unitDto)
         {
-            var unit = await _context.Unit.FindAsync(id);
+            var unit = await context.Unit.FindAsync(id);
             if (unit == null) return null;
 
-            _context.Entry(unit).CurrentValues.SetValues(unitDto);
-            await _context.SaveChangesAsync();
+            context.Entry(unit).CurrentValues.SetValues(unitDto);
+            await context.SaveChangesAsync();
 
             return unit;
         }
+    }
+
+    public class UnitDto
+    {
+        [Required(ErrorMessage = "Department Id is required")]
+        public int DepartmentId { get; set; }
+
+        [Required(ErrorMessage = "Name is required")]
+        public string Name { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Index is required")]
+        public int Index { get; set; }
+
+        [StringLength(100, ErrorMessage = "Description cannot be longer than 100")]
+        public string? Description { get; set; }
     }
 }

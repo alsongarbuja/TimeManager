@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Organization_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -19,41 +18,30 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync(int selectedId = 0);
     }
 
-    public class DepartmentService: IDepartmentService
+    public class DepartmentService(HrmsDbContext context) : IDepartmentService
     {
-        private readonly HrmsDbContext _context;
-
-        public DepartmentService(HrmsDbContext context)
-        {
-            _context = context;
-        }
-
         public async Task CreateDepartmentAsync(DepartmentDto departmentDto)
         {
-            _context.Department.Add(new Department { Name = departmentDto.Name, Description = departmentDto.Description });
-            await _context.SaveChangesAsync();
+            context.Department.Add(new Department { Name = departmentDto.Name, Description = departmentDto.Description });
+            await context.SaveChangesAsync();
         }
 
         public async Task<int?> DeleteDepartmentByIdAsync(int id)
         {
-            var dept = await _context.Department.FindAsync(id);
-            if (dept == null) return null;
-
-            _context.Department.Remove(dept);
-            await _context.SaveChangesAsync();
-
+            var dept = await context.Department.FindOrThrowAsync(id);
+            context.Department.Remove(dept);
+            await context.SaveChangesAsync();
             return id;
         }
 
         public async Task<Department> GetDepartmentByIdAsync(int id)
         {
-            var data = await _context.Department.FindAsync(id);
-            return data;
+            return await context.Department.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync(int selectedItem = 0)
         {
-            var data = await _context.Department.Select(d => new SelectListItem
+            var data = await context.Department.Select(d => new SelectListItem
             {
                 Text = d.Name,
                 Value = d.Id.ToString(),
@@ -64,7 +52,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<DepartmentViewModel>> GetDepartmentsAsync()
         {
-            var data = await _context.Department.Select(d => new DepartmentViewModel
+            var data = await context.Department.Select(d => new DepartmentViewModel
             {
                 Id = d.Id,
                 Name = d.Name,
@@ -75,11 +63,11 @@ namespace TimeManager.Backend.Services
 
         public async Task<Department?> UpdateDepartmentAsync(int id, DepartmentDto departmentDto)
         {
-            var dept = await _context.Department.FindAsync(id);
+            var dept = await context.Department.FindAsync(id);
             if (dept == null) return null;
 
-            _context.Entry(dept).CurrentValues.SetValues(departmentDto);
-            await _context.SaveChangesAsync();
+            context.Entry(dept).CurrentValues.SetValues(departmentDto);
+            await context.SaveChangesAsync();
 
             return dept;
         }
@@ -87,7 +75,7 @@ namespace TimeManager.Backend.Services
 
     public class DepartmentDto {
         [Required(ErrorMessage = "Name is required.")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters.")]
         public string? Description { get; set; }

@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
+using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -18,38 +19,28 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetEmployeeTypeOptionsAsync();
     }
 
-    public class EmployeeTypeService : IEmployeeTypeService
+    public class EmployeeTypeService(HrmsDbContext hrmsDbContext) : IEmployeeTypeService
     {
-        private readonly HrmsDbContext hrmsDbContext;
-
-        public EmployeeTypeService(HrmsDbContext hrmsDbContext)
-        {
-            this.hrmsDbContext = hrmsDbContext;
-        }
-
         public async Task CreateEmployeeTypeAsync(EmployeeTypeDto employeeTypeDto)
         {
-            this.hrmsDbContext.EmployeeType.Add(new EmployeeType {
+            hrmsDbContext.EmployeeType.Add(new EmployeeType {
                 Name = employeeTypeDto.Name,
                 Description = employeeTypeDto.Description
             });
-            await this.hrmsDbContext.SaveChangesAsync();
+            await hrmsDbContext.SaveChangesAsync();
         }
 
         public async Task<int?> DeleteEmployeeTypeByIdAsync(int id)
         {
-            var et = await this.hrmsDbContext.EmployeeType.FindAsync(id);
-            if (et == null) return null;
-
-            this.hrmsDbContext.EmployeeType.Remove(et);
-            await this.hrmsDbContext.SaveChangesAsync();
+            var et = await hrmsDbContext.EmployeeType.FindOrThrowAsync(id);
+            hrmsDbContext.EmployeeType.Remove(et);
+            await hrmsDbContext.SaveChangesAsync();
             return id;
         }
 
         public async Task<EmployeeType> GetEmployeeTypeByIdAsync(int id)
         {
-            var et = await this.hrmsDbContext.EmployeeType.FindAsync(id);
-            return et;
+            return await hrmsDbContext.EmployeeType.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetEmployeeTypeOptionsAsync()
@@ -64,17 +55,17 @@ namespace TimeManager.Backend.Services
 
         public async Task<EmployeeType?> UpdateEmployeeTypeAsync(int id, EmployeeTypeDto employeeTypeDto)
         {
-            var et = await this.hrmsDbContext.EmployeeType.FindAsync(id);
+            var et = await hrmsDbContext.EmployeeType.FindAsync(id);
             if (et == null) return null;
 
-            this.hrmsDbContext.Entry(et).CurrentValues.SetValues(employeeTypeDto);
-            await this.hrmsDbContext.SaveChangesAsync();
+            hrmsDbContext.Entry(et).CurrentValues.SetValues(employeeTypeDto);
+            await hrmsDbContext.SaveChangesAsync();
             return et;
         }
 
         public async Task<IEnumerable<EmployeeTypeViewModel>> GetEmployeeTypesAsync()
         {
-            var ets = await this.hrmsDbContext.EmployeeType.Select(et => new EmployeeTypeViewModel { 
+            var ets = await hrmsDbContext.EmployeeType.Select(et => new EmployeeTypeViewModel { 
                 Id = et.Id,
                 Name = et.Name,
                 Description = et.Description,
@@ -87,5 +78,14 @@ namespace TimeManager.Backend.Services
             var et = await hrmsDbContext.EmployeeType.Where(et => et.Name.Equals(name)).FirstOrDefaultAsync();
             return et;
         }
+    }
+
+    public class EmployeeTypeDto
+    {
+        [Required(ErrorMessage = "Name is required")]
+        public string Name { get; set; } = string.Empty;
+
+        [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
+        public string? Description { get; set; } = string.Empty;
     }
 }

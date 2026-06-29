@@ -14,7 +14,7 @@
     top: 0;
     left: 0;
     z-index: 40;
-    width: 14rem;
+    width: 16rem;
     height: 100vh;
     background-color: #000000;
     color: #ffffff;
@@ -29,6 +29,12 @@
     transition-duration: 150ms;
     border-right: 1px solid #171717;
     overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #000;
+}
+
+.sidebar-open {
+    transform: translateX(0);
 }
 
 .sidebar-brand-container {
@@ -136,13 +142,25 @@
     padding-top: 1rem; 
     padding-bottom: 1rem; 
     background-color: #fff; 
-    width: calc(100% - 2rem); 
+    width: 100%; 
     display: flex;
     align-items: center; 
-    justify-content: flex-end;
+    justify-content: space-between;
     position: sticky;
     top: 0;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.menu-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.menu-btn i {
+    height: 24px;
+    width: 24px;
+    font-weight: bold;
 }
 
 /* Main body of the layout */
@@ -163,6 +181,14 @@
 @media (min-width: 1024px) {
     .layout-section {
         padding-left: 16rem;
+    }
+
+    .header {
+        justify-content: flex-end;
+    }
+
+    .menu-btn {
+        display: none;
     }
 
     .sidebar {

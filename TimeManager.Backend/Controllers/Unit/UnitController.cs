@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TimeManager.Backend.Controllers.Organization.Dto;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
@@ -8,22 +7,13 @@ using TimeManager.Backend.ViewModels;
 namespace TimeManager.Backend.Controllers.Unit
 {
     [Authorize(Roles = "SuperAdmin,Admin")]
-    public class UnitController : Controller
+    public class UnitController(IUnitService unitService, IDepartmentService departmentService) : Controller
     {
-        private readonly IUnitService unitService;
-        private readonly IDepartmentService departmentService;
-
-        public UnitController(IUnitService unitService, IDepartmentService departmentService)
-        {
-            this.unitService = unitService;
-            this.departmentService = departmentService;
-        }
-
         public async Task<IActionResult> Index()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
 
-            var units = await this.unitService.GetUnitsAysnc(departmentId);
+            var units = await unitService.GetUnitsAysnc(departmentId);
             return View(units);
         }
 
@@ -43,10 +33,10 @@ namespace TimeManager.Backend.Controllers.Unit
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Where(x => x.Value.Errors.Count > 0)
+                var errors = ModelState.Where(x => x.Value?.Errors.Count > 0)
                            .Select(x => new
                            {
-                               Key = x.Key,
+                               x.Key,
                                Errors = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
                            });
 
@@ -58,7 +48,7 @@ namespace TimeManager.Backend.Controllers.Unit
             }
             int? departmentId = HttpContext.Session.GetDepartmentId();
 
-            await this.unitService.CreateUnitAsync(new UnitDto
+            await unitService.CreateUnitAsync(new UnitDto
             {
                 Name = unitViewModel.Name,
                 Description = unitViewModel.Description,
@@ -72,7 +62,7 @@ namespace TimeManager.Backend.Controllers.Unit
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var unit = await this.unitService.GetUnitByIdAsync(id);
+            var unit = await unitService.GetUnitByIdAsync(id);
             if (unit == null) return NotFound();
             return View(new UnitViewModel
             {
@@ -92,7 +82,7 @@ namespace TimeManager.Backend.Controllers.Unit
         {
             if (!ModelState.IsValid) return View(uvm);
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            var d = await this.unitService.UpdateUnitAsync(id, new UnitDto
+            var d = await unitService.UpdateUnitAsync(id, new UnitDto
             {
                 Name = uvm.Name,
                 Index = uvm.Index,
@@ -114,16 +104,15 @@ namespace TimeManager.Backend.Controllers.Unit
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var data = await this.unitService.DeleteUnitByIdAsync(id);
-            if (data == null)
+            try
             {
-                TempData["error"] = "Error while deleting the data";
-            }
-            else
-            {
+                await unitService.DeleteUnitByIdAsync(id);
                 TempData["success"] = "Successfully removed the data";
+            } catch(KeyNotFoundException ex)
+            {
+                TempData["error"] = ex.Message;
             }
-
+            
             return RedirectToAction(nameof(Index));
         }
     }

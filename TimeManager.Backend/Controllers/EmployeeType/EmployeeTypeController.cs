@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
@@ -67,13 +66,13 @@ namespace TimeManager.Backend.Controllers.EmployeeType
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var et = await _employeeTypeService.DeleteEmployeeTypeByIdAsync(id);
-            if (et == null)
+            try
             {
-                TempData["error"] = "Employee type not found";
-            } else
-            {
+                await _employeeTypeService.DeleteEmployeeTypeByIdAsync(id);
                 TempData["success"] = "Employee type deleted";
+            } catch (KeyNotFoundException ex)
+            {
+                TempData["error"] = ex.Message;
             }
 
             return RedirectToAction(nameof(Index));

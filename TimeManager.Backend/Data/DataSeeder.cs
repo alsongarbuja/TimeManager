@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Controllers.EmployeeManagement.Dto;
 using TimeManager.Backend.Models.AuthManagement;
-using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.Services;
 
 namespace TimeManager.Backend.Data

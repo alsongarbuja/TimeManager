@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TimeManager.Backend.Controllers.Organization.Dto;
 using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Punch_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -14,26 +14,19 @@ namespace TimeManager.Backend.Services
         Task<PunchEntry?> UpdatePunchAsync(int id, PunchDto punchEntryDto);
     }
 
-    public class PunchServices : IPunchServices
+    public class PunchServices(HrmsDbContext context) : IPunchServices
     {
-        private readonly HrmsDbContext context;
-
-        public PunchServices(HrmsDbContext context)
-        {
-            this.context = context;
-        }
-
         public async Task<PunchViewModel> GetPunchByIdAsync(int id)
         {
-            var punch = await context.PunchEntry.Where(pe => pe.Id == id).Select(pe => new PunchViewModel
+            var punch = await context.PunchEntry.FindOrThrowAsync(id);
+            return new PunchViewModel
             {
-                Id = pe.Id,
-                ClockInTime = pe.ClockIn,
-                ClockOutTime = pe.ClockOut,
-                EmployeeId = pe.JobProfileId,
-                Name = $"{pe.JobProfile.Employee.FirstName} {pe.JobProfile.Employee.LastName}"
-            }).FirstOrDefaultAsync();
-            return punch;
+                Id = punch.Id,
+                ClockInTime = punch.ClockIn,
+                ClockOutTime = punch.ClockOut,
+                EmployeeId = punch.JobProfileId,
+                Name = $"{punch.JobProfile.Employee.FirstName} {punch.JobProfile.Employee.LastName}"
+            };
         }
 
         public async Task<PunchViewOverall> GetPunchesAsync(int? departmentId)
@@ -74,9 +67,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<PunchEntry?> UpdatePunchAsync(int id, PunchDto punchEntryDto)
         {
-            var p = await context.PunchEntry.FindAsync(id);
-            if (p == null) return null;
-
+            var p = await context.PunchEntry.FindOrThrowAsync(id);
             context.Entry(p).CurrentValues.SetValues(new { 
                 ClockIn = punchEntryDto.ClockIn.ToUniversalTime(),
                 ClockOut = punchEntryDto.ClockOut != null ? punchEntryDto.ClockOut?.ToUniversalTime() : null,

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -16,15 +18,8 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync();
     }
 
-    public class ProfileTemplateService : IProfileTemplateService
+    public class ProfileTemplateService(HrmsDbContext hrmsDbContext) : IProfileTemplateService
     {
-        private readonly HrmsDbContext hrmsDbContext;
-
-        public ProfileTemplateService(HrmsDbContext hrmsDbContext)
-        {
-            this.hrmsDbContext = hrmsDbContext;
-        }
-
         public async Task CreateProfileTemplateAsync(ProfileTemplateViewModel pvm)
         {
             hrmsDbContext.ProfileTemplate.Add(new ProfileTemplate {
@@ -40,9 +35,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<int?> DeleteProfileTemplateAsync(int id)
         {
-            var profileTemplate = await this.hrmsDbContext.ProfileTemplate.FindAsync(id);
-            if (profileTemplate == null) return null;
-
+            var profileTemplate = await hrmsDbContext.ProfileTemplate.FindOrThrowAsync(id);
             hrmsDbContext.ProfileTemplate.Remove(profileTemplate);
             await hrmsDbContext.SaveChangesAsync();
             return id;
@@ -50,13 +43,12 @@ namespace TimeManager.Backend.Services
 
         public async Task<ProfileTemplate> GetProfileTemplateByIdAsync(int id)
         {
-            var profileTemplate = await this.hrmsDbContext.ProfileTemplate.FindAsync(id);
-            return profileTemplate;
+            return await hrmsDbContext.ProfileTemplate.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync()
         {
-            var profileTemplates = await this.hrmsDbContext.ProfileTemplate.Select(pt => new SelectListItem
+            var profileTemplates = await hrmsDbContext.ProfileTemplate.Select(pt => new SelectListItem
             {
                 Text = $"{pt.Unit.Name} / {pt.Role.Name}",
                 Value = pt.Id.ToString(),
@@ -70,7 +62,7 @@ namespace TimeManager.Backend.Services
             
             if (departmentId == null)
             {
-                profileTemplates = await this.hrmsDbContext.ProfileTemplate.Select(pt => new ProfileTemplateViewModel
+                profileTemplates = await hrmsDbContext.ProfileTemplate.Select(pt => new ProfileTemplateViewModel
                 {
                     Id = pt.Id,
                     Unit = pt.Unit.Name,
@@ -81,7 +73,7 @@ namespace TimeManager.Backend.Services
                 }).ToListAsync();
             } else
             {
-                profileTemplates = await this.hrmsDbContext.ProfileTemplate
+                profileTemplates = await hrmsDbContext.ProfileTemplate
                     .Where(pt => pt.Unit.DepartmentId == departmentId)
                     .Select(pt => new ProfileTemplateViewModel
                     {
@@ -99,11 +91,31 @@ namespace TimeManager.Backend.Services
 
         public async Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm)
         {
-            var profileTemplate = await this.hrmsDbContext.ProfileTemplate.FindAsync(id);
+            var profileTemplate = await hrmsDbContext.ProfileTemplate.FindAsync(id);
             if (profileTemplate == null) return null;
-            this.hrmsDbContext.Entry(profileTemplate).CurrentValues.SetValues(pvm);
-            await this.hrmsDbContext.SaveChangesAsync();
+            hrmsDbContext.Entry(profileTemplate).CurrentValues.SetValues(pvm);
+            await hrmsDbContext.SaveChangesAsync();
             return profileTemplate;
         }
+    }
+
+    public class ProfileTemplateDto
+    {
+        [Required(ErrorMessage = "Unit Id is required")]
+        public int UnitId { get; set; }
+
+        [Required(ErrorMessage = "Employee Type Id is required")]
+        public int EmployeeTypeId { get; set; }
+
+        [Required(ErrorMessage = "Pay Frequency Id is required")]
+        public int PayFrequencyId { get; set; }
+
+        [Required(ErrorMessage = "Role Id is required")]
+        public int RoleId { get; set; }
+
+        [Required(ErrorMessage = "Shift start time is required")]
+        public TimeOnly ShiftStartTime { get; set; }
+
+        public int EarlyClockInBufferMin { get; set; } = 5;
     }
 }

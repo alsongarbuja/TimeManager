@@ -82,7 +82,14 @@ namespace TimeManager.Backend.Controllers.JobProfile
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            await jobProfileService.DeleteJobProfileAsync(id);
+            try
+            {
+                await jobProfileService.DeleteJobProfileAsync(id);
+                TempData["success"] = "Successfully deleted the data";
+            } catch (KeyNotFoundException ex)
+            {
+                TempData["error"] = ex.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
     }

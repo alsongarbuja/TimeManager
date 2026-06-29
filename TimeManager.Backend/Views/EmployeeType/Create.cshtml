@@ -11,8 +11,8 @@
 <form asp-controller="EmployeeType" asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
-    <custom-input asp-for="Name" />
-    <custom-input asp-for="Description" />
+    <custom-input asp-for="Name" classes="grid-col-2" />
+    <custom-input asp-for="Description" classes="grid-col-2" />
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

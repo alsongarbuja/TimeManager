@@ -13,7 +13,7 @@
     
     <custom-input asp-for="Name" />
     <custom-input asp-for="Index" />
-    <custom-input asp-for="Description" />
+    <custom-input asp-for="Description" classes="grid-col-2" />
     @if (User.IsInRole("SuperAdmin"))
     {
         <custom-select asp-for="DepartmentId" asp-items="@Model.Departments" />

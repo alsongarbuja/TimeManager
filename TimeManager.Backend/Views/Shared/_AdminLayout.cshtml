@@ -27,6 +27,7 @@
         @await Html.PartialAsync("_Sidenav")
         <div class="layout-section">
             <header class="header">
+                <button class="menu-btn" onclick="sidebarToggle()"><i class="ri-menu-line"></i></button>
                 <form asp-controller="Auth" asp-action="Logout" method="post">
                     <button type="submit" class="btn btn-action-delete">Logout</button>
                 </form>
@@ -36,6 +37,11 @@
             </section>
         </div>
     </main>
+
+    @await Html.PartialAsync("_Notifications")
+
+    <script src="~/js/sidebartoggle.js"></script>
+    <script src="~/js/notification.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

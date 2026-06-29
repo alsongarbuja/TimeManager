@@ -20,6 +20,7 @@ namespace TimeManager.Backend.ViewModels
 
         [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
         [Display(Name = "Description")]
+        [DataType(DataType.MultilineText)]
         public string? Description { get; set; }
 
         public IEnumerable<SelectListItem> Departments { get; set; } = [];

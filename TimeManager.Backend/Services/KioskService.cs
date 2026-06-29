@@ -6,6 +6,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Device_Management;
 using TimeManager.Backend.ViewModels;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
@@ -24,17 +25,8 @@ namespace TimeManager.Backend.Services
         string GenerateKisokToken(Kiosk kiosk);
     }
 
-    public class KioskService : IKioskService
+    public class KioskService(HrmsDbContext hrmsDbContext, IConfiguration configuration) : IKioskService
     {
-        private readonly HrmsDbContext hrmsDbContext;
-        private readonly IConfiguration configuration;
-
-        public KioskService(HrmsDbContext hrmsDbContext, IConfiguration configuration)
-        {
-            this.hrmsDbContext = hrmsDbContext;
-            this.configuration = configuration;
-        }
-
         public async Task CreateKioskAsync(KioskViewModel kvm)
         {
             hrmsDbContext.Kiosk.Add(new Kiosk
@@ -49,8 +41,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<int?> DeleteKioskByIdAsync(int id)
         {
-            var kiosk = await hrmsDbContext.Kiosk.FindAsync(id);
-            if (kiosk == null) return null;
+            var kiosk = await hrmsDbContext.Kiosk.FindOrThrowAsync(id);
             hrmsDbContext.Kiosk.Remove(kiosk);
             await hrmsDbContext.SaveChangesAsync();
             return id;
@@ -85,8 +76,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<Kiosk> GetKioskByIdAsync(int id)
         {
-            var kiosk = await hrmsDbContext.Kiosk.FindAsync(id);
-            return kiosk;
+            return await hrmsDbContext.Kiosk.FindOrThrowAsync(id);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetKioskOptionsAsync()

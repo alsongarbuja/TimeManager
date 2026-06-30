@@ -60,7 +60,7 @@
     height: 2px;
     background-color: #000000;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
-    animation: scan 2s linear infinite;
+    animation: scan 5s linear infinite;
 }
 
 @keyframes scan {
@@ -214,7 +214,7 @@ kbd {
     height: 4px;
     background: #ffffff;
     width: 100%;
-    animation: progressCollapse 5s linear forwards;
+    animation: progressCollapse 3s linear forwards;
 }
 
 @keyframes progressCollapse {

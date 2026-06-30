@@ -4,28 +4,32 @@ using PP = TimeManager.Backend.Models.Punch_Management.PayPeriod;
 
 namespace TimeManager.Backend.Controllers.PunchManagement.Utility
 {
-    public class PayPeriodUtility
+    public class PayPeriodUtility(HrmsDbContext hrmsDbContext)
     {
-        private readonly HrmsDbContext _hrmsDbContext;
-
-        public PayPeriodUtility(HrmsDbContext hrmsDbContext)
-        {
-            _hrmsDbContext = hrmsDbContext;
-        }
-
         public async Task<PP?> GetCurrentPayPeriod() { 
             DateTimeOffset dateNow = DateTimeOffset.Now.UtcDateTime;
 
-            PP? pp = await _hrmsDbContext.PayPeriod.Where(
+            PP? pp = await hrmsDbContext.PayPeriod.Where(
                 pp => dateNow >= pp.StartDate && dateNow <= pp.EndDate
                 ).FirstOrDefaultAsync();
 
             return pp ?? null;
         }
 
+        public async Task<PP?> GetPreviousPayPeriod()
+        {
+            DateTimeOffset dateNow = DateTimeOffset.Now.UtcDateTime;
+
+            PP? pp = await hrmsDbContext.PayPeriod.Where(
+                    p => p.EndDate < dateNow
+                ).OrderByDescending(p => p.EndDate).FirstOrDefaultAsync();
+
+            return pp;
+        }
+
         public async Task<PP?> GetPayPeriodByIdAsync(int id)
         {
-            PP pp = await _hrmsDbContext.PayPeriod.FindAsync(id);
+            PP pp = await hrmsDbContext.PayPeriod.FindAsync(id);
             return pp;
         }
 

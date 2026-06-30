@@ -62,8 +62,15 @@ namespace TimeManager.Backend.Controllers.User
 
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, rvm.Role);
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    var role = await roleService.GetRoleByIdAsync(rvm.Role);
+                    await _userManager.AddToRoleAsync(user, role.Name);
+                    return RedirectToAction(nameof(Index));
+                } catch (KeyNotFoundException ex)
+                {
+                    TempData["error"] = ex.Message;
+                }
             }
 
             foreach (var error in result.Errors)
@@ -86,12 +93,16 @@ namespace TimeManager.Backend.Controllers.User
         {
             var (user, role) = await userService.GetUserByIdAsync(id);
 
+            if (user == null || role == null) {
+                throw new KeyNotFoundException("User or Role is not found");
+            }
+
             var model = new RegisterViewModel
             {
                 Id = user.Id,
-                Email = user.Email,
-                Role = role[0],
-                AvailableRoles = (await roleService.GetRoleOptionsAsync(role[0]))
+                Email = user.Email ?? "",
+                Role = role.Id,
+                AvailableRoles = (await roleService.GetRoleOptionsAsync(role.Id))
             };
             return View(model);
         }

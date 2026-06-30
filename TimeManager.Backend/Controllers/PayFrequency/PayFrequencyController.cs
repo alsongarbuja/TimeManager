@@ -6,18 +6,11 @@ using TimeManager.Backend.ViewModels;
 namespace TimeManager.Backend.Controllers.PayFrequency
 {
     [Authorize(Roles = "SuperAdmin,Admin")]
-    public class PayFrequencyController : Controller
+    public class PayFrequencyController(IPayFrequencyService payFrequencyService) : Controller
     {
-        private readonly IPayFrequencyService _payFrequencyService;
-
-        public PayFrequencyController(IPayFrequencyService payFrequencyService)
-        {
-            _payFrequencyService = payFrequencyService;
-        }
-
         public async Task<IActionResult> Index()
         {
-            var payFrequencies = await _payFrequencyService.GetPayFrequenciesAsync();
+            var payFrequencies = await payFrequencyService.GetPayFrequenciesAsync();
             return View(payFrequencies);
         }
 
@@ -29,7 +22,7 @@ namespace TimeManager.Backend.Controllers.PayFrequency
         public async Task<IActionResult> Create(PayFrequencyViewModel evm)
         {
             if (!ModelState.IsValid) return View(evm);
-            await _payFrequencyService.CreatePayFrequencyAsync(new PayFrequencyDto
+            await payFrequencyService.CreatePayFrequencyAsync(new PayFrequencyDto
             {
                 Name = evm.Name,
                 Description = evm.Description,
@@ -41,7 +34,7 @@ namespace TimeManager.Backend.Controllers.PayFrequency
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var et = await _payFrequencyService.GetPayFrequencyByIdAsync(id);
+            var et = await payFrequencyService.GetPayFrequencyByIdAsync(id);
             if (et == null) return NotFound();
             return View(new PayFrequencyViewModel
             {
@@ -56,7 +49,7 @@ namespace TimeManager.Backend.Controllers.PayFrequency
         public async Task<IActionResult> Edit(int id, PayFrequencyViewModel evm)
         {
             if (!ModelState.IsValid) return View(evm);
-            var et = await _payFrequencyService.UpdatePayFrequencyAsync(id, new PayFrequencyDto
+            var et = await payFrequencyService.UpdatePayFrequencyAsync(id, new PayFrequencyDto
             {
                 Name = evm.Name,
                 Description = evm.Description,
@@ -76,11 +69,11 @@ namespace TimeManager.Backend.Controllers.PayFrequency
         {
             try
             {
-                await _payFrequencyService.DeletePayFrequencyByIdAsync(id);
+                await payFrequencyService.DeletePayFrequencyByIdAsync(id);
                 TempData["success"] = "Pay frequency deleted";
             } catch (KeyNotFoundException ex)
             {
-                TempData["error"] = "Pay frequency not found";
+                TempData["error"] = ex.Message;
             }
             
             return RedirectToAction(nameof(Index));

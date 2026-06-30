@@ -10,7 +10,7 @@ namespace TimeManager.Backend.Services
     public interface IUserService
     {
         Task<IEnumerable<UserViewModel>> GetUsersAsync();
-        Task<(User User, IList<string> Roles)> GetUserByIdAsync(int id);
+        Task<(User? User, Role? Role)> GetUserByIdAsync(int id);
         //Task CreateUserAsync(UserViewModel uvm);
         Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm);
         Task<int?> DeleteUserByIdAsync(int id);
@@ -21,6 +21,7 @@ namespace TimeManager.Backend.Services
         HrmsDbContext hrmsDbContext,
         IHttpContextAccessor httpContextAccessor,
         UserManager<User> userManager,
+        IRoleService roleService,
         IConfiguration configuration
         ) : IUserService
     {
@@ -35,14 +36,15 @@ namespace TimeManager.Backend.Services
             return id;
         }
 
-        public async Task<(User User, IList<string> Roles)> GetUserByIdAsync(int id)
+        public async Task<(User? User, Role? Role)> GetUserByIdAsync(int id)
         {
             var user = await userManager.FindByIdAsync(id.ToString());
             if (user == null) return (null, null);
 
             var roles = await userManager.GetRolesAsync(user);
+            var role = await roleService.GetRoleByNameAsync(roles[0]);
 
-            return (user, roles);
+            return (user, role);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync()

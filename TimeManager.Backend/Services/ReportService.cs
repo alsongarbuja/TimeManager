@@ -24,11 +24,11 @@ namespace TimeManager.Backend.Services
     {
         public async Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id, int payPeriodId = 0)
         {
-            JobProfile? jp = await hrmsDbContext.JobProfile.Include(jp => jp.Employee).FirstOrDefaultAsync(j => j.Id == id);
+            JobProfile? jp = await hrmsDbContext.JobProfile.Include(jp => jp.Employee).AsSplitQuery().FirstOrDefaultAsync(j => j.Id == id);
 
             if (jp == null) return null;
 
-            PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetCurrentPayPeriod();
+            PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetPreviousPayPeriod();
 
             if (pp == null) return null;
 
@@ -86,7 +86,7 @@ namespace TimeManager.Backend.Services
             Unit? unit = await hrmsDbContext.Unit.FindAsync(id);
             if (unit == null) return [];
 
-            PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetCurrentPayPeriod();
+            PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetPreviousPayPeriod();
 
             if (pp == null) return [];
 

@@ -29,7 +29,14 @@ namespace TimeManager.Backend.Controllers.Punch
         {
             var punch = await punchServices.GetPunchByIdAsync(id);
             if (punch == null) return NotFound();
-            return View(punch);
+            return View(new PunchViewModel
+            {
+                Id = punch.Id,
+                ClockInTime = punch.ClockIn,
+                ClockOutTime = punch.ClockOut,
+                EmployeeId = punch.JobProfileId,
+                Name = $"{punch.JobProfile.Employee.FirstName} {punch.JobProfile.Employee.LastName}"
+            });
         }
 
         [HttpPost]

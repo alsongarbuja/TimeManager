@@ -8,7 +8,7 @@ using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers
 {
-    [AllowAnonymous]
+    //[AllowAnonymous]
     public class AuthController : Controller
     {
         private readonly SignInManager<U> _signInManager;
@@ -29,6 +29,7 @@ namespace TimeManager.Backend.Controllers
             _employeeService = employeeService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -77,6 +78,7 @@ namespace TimeManager.Backend.Controllers
             return LocalRedirect("/app/dashboard");
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)

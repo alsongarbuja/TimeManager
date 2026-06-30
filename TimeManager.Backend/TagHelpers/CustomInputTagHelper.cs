@@ -17,11 +17,14 @@ namespace TimeManager.Backend.TagHelpers
         [HtmlAttributeName("classes")]
         public string? Classes { get; set; }
 
+        [HtmlAttributeName("required")]
+        public bool? Required { get; set; }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             var propertyName = For.Name;
             var labelText = For.Metadata.DisplayName ?? For.Metadata.PropertyName ?? propertyName;
-            var isRequired = For.Metadata.IsRequired;
+            var isRequired = Required ?? For.Metadata.IsRequired;
             var isMultiLine = For.Metadata.DataTypeName == "MultilineText";
 
             var required = isRequired ? "<span class='form-required'>*</span>" : string.Empty;

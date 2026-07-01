@@ -16,6 +16,14 @@
             <p class="rg-eyebrow">Unit Overview</p>
             <h1 class="rg-title">Reports by User</h1>
         </div>
+        <form asp-controller="Report" asp-action="ExportToExcel" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="UnitId" value="@Model.UnitId" />
+            <input type="hidden" name="PayPeriodId" value="@Model.PayPeriodId" />
+            <Button type="submit" class="rg-back">
+                <i class="ri-download-line"></i> Download Excel
+            </Button>
+        </form>
         <a asp-controller="Report" asp-action="Index" class="rg-back">← Back to Reports</a>
     </div>
 

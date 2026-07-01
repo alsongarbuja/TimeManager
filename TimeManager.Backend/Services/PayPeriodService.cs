@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Punch_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -9,12 +10,17 @@ namespace TimeManager.Backend.Services
 {
     public interface IPayPeriodService
     {
+        Task<PayPeriod> GetPayPeriodByIdAsync(int id);
         Task<IEnumerable<PayPeriodViewModel>> GetPayPeriodsAsync();
         Task<IEnumerable<SelectListItem>> GetPayPeriodOptionsAsync();
         Task AutoGeneratePayPeriod();
     }
 
-    public class PayPeriodService(HrmsDbContext context, ILogger<PayPeriodService> logger, PayPeriodUtility payPeriodUtility) : IPayPeriodService
+    public class PayPeriodService(
+        HrmsDbContext context, 
+        ILogger<PayPeriodService> logger, 
+        PayPeriodUtility payPeriodUtility
+        ) : IPayPeriodService
     {
         public async Task<IEnumerable<SelectListItem>> GetPayPeriodOptionsAsync()
         {
@@ -130,6 +136,11 @@ namespace TimeManager.Backend.Services
             {
                 await context.SaveChangesAsync();
             }
+        }
+
+        public async Task<PayPeriod> GetPayPeriodByIdAsync(int id)
+        {
+            return await context.PayPeriod.FindOrThrowAsync(id);
         }
     }
 }

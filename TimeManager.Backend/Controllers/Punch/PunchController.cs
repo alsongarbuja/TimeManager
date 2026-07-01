@@ -8,15 +8,8 @@ using TimeManager.Backend.ViewModels;
 namespace TimeManager.Backend.Controllers.Punch
 {
     [Authorize(Policy = "AdminPolicy")]
-    public class PunchController : Controller
+    public class PunchController(IPunchServices punchServices) : Controller
     {
-        private readonly IPunchServices punchServices;
-
-        public PunchController(IPunchServices punchServices)
-        {
-            this.punchServices = punchServices;
-        }
-
         public async Task<IActionResult> Index()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();

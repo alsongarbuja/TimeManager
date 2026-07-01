@@ -8,25 +8,12 @@ using U = TimeManager.Backend.Models.AuthManagement.User;
 namespace TimeManager.Backend.Controllers.User
 {
     [Authorize(Roles = "SuperAdmin")]
-    public class UserController : Controller
+    public class UserController(UserManager<U> userManager, IUserService userService, IRoleService roleService, IConfiguration configuration) : Controller
     {
-        private readonly UserManager<U> _userManager;
-        private readonly IRoleService roleService;
-        private readonly IUserService userService;
-        private readonly IConfiguration _configuration;
-
-        public UserController(UserManager<U> userManager, IUserService userService, IRoleService roleService, IConfiguration configuration)
-        {
-            _userManager = userManager;
-            this.roleService = roleService;
-            this.userService = userService;
-            _configuration = configuration;
-        }
-
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var users = await this.userService.GetUsersAsync();
+            var users = await userService.GetUsersAsync();
             return View(users);
         }
 
@@ -56,16 +43,16 @@ namespace TimeManager.Backend.Controllers.User
             }
 
             var user = new U { UserName = rvm.Email.Split("@")[0], Email = rvm.Email, EmailConfirmed = true };
-            var defaultPassword = _configuration["Auth:DefaultPassword"] ?? throw new InvalidOperationException("Default password is not configured in the env");
+            var defaultPassword = configuration["Auth:DefaultPassword"] ?? throw new InvalidOperationException("Default password is not configured in the env");
             var toUserPassword = rvm.Password ?? defaultPassword;
-            var result = await _userManager.CreateAsync(user, toUserPassword);
+            var result = await userManager.CreateAsync(user, toUserPassword);
 
             if (result.Succeeded)
             {
                 try
                 {
-                    var role = await roleService.GetRoleByIdAsync(rvm.Role);
-                    await _userManager.AddToRoleAsync(user, role.Name);
+                    var role = await roleService.GetRoleByIdAsync(rvm.Role) ?? throw new KeyNotFoundException("Role not found for the given Id");
+                    await userManager.AddToRoleAsync(user, role.Name!);
                     return RedirectToAction(nameof(Index));
                 } catch (KeyNotFoundException ex)
                 {

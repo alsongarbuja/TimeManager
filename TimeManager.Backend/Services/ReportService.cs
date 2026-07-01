@@ -51,7 +51,7 @@ namespace TimeManager.Backend.Services
             for (int i = 0; i < punches.Count; i++)
             {
                 string DayOfWeek = punches[i].ClockIn.DayOfWeek.ToString();
-                double totalHrs = Math.Round(punches[i].ClockOut.Value.Subtract(punches[i].ClockIn).TotalHours, 2);
+                double totalHrs = Math.Round(punches[i].ClockOut!.Value.Subtract(punches[i].ClockIn).TotalHours, 2);
 
                 report.TotalHours = Math.Round(report.TotalHours + totalHrs, 2);
                 report.TotalWorkedHours = Math.Round(report.TotalWorkedHours + totalHrs, 2);
@@ -76,7 +76,7 @@ namespace TimeManager.Backend.Services
                 }
             }
 
-            string jsonString = JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true });
+            string jsonString = JsonSerializer.Serialize(report, options: new(){ WriteIndented = true });
 
             return report;
         }
@@ -90,7 +90,7 @@ namespace TimeManager.Backend.Services
 
             if (pp == null) return [];
 
-            List<ReportGeneratedViewModel> reports = new List<ReportGeneratedViewModel>();
+            List<ReportGeneratedViewModel> reports = [];
 
             List<JobProfile> jps = await hrmsDbContext.JobProfile.Where(jp => jp.ProfileTemplate.UnitId == id).ToListAsync();
 

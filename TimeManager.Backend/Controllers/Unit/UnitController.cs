@@ -37,7 +37,7 @@ namespace TimeManager.Backend.Controllers.Unit
                            .Select(x => new
                            {
                                x.Key,
-                               Errors = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
+                               Errors = string.Join(", ", x.Value?.Errors.Select(e => e.ErrorMessage)!)
                            });
 
                 foreach (var error in errors)
@@ -52,7 +52,7 @@ namespace TimeManager.Backend.Controllers.Unit
             {
                 Name = unitViewModel.Name,
                 Description = unitViewModel.Description,
-                DepartmentId = departmentId ?? (int)unitViewModel.DepartmentId,
+                DepartmentId = departmentId ?? (int)unitViewModel.DepartmentId!,
                 Index = unitViewModel.Index,
             });
             TempData["Success"] = "Unit created";
@@ -88,7 +88,7 @@ namespace TimeManager.Backend.Controllers.Unit
                 Name = uvm.Name,
                 Index = uvm.Index,
                 Description = uvm.Description,
-                DepartmentId = departmentId ?? (int)uvm.DepartmentId,
+                DepartmentId = departmentId ?? (int)uvm.DepartmentId!,
             });
 
             if (d == null)

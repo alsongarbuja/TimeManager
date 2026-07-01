@@ -7,19 +7,8 @@ using TimeManager.Backend.ViewModels;
 namespace TimeManager.Backend.Controllers.JobProfile
 {
     [Authorize(Policy = "AdminPolicy")]
-    public class JobProfileController : Controller
+    public class JobProfileController(IJobProfileService jobProfileService, IEmployeeService employeeService, IProfileTemplateService profileTemplateService) : Controller
     {
-        private readonly IJobProfileService jobProfileService;
-        private readonly IEmployeeService employeeService;
-        private readonly IProfileTemplateService profileTemplateService;
-
-        public JobProfileController(IJobProfileService jobProfileService, IEmployeeService employeeService, IProfileTemplateService profileTemplateService)
-        {
-            this.jobProfileService = jobProfileService;
-            this.employeeService = employeeService;
-            this.profileTemplateService = profileTemplateService;
-        }
-
         public async Task<IActionResult> Index()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
@@ -30,7 +19,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            JobProfileViewModel pvm = new JobProfileViewModel
+            JobProfileViewModel pvm = new()
             {
                 Employees = (await employeeService.GetEmployeeOptionAsync()),
                 ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync())
@@ -51,7 +40,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
         {
             var pt = await jobProfileService.GetJobProfileByIdAsync(id);
             if (pt == null) return NotFound();
-            JobProfileViewModel pvm = new JobProfileViewModel
+            JobProfileViewModel pvm = new()
             {
                 Id = id,
                 Employees = (await employeeService.GetEmployeeOptionAsync(pt.EmployeeId)),

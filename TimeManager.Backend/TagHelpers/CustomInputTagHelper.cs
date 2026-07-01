@@ -8,7 +8,7 @@ namespace TimeManager.Backend.TagHelpers
     public class CustomInputTagHelper: TagHelper
     {
         [HtmlAttributeName("asp-for")]
-        public ModelExpression For { get; set; }
+        public required ModelExpression For { get; set; }
 
         [HtmlAttributeNotBound]
         [ViewContext]

@@ -8,15 +8,8 @@ namespace TimeManager.Backend.Controllers.Device
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class KioskController : ControllerBase
+    public class KioskController(IKioskService kioskService) : ControllerBase
     {
-        private readonly IKioskService kioskService;
-
-        public KioskController(IKioskService kioskService)
-        {
-            this.kioskService = kioskService;
-        }
-
         [HttpPost("init")]
         [AllowAnonymous]
         public async Task<IActionResult> Init()

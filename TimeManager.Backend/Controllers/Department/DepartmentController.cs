@@ -6,18 +6,11 @@ using TimeManager.Backend.ViewModels;
 namespace TimeManager.Backend.Controllers.Department
 {
     [Authorize(Policy = "AdminPolicy")]
-    public class DepartmentController : Controller
+    public class DepartmentController(IDepartmentService departmentService) : Controller
     {
-        private readonly IDepartmentService departmentService;
-
-        public DepartmentController(IDepartmentService departmentService)
-        {
-            this.departmentService = departmentService;
-        }
-
         public async Task<IActionResult> Index()
         {
-            var departments = await this.departmentService.GetDepartmentsAsync();
+            var departments = await departmentService.GetDepartmentsAsync();
             return View(departments);
         }
 
@@ -29,7 +22,7 @@ namespace TimeManager.Backend.Controllers.Department
         public async Task<IActionResult> Create(DepartmentViewModel departmentViewModel)
         {
             if (!ModelState.IsValid) return View(departmentViewModel);
-            await this.departmentService.CreateDepartmentAsync(new Services.DepartmentDto
+            await departmentService.CreateDepartmentAsync(new Services.DepartmentDto
             {
                 Name = departmentViewModel.Name,
                 Description = departmentViewModel.Description,
@@ -41,7 +34,7 @@ namespace TimeManager.Backend.Controllers.Department
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var department = await this.departmentService.GetDepartmentByIdAsync(id);
+            var department = await departmentService.GetDepartmentByIdAsync(id);
             if (department == null) return NotFound();
             return View(new DepartmentViewModel
             {
@@ -56,7 +49,7 @@ namespace TimeManager.Backend.Controllers.Department
         public async Task<IActionResult> Edit(int id, DepartmentViewModel dvm)
         {
             if (!ModelState.IsValid) return View(dvm);
-            var d = await this.departmentService.UpdateDepartmentAsync(id, new DepartmentDto { Name = dvm.Name,
+            var d = await departmentService.UpdateDepartmentAsync(id, new DepartmentDto { Name = dvm.Name,
                 Description = dvm.Description
             });
 
@@ -76,7 +69,7 @@ namespace TimeManager.Backend.Controllers.Department
         {
             try
             {
-                await this.departmentService.DeleteDepartmentByIdAsync(id);
+                await departmentService.DeleteDepartmentByIdAsync(id);
                 TempData["success"] = "Successfully removed the data";
             } catch (KeyNotFoundException ex)
             {

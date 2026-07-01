@@ -5,21 +5,8 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers
 {
-    public class ReportController : Controller
+    public class ReportController(IReportService reportService, IPayPeriodService payPeriodService, IJobProfileService jobProfileService, IUnitService unitService) : Controller
     {
-        private readonly IReportService reportService;
-        private readonly IPayPeriodService payPeriodService;
-        private readonly IJobProfileService jobProfileService;
-        private readonly IUnitService unitService;
-
-        public ReportController(IReportService reportService, IPayPeriodService payPeriodService, IJobProfileService jobProfileService, IUnitService unitService)
-        {
-            this.reportService = reportService;
-            this.payPeriodService = payPeriodService;
-            this.jobProfileService = jobProfileService;
-            this.unitService = unitService;
-        }
-
         public async Task<IActionResult> Index()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();

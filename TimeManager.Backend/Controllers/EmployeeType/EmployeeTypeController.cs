@@ -6,18 +6,11 @@ using TimeManager.Backend.ViewModels;
 namespace TimeManager.Backend.Controllers.EmployeeType
 {
     [Authorize(Policy = "AdminPolicy")]
-    public class EmployeeTypeController : Controller
+    public class EmployeeTypeController(IEmployeeTypeService employeeTypeService) : Controller
     {
-        private readonly IEmployeeTypeService _employeeTypeService;
-
-        public EmployeeTypeController(IEmployeeTypeService employeeTypeService)
-        {
-            _employeeTypeService = employeeTypeService;
-        }
-
         public async Task<IActionResult> Index()
         {
-            var employeeTypes = await _employeeTypeService.GetEmployeeTypesAsync();
+            var employeeTypes = await employeeTypeService.GetEmployeeTypesAsync();
             return View(employeeTypes);
         }
 
@@ -29,7 +22,7 @@ namespace TimeManager.Backend.Controllers.EmployeeType
         public async Task<IActionResult> Create(EmployeeTypeViewModel evm)
         {
             if (!ModelState.IsValid) return View(evm);
-            await _employeeTypeService.CreateEmployeeTypeAsync(new EmployeeTypeDto {
+            await employeeTypeService.CreateEmployeeTypeAsync(new EmployeeTypeDto {
                 Name = evm.Name,
                 Description = evm.Description,
             });
@@ -40,7 +33,7 @@ namespace TimeManager.Backend.Controllers.EmployeeType
         [HttpGet]
         public async Task<IActionResult >Edit(int id)
         {
-            var et = await _employeeTypeService.GetEmployeeTypeByIdAsync(id);
+            var et = await employeeTypeService.GetEmployeeTypeByIdAsync(id);
             if (et == null) return NotFound();
             return View(new EmployeeTypeViewModel { Id = id, Name = et.Name, 
             Description  = et.Description });
@@ -51,7 +44,7 @@ namespace TimeManager.Backend.Controllers.EmployeeType
         public async Task<IActionResult> Edit(int id, EmployeeTypeViewModel evm)
         {
             if (!ModelState.IsValid) return View(evm);
-            var et = await _employeeTypeService.UpdateEmployeeTypeAsync(id, new EmployeeTypeDto {
+            var et = await employeeTypeService.UpdateEmployeeTypeAsync(id, new EmployeeTypeDto {
                 Name = evm.Name,
                 Description = evm.Description,
             });
@@ -68,7 +61,7 @@ namespace TimeManager.Backend.Controllers.EmployeeType
         {
             try
             {
-                await _employeeTypeService.DeleteEmployeeTypeByIdAsync(id);
+                await employeeTypeService.DeleteEmployeeTypeByIdAsync(id);
                 TempData["success"] = "Employee type deleted";
             } catch (KeyNotFoundException ex)
             {

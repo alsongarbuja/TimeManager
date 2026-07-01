@@ -76,8 +76,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<EmployeeType> GetEmployeeTypeByNameAsync(string name)
         {
-            var et = await hrmsDbContext.EmployeeType.Where(et => et.Name.Equals(name)).FirstOrDefaultAsync();
-            return et;
+            return await hrmsDbContext.EmployeeType.WhereOrThrowAsync(et => et.Name.Equals(name));
         }
     }
 

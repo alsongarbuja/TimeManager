@@ -9,26 +9,13 @@ using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers
 {
-    public class AuthController : Controller
+    public class AuthController(
+        SignInManager<U> signInManager,
+        UserManager<U> userManager,
+        //IDepartmentService departmentService,
+        IEmployeeService employeeService
+        ) : Controller
     {
-        private readonly SignInManager<U> _signInManager;
-        private readonly UserManager<U> _userManager;
-        private readonly IEmployeeService _employeeService;
-        private readonly IDepartmentService departmentService;
-
-        public AuthController(
-            SignInManager<U> signInManager, 
-            UserManager<U> userManager,
-            IDepartmentService departmentService,
-            IEmployeeService employeeService
-        )
-        {
-            _signInManager = signInManager;
-            _userManager = userManager;
-            this.departmentService = departmentService;
-            _employeeService = employeeService;
-        }
-
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
@@ -88,15 +75,15 @@ namespace TimeManager.Backend.Controllers
                 return View(model);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(
+            var result = await signInManager.PasswordSignInAsync(
                 model.UserName, model.Password, model.RememberMe, lockoutOnFailure: true);
 
             if (result.Succeeded)
             {
-                var user = await _userManager.FindByNameAsync(model.UserName);
+                var user = await userManager.FindByNameAsync(model.UserName);
                 TempData["error"] = "User not found";
                 if (user == null) return View(model);
-                var role = await _userManager.GetRolesAsync(user);
+                var role = await userManager.GetRolesAsync(user);
 
                 if (role.Contains(AppConstants.SUPER_ADMIN_ROLE))
                 {
@@ -106,14 +93,14 @@ namespace TimeManager.Backend.Controllers
 
                 if (role.Contains(AppConstants.ADMIN_ROLE))
                 {
-                    var employee = await _employeeService.GetEmployeeByUserIdAsync(user.Id);
+                    var employee = await employeeService.GetEmployeeByUserIdAsync(user.Id);
                     TempData["error"] = "Employee data was not found for the User";
                     if (employee == null) return View(model);
                     HttpContext.Session.SetInt32("DepartmentId", employee.DepartmentId);
                     return LocalRedirect(returnUrl ?? "/app/dashboard");
                 }
 
-                var profiles = (await _employeeService.GetJobProfilesByUserIdAsync(user.Id)).ToList();
+                var profiles = (await employeeService.GetJobProfilesByUserIdAsync(user.Id)).ToList();
                 if (profiles.Count == 1)
                 {
                     HttpContext.Session.SetInt32("DepartmentId", profiles[0].ProfileTemplate.Unit.DepartmentId);
@@ -143,7 +130,7 @@ namespace TimeManager.Backend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            await signInManager.SignOutAsync();
             return RedirectToAction("Login");
         }
 

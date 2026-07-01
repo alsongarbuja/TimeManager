@@ -53,8 +53,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<PayFrequency> GetPayFrequencyByNameAsync(string name)
         {
-            var pf = await hrmsDbContext.PayFrequency.Where(pf => pf.Name.Equals(name)).FirstOrDefaultAsync();
-            return pf;
+            return await hrmsDbContext.PayFrequency.WhereOrThrowAsync(pf => pf.Name.Equals(name));
         }
 
         public async Task<IEnumerable<SelectListItem>> GetPayFrequencyOptionsAsync(int selectedId = 0)

@@ -5,15 +5,8 @@ using TimeManager.Backend.Services;
 namespace TimeManager.Backend.Controllers.PayPeriod
 {
     [Authorize(Policy = "AdminPolicy")]
-    public class PayPeriodController : Controller
+    public class PayPeriodController(IPayPeriodService payPeriodService) : Controller
     {
-        private readonly IPayPeriodService payPeriodService;
-
-        public PayPeriodController(IPayPeriodService payPeriodService)
-        {
-            this.payPeriodService = payPeriodService;
-        }
-
         public async Task<IActionResult> Index()
         {
             var payperiods = await payPeriodService.GetPayPeriodsAsync();

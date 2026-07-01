@@ -5,19 +5,8 @@ using TimeManager.Backend.Models.Employee_Management;
 
 namespace TimeManager.Backend.Services
 {
-    public class CurrentEmployeeService
+    public class CurrentEmployeeService(HrmsDbContext hrmsDbContext, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
     {
-        private readonly HrmsDbContext hrmsDbContext;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IConfiguration configuration;
-
-        public CurrentEmployeeService(HrmsDbContext hrmsDbContext, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
-        {
-            this.hrmsDbContext = hrmsDbContext;
-            this.httpContextAccessor = httpContextAccessor;
-            this.configuration = configuration;
-        }
-
         private int GetCurrentUserId()
         {
             var claim = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException("No authenticated user found");
@@ -41,8 +30,7 @@ namespace TimeManager.Backend.Services
         public async Task<Employee> GetCurrentEmployeeAsync()
         {
             var userId = GetCurrentUserId();
-            var employee = await hrmsDbContext.Employee.Include(e => e.Department).FirstOrDefaultAsync(e => e.UserId == userId);
-
+            var employee = await hrmsDbContext.Employee.Include(e => e.Department).FirstOrDefaultAsync(e => e.UserId == userId) ?? throw new KeyNotFoundException("Current Employee not found for the user id");
             return employee;
         }
 

@@ -8,10 +8,10 @@ namespace TimeManager.Backend.TagHelpers
     public class CustomSelectTagHelper : TagHelper
     {
         [HtmlAttributeName("asp-for")]
-        public ModelExpression For { get; set; }
+        public required ModelExpression For { get; set; }
 
         [HtmlAttributeName("asp-items")]
-        public IEnumerable<SelectListItem> Items { get; set; }
+        public IEnumerable<SelectListItem> Items { get; set; } = [];
 
         [HtmlAttributeName("placeholder")]
         public string? Placeholder { get; set; }

@@ -5,17 +5,8 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Kiosk
 {
-    public class KioskController : Controller
+    public class KioskController(IKioskService kioskService, IDepartmentService departmentService) : Controller
     {
-        private readonly IKioskService kioskService;
-        private readonly IDepartmentService departmentService;
-
-        public KioskController(IKioskService kioskService, IDepartmentService departmentService)
-        {
-            this.kioskService = kioskService;
-            this.departmentService = departmentService;
-        }
-
         public async Task<IActionResult> Index()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
@@ -28,7 +19,7 @@ namespace TimeManager.Backend.Controllers.Kiosk
         {
             return View(new KioskViewModel
             {
-                
+                AllowedIPAddress = System.Net.IPAddress.Parse("0.0.0.1"),
                 Departments = (await departmentService.GetDepartmentOptionsAsync())
             });
         }
@@ -52,7 +43,7 @@ namespace TimeManager.Backend.Controllers.Kiosk
         public async Task<IActionResult> Edit(int id)
         {
             var k = await kioskService.GetKioskByIdAsync(id);
-            KioskViewModel kvm = new KioskViewModel { 
+            KioskViewModel kvm = new() { 
                 Id = k.Id,
                 Name = k.Name,
                 Description = k.Description,

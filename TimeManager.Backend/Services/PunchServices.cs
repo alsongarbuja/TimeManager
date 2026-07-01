@@ -37,7 +37,7 @@ namespace TimeManager.Backend.Services
                 employees = await context.JobProfile.Where(e => e.ProfileTemplate.Unit.Department.Id == departmentId).Select(e => new Employees
                 {
                     Id = e.Id,
-                    Name = $"{e.Employee.FirstName} {e.Employee.LastName}"
+                    Name = $"{e.Employee.FirstName} {e.Employee.LastName} / {e.ProfileTemplate.Unit.Name}"
                 }).ToListAsync();
             }
 

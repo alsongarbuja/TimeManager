@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using TimeManager.Backend.Common;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.Services;
@@ -32,7 +33,7 @@ namespace TimeManager.Backend.Data
 
                 await SeedOrganizationAsync(employeeTypeManager, payFrequencyManager);
 
-                await SeedHrmsLookupDataAsync(context);
+                await SeedHrmsLookupDataAsync();
             } catch (Exception ex)
             {
                 //var logger = services.GetRequiredService<ILogger>();
@@ -131,7 +132,7 @@ namespace TimeManager.Backend.Data
             } 
         }
 
-        private static async Task SeedHrmsLookupDataAsync(HrmsDbContext context)
+        private static async Task SeedHrmsLookupDataAsync()
         {
             await Task.CompletedTask;
         }

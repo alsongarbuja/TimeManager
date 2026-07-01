@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using PP = TimeManager.Backend.Models.Punch_Management.PayPeriod;
 
 namespace TimeManager.Backend.Controllers.PunchManagement.Utility
@@ -29,17 +30,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement.Utility
 
         public async Task<PP?> GetPayPeriodByIdAsync(int id)
         {
-            PP pp = await hrmsDbContext.PayPeriod.FindAsync(id);
-            return pp;
-        }
-
-        public async Task<Dictionary<string, string>> GetDateToDayMap()
-        {
-            var map = new Dictionary<string, string>();
-
-            PP pp = await GetCurrentPayPeriod();
-
-            return map;
+            return await hrmsDbContext.PayPeriod.FindOrThrowAsync(id);
         }
     }
 }

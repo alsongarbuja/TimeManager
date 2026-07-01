@@ -25,7 +25,7 @@ namespace TimeManager.Backend.Services
     {
         public async Task<int> CreateEmployeeAsync(EmployeeDto employeeDto)
         {
-            Employee employee = new Employee
+            Employee employee = new()
             {
                 FirstName = employeeDto.FirstName,
                 LastName = employeeDto.LastName,
@@ -77,7 +77,7 @@ namespace TimeManager.Backend.Services
                     Id = e.Id,
                     FirstName = e.FirstName, 
                     LastName = e.LastName,
-                    Email = e.User.Email,
+                    Email = e.User.Email ?? string.Empty,
                     UniqueId = e.UniqueId,
                     DepartmentName = e.Department.Name,
                 }).ToListAsync();
@@ -99,7 +99,7 @@ namespace TimeManager.Backend.Services
                             Id = e.Id,
                             FirstName = e.FirstName,
                             LastName = e.LastName,
-                            Email = e.User.Email,
+                            Email = e.User.Email ?? string.Empty,
                             UniqueId = e.UniqueId,
                             DepartmentName = e.Department.Name,
                         }).ToListAsync();

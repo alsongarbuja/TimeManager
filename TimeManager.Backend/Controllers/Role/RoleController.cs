@@ -6,18 +6,11 @@ using TimeManager.Backend.ViewModels;
 namespace TimeManager.Backend.Controllers.Role
 {
     [Authorize(Roles = "SuperAdmin")]
-    public class RoleController : Controller
+    public class RoleController(IRoleService roleService) : Controller
     {
-        private readonly IRoleService _roleService;
-
-        public RoleController(IRoleService roleService)
-        {
-            _roleService = roleService;
-        }
-
         public async Task<IActionResult> Index()
         {
-            var roles = await _roleService.GetRolesAsync();
+            var roles = await roleService.GetRolesAsync();
             return View(roles);
         }
 
@@ -29,7 +22,7 @@ namespace TimeManager.Backend.Controllers.Role
         public async Task<IActionResult> Create(RoleViewModel evm)
         {
             if (!ModelState.IsValid) return View(evm);
-            await _roleService.CreateRoleAsync(new RoleDto
+            await roleService.CreateRoleAsync(new RoleDto
             {
                 Name = evm.Name,
                 Description = evm.Description,
@@ -41,7 +34,7 @@ namespace TimeManager.Backend.Controllers.Role
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var et = await _roleService.GetRoleByIdAsync(id);
+            var et = await roleService.GetRoleByIdAsync(id);
             if (et == null) return NotFound();
             return View(new RoleViewModel
             {
@@ -55,7 +48,7 @@ namespace TimeManager.Backend.Controllers.Role
         public async Task<IActionResult> Edit(int id, RoleViewModel evm)
         {
             if (!ModelState.IsValid) return View(evm);
-            var et = await _roleService.UpdateRoleAsync(id, new RoleDto
+            var et = await roleService.UpdateRoleAsync(id, new RoleDto
             {
                 Name = evm.Name,
                 Description = evm.Description,
@@ -75,7 +68,7 @@ namespace TimeManager.Backend.Controllers.Role
         {
             try
             {
-                await _roleService.DeleteRoleByIdAsync(id);
+                await roleService.DeleteRoleByIdAsync(id);
                 TempData["success"] = "Successfully removed the data";
             } catch (KeyNotFoundException ex)
             {

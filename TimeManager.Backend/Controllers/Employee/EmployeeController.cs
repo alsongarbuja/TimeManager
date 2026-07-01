@@ -7,35 +7,22 @@ using TimeManager.Backend.ViewModels;
 namespace TimeManager.Backend.Controllers.Employee
 {
     [Authorize(Policy = "AdminPolicy")]
-    public class EmployeeController : Controller
+    public class EmployeeController(IEmployeeService employeeService, IDepartmentService departmentService, IUserService userService) : Controller
     {
-        private readonly IEmployeeService _employeeService;
-        private readonly IDepartmentService _departmentService;
-        private readonly IUserService _userService;
-        //private readonly IEmployeeDepartmentService _employeeDepartmentService;
-
-        public EmployeeController(IEmployeeService employeeService, IDepartmentService departmentService, IUserService userService)
-        {
-            _employeeService = employeeService;
-            _departmentService = departmentService;
-            _userService = userService;
-            //_employeeDepartmentService = employeeDepartmentService;
-        }
-
         public async Task<IActionResult> Index()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            var employees = await _employeeService.GetEmployeesAsync(departmentId);
+            var employees = await employeeService.GetEmployeesAsync(departmentId);
             return View(employees);
         }
 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            EmployeeData employeeData = new EmployeeData { 
+            EmployeeData employeeData = new() { 
                 EmployeeView = new EmployeeViewModel(),
-                Departments = (await _departmentService.GetDepartmentOptionsAsync()),
-                Users = (await _userService.GetUserOptionsAsync())
+                Departments = (await departmentService.GetDepartmentOptionsAsync()),
+                Users = (await userService.GetUserOptionsAsync())
             };
             return View(employeeData);
         }
@@ -44,7 +31,7 @@ namespace TimeManager.Backend.Controllers.Employee
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EmployeeData employeeData)
         {
-            int id = await _employeeService.CreateEmployeeAsync(new EmployeeDto
+            int id = await employeeService.CreateEmployeeAsync(new EmployeeDto
             {
                 Email = employeeData.EmployeeView.Email,
                 UniqueId = employeeData.EmployeeView.UniqueId,
@@ -59,7 +46,7 @@ namespace TimeManager.Backend.Controllers.Employee
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var e = await _employeeService.GetEmployeeByIdAsync(id);
+            var e = await employeeService.GetEmployeeByIdAsync(id);
             if (e == null) return NotFound();
             int? departmentId = HttpContext.Session.GetDepartmentId();
             return View(new EmployeeData
@@ -71,8 +58,8 @@ namespace TimeManager.Backend.Controllers.Employee
                     FirstName = e.FirstName, 
                     LastName = e.LastName,
                 },
-                Users = (await _userService.GetUserOptionsAsync(e.UserId)),
-                Departments = (await _departmentService.GetDepartmentOptionsAsync(departmentId ?? 0))
+                Users = (await userService.GetUserOptionsAsync(e.UserId)),
+                Departments = (await departmentService.GetDepartmentOptionsAsync(departmentId ?? 0))
             });
         }
 
@@ -80,7 +67,7 @@ namespace TimeManager.Backend.Controllers.Employee
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, EmployeeData employeeData)
         {
-            var e = await _employeeService.UpdateEmployeeAsync(id, new EmployeeDto
+            var e = await employeeService.UpdateEmployeeAsync(id, new EmployeeDto
             {
                 Email = employeeData.EmployeeView.Email,
                 UniqueId = employeeData.EmployeeView.UniqueId,
@@ -107,7 +94,7 @@ namespace TimeManager.Backend.Controllers.Employee
         {
             try
             {
-                await _employeeService.DeleteEmployeeByIdAsync(id);
+                await employeeService.DeleteEmployeeByIdAsync(id);
                 TempData["success"] = "Employee deleted";
             } catch (KeyNotFoundException ex)
             {

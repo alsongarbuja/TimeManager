@@ -117,8 +117,10 @@ namespace TimeManager.Backend.Controllers
                         currentRowCol += 1;
                     }
 
+                    worksheet.Cell(currentRow, currentRowCol).Value = d.TotalHours;
                     currentRow += 1;
                 }
+
 
                 worksheet.Columns().AdjustToContents();
 

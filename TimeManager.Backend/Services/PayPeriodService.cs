@@ -19,6 +19,11 @@ namespace TimeManager.Backend.Services
         public async Task<IEnumerable<SelectListItem>> GetPayPeriodOptionsAsync()
         {
             var currentPp = await payPeriodUtility.GetCurrentPayPeriod();
+            if (currentPp == null)
+            {
+                logger.LogError("Current Pay period is not calculated properly");
+                return [];
+            }
             var payPeriods = await context.PayPeriod.Where(pp => pp.StartDate <= currentPp.StartDate).OrderByDescending(pp => pp.StartDate).Select(pp => new SelectListItem
             {
                 Value = pp.Id.ToString(),

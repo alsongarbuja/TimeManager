@@ -63,6 +63,7 @@ namespace TimeManager.Backend.Controllers.Unit
         public async Task<IActionResult> Edit(int id)
         {
             var unit = await unitService.GetUnitByIdAsync(id);
+
             if (unit == null) return NotFound();
             return View(new UnitViewModel
             {

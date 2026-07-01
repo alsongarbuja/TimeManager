@@ -16,7 +16,7 @@ namespace TimeManager.Backend.Services
         Task CreateEmployeeTypeAsync(EmployeeTypeDto employeeTypeDto);
         Task<EmployeeType?> UpdateEmployeeTypeAsync(int id, EmployeeTypeDto employeeTypeDto);
         Task<int?> DeleteEmployeeTypeByIdAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetEmployeeTypeOptionsAsync();
+        Task<IEnumerable<SelectListItem>> GetEmployeeTypeOptionsAsync(int selectedId = 0);
     }
 
     public class EmployeeTypeService(HrmsDbContext hrmsDbContext) : IEmployeeTypeService
@@ -43,12 +43,13 @@ namespace TimeManager.Backend.Services
             return await hrmsDbContext.EmployeeType.FindOrThrowAsync(id);
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetEmployeeTypeOptionsAsync()
+        public async Task<IEnumerable<SelectListItem>> GetEmployeeTypeOptionsAsync(int selectedId = 0)
         {
             var roles = await hrmsDbContext.EmployeeType.Select(r => new SelectListItem
             {
                 Text = r.Name,
                 Value = r.Id.ToString(),
+                Selected = r.Id == selectedId,
             }).ToListAsync();
             return roles;
         }

@@ -9,7 +9,6 @@ using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers
 {
-    //[AllowAnonymous]
     public class AuthController : Controller
     {
         private readonly SignInManager<U> _signInManager;
@@ -48,7 +47,7 @@ namespace TimeManager.Backend.Controllers
                 return RedirectToAction("Index", "Home");
 
             var profiles = JsonSerializer.Deserialize<List<ProfileSelectionItem>>(json);
-            return View(new SelectProfileViewModel { Profiles = profiles });
+            return View(new SelectProfileViewModel { Profiles = profiles ?? [] });
         }
 
         [HttpPost]
@@ -95,6 +94,8 @@ namespace TimeManager.Backend.Controllers
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByNameAsync(model.UserName);
+                TempData["error"] = "User not found";
+                if (user == null) return View(model);
                 var role = await _userManager.GetRolesAsync(user);
 
                 if (role.Contains(AppConstants.SUPER_ADMIN_ROLE))
@@ -106,6 +107,8 @@ namespace TimeManager.Backend.Controllers
                 if (role.Contains(AppConstants.ADMIN_ROLE))
                 {
                     var employee = await _employeeService.GetEmployeeByUserIdAsync(user.Id);
+                    TempData["error"] = "Employee data was not found for the User";
+                    if (employee == null) return View(model);
                     HttpContext.Session.SetInt32("DepartmentId", employee.DepartmentId);
                     return LocalRedirect(returnUrl ?? "/app/dashboard");
                 }

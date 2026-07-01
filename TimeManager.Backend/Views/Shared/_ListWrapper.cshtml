@@ -2,6 +2,7 @@
     Layout = "_AdminLayout";
     var headers = ViewData["Headers"] as List<string>;
     var hasCreateController = ViewData["Controller"] as string;
+    var hasAction = ViewData["HasAction"] as string;
 }
 
 <div class="page-container">
@@ -40,9 +41,12 @@
                                     @header
                                 </th>
                             }
-                            <th class="table-header-cell">
-                                Action
-                            </th>
+                            @if (hasAction != "false")
+                            {
+                                <th class="table-header-cell">
+                                    Action
+                                </th>
+                            }
                         </tr>
                     </thead>
 

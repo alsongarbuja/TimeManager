@@ -54,8 +54,8 @@ namespace TimeManager.Backend.Controllers.JobProfile
             JobProfileViewModel pvm = new JobProfileViewModel
             {
                 Id = id,
-                Employees = (await employeeService.GetEmployeeOptionAsync()),
-                ProfileTemplates = (await employeeService.GetEmployeeOptionAsync()),
+                Employees = (await employeeService.GetEmployeeOptionAsync(pt.EmployeeId)),
+                ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync(pt.ProfileTemplateId)),
                 EmployeeId = pt.EmployeeId,
                 ProfileTemplateId = pt.ProfileTemplateId,
             };
@@ -67,14 +67,14 @@ namespace TimeManager.Backend.Controllers.JobProfile
         public async Task<IActionResult> Edit(int id, JobProfileViewModel pvm)
         {
             var pt = await jobProfileService.UpdateJobProfileASync(id, pvm);
-            JobProfileViewModel pv = new JobProfileViewModel
-            {
-                Id = id,
-                Employees = (await employeeService.GetEmployeeOptionAsync()),
-                ProfileTemplates = (await employeeService.GetEmployeeOptionAsync()),
-                EmployeeId = pt.EmployeeId,
-                ProfileTemplateId = pt.ProfileTemplateId,
-            };
+            //JobProfileViewModel pv = new JobProfileViewModel
+            //{
+            //    Id = id,
+            //    Employees = (await employeeService.GetEmployeeOptionAsync()),
+            //    ProfileTemplates = (await employeeService.GetEmployeeOptionAsync()),
+            //    EmployeeId = pt.EmployeeId,
+            //    ProfileTemplateId = pt.ProfileTemplateId,
+            //};
             return RedirectToAction(nameof(Index));
         }
 

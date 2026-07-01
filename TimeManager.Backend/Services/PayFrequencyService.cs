@@ -16,7 +16,7 @@ namespace TimeManager.Backend.Services
         Task CreatePayFrequencyAsync(PayFrequencyDto payFrequencyDto);
         Task<PayFrequency?> UpdatePayFrequencyAsync(int id, PayFrequencyDto payFrequencyDto);
         Task<int?> DeletePayFrequencyByIdAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetPayFrequencyOptionsAsync();
+        Task<IEnumerable<SelectListItem>> GetPayFrequencyOptionsAsync(int selectedId = 0);
     }
 
     public class PayFrequencyService(HrmsDbContext hrmsDbContext) : IPayFrequencyService
@@ -57,12 +57,13 @@ namespace TimeManager.Backend.Services
             return pf;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetPayFrequencyOptionsAsync()
+        public async Task<IEnumerable<SelectListItem>> GetPayFrequencyOptionsAsync(int selectedId = 0)
         {
             var payFrequencies = await hrmsDbContext.PayFrequency.Select(pf => new SelectListItem
             {
                 Text = pf.Name,
                 Value = pf.Id.ToString(),
+                Selected = pf.Id == selectedId
             }).ToListAsync();
             return payFrequencies;
         }

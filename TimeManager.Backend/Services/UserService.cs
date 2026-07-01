@@ -15,7 +15,7 @@ namespace TimeManager.Backend.Services
         //Task CreateUserAsync(UserViewModel uvm);
         Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm);
         Task<int?> DeleteUserByIdAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetUserOptionsAsync();
+        Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int selectedId = 0);
     }
 
     public class UserService(
@@ -48,7 +48,7 @@ namespace TimeManager.Backend.Services
             return (user, role);
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync()
+        public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int selectedId = 0)
         {
             var currUser = await userManager.GetUserAsync(httpContextAccessor.HttpContext!.User);
             var currUserRole = await userManager.GetRolesAsync(currUser!);
@@ -69,6 +69,7 @@ namespace TimeManager.Backend.Services
                 {
                     Text = u.UserName,
                     Value = u.Id.ToString(),
+                    Selected = u.Id == selectedId,
                 })
                 .ToListAsync();
             } else
@@ -82,6 +83,7 @@ namespace TimeManager.Backend.Services
                         {
                             Text = u.UserName,
                             Value = u.Id.ToString(),
+                            Selected = u.Id == selectedId,
                         })
                     .ToListAsync();
             }

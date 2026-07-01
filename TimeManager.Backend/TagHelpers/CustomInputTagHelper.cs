@@ -72,7 +72,7 @@ namespace TimeManager.Backend.TagHelpers
 
             var hasErrors = ViewContext.ModelState.TryGetValue(propertyName, out var modelStateEntry) && modelStateEntry.Errors.Any();
 
-            var errorMessage = hasErrors ? modelStateEntry.Errors.First().ErrorMessage : string.Empty;
+            var errorMessage = hasErrors ? modelStateEntry?.Errors.First().ErrorMessage : string.Empty;
 
             var classes = hasErrors ? "form-input form-input-error" : "form-input";
 

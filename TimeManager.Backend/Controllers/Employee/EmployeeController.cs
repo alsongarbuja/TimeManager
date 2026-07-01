@@ -53,7 +53,6 @@ namespace TimeManager.Backend.Controllers.Employee
                 UserId = employeeData.UserId,
                 DepartmentId = employeeData.DepartmentId,
             });
-            //await _employeeDepartmentService.CreateEmployeeDepartment(id, employeeData.DepartmentId);
             return RedirectToAction(nameof(Index));
         }
 
@@ -62,7 +61,7 @@ namespace TimeManager.Backend.Controllers.Employee
         {
             var e = await _employeeService.GetEmployeeByIdAsync(id);
             if (e == null) return NotFound();
-            TempData["success"] = "Employee created";
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             return View(new EmployeeData
             {
                 EmployeeView = new EmployeeViewModel
@@ -72,8 +71,8 @@ namespace TimeManager.Backend.Controllers.Employee
                     FirstName = e.FirstName, 
                     LastName = e.LastName,
                 },
-                Users = (await _userService.GetUserOptionsAsync()),
-                Departments = (await _departmentService.GetDepartmentOptionsAsync())
+                Users = (await _userService.GetUserOptionsAsync(e.UserId)),
+                Departments = (await _departmentService.GetDepartmentOptionsAsync(departmentId ?? 0))
             });
         }
 

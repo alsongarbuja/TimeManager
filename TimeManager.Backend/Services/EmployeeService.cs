@@ -16,7 +16,7 @@ namespace TimeManager.Backend.Services
         Task<int> CreateEmployeeAsync(EmployeeDto employeeDto);
         Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto);
         Task<int?> DeleteEmployeeByIdAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync();
+        Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync(int selectedId = 0);
         Task<Employee?> GetEmployeeByUserIdAsync(int id);
         Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id);
     }
@@ -57,12 +57,13 @@ namespace TimeManager.Backend.Services
             return employee;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync()
+        public async Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync(int selectedId = 0)
         {
             var employees = await hrmsDbContext.Employee.Select(e => new SelectListItem
             {
                 Text = $"{e.FirstName} {e.LastName}",
-                Value = e.Id.ToString()
+                Value = e.Id.ToString(),
+                Selected = e.Id == selectedId,
             }).ToListAsync();
             return employees;
         }

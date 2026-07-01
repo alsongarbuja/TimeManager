@@ -119,6 +119,13 @@ namespace TimeManager.Backend.Services
             var updatedUser = await userManager.UpdateAsync(u);
             if (!updatedUser.Succeeded) return null;
 
+            var role = await roleService.GetRoleByIdAsync(rvm.Role);
+            var currentRoles = await userManager.GetRolesAsync(u);
+            if (currentRoles.Count < 1 || currentRoles[0] != role.Name)
+            {
+                await userManager.AddToRoleAsync(u, role.Name!);
+            }
+
             if (!string.IsNullOrEmpty(rvm.Password))
             {
                 await userManager.RemovePasswordAsync(u);

@@ -5,6 +5,7 @@
     List<LinkGroup> _links = [
         new LinkGroup {
         Title = "General",
+        ByRole = AppConstants.AllRoles(),
         LinkData = [
 
         new LinkProps {
@@ -24,7 +25,7 @@
 
                       new LinkGroup {
                             Title = "Administration",
-                            ByRole = "SuperAdmin",
+                            ByRole = [AppConstants.SUPER_ADMIN_ROLE],
                             LinkData = [
                                  new LinkProps {
                                     Text = "Department",
@@ -49,6 +50,7 @@
 
         new LinkGroup {
         Title = "Organization",
+        ByRole = AppConstants.AdminRoles(),
         LinkData = [
 
        
@@ -95,6 +97,7 @@
 
         new LinkGroup {
         Title = "Employee",
+        ByRole = AppConstants.TopLevelRoles(),
         LinkData = [
             new LinkProps {
                 Text = "Employee",
@@ -135,7 +138,7 @@
         <nav class="sidebar-nav-container">
             @foreach (var grp in _links)
             {
-                @if (grp.ByRole == null || User.IsInRole(grp.ByRole))
+                @if (User.IsInAnyRole(grp.ByRole))
                 {
                     <div>
                         <span class="sidebar-group-label">@grp.Title</span>
@@ -180,7 +183,7 @@
     {
         public string Title { get; set; } = string.Empty;
         public List<LinkProps> LinkData { get; set; } = new();
-        public string? ByRole { get; set; }
+        public string[] ByRole { get; set; } = [];
     }
 
     public class LinkProps

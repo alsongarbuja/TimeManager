@@ -5,7 +5,7 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Department
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Policy = "AdminPolicy")]
     public class DepartmentController : Controller
     {
         private readonly IDepartmentService departmentService;

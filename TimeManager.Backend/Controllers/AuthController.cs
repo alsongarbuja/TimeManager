@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 using U = TimeManager.Backend.Models.AuthManagement.User;
@@ -96,13 +97,13 @@ namespace TimeManager.Backend.Controllers
                 var user = await _userManager.FindByNameAsync(model.UserName);
                 var role = await _userManager.GetRolesAsync(user);
 
-                if (role.Contains("SuperAdmin"))
+                if (role.Contains(AppConstants.SUPER_ADMIN_ROLE))
                 {
                     HttpContext.Session.Remove("DepartmentId");
                     return LocalRedirect(returnUrl ?? "/app/dashboard");
                 }
 
-                if (role.Contains("Admin"))
+                if (role.Contains(AppConstants.ADMIN_ROLE))
                 {
                     var employee = await _employeeService.GetEmployeeByUserIdAsync(user.Id);
                     HttpContext.Session.SetInt32("DepartmentId", employee.DepartmentId);

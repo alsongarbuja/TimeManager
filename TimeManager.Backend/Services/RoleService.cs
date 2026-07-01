@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.AuthManagement;
@@ -48,7 +49,7 @@ namespace TimeManager.Backend.Services
         public async Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(int selectedId = 0)
         {
             var roles = await hrmsDbContext.Roles
-                .Where(r => r.Name != "SuperAdmin")
+                .Where(r => r.Name != AppConstants.SUPER_ADMIN_ROLE)
                 .Select(r => new SelectListItem {
                     Text = r.Name,
                     Value = r.Id.ToString(),
@@ -60,7 +61,7 @@ namespace TimeManager.Backend.Services
         public async Task<IEnumerable<RoleViewModel>> GetRolesAsync()
         {
             var roles = await hrmsDbContext.Roles
-                .Where(r => r.Name != "SuperAdmin")
+                .Where(r => r.Name != AppConstants.SUPER_ADMIN_ROLE)
                 .Select(r => new RoleViewModel
                     {
                         Id = r.Id,

@@ -5,7 +5,7 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.PayFrequency
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Policy = "AdminPolicy")]
     public class PayFrequencyController(IPayFrequencyService payFrequencyService) : Controller
     {
         public async Task<IActionResult> Index()

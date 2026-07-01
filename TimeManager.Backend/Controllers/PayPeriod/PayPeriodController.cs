@@ -4,7 +4,7 @@ using TimeManager.Backend.Services;
 
 namespace TimeManager.Backend.Controllers.PayPeriod
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Policy = "AdminPolicy")]
     public class PayPeriodController : Controller
     {
         private readonly IPayPeriodService payPeriodService;

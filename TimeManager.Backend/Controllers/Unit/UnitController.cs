@@ -6,7 +6,7 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Unit
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Policy = "AdminPolicy")]
     public class UnitController(IUnitService unitService, IDepartmentService departmentService) : Controller
     {
         public async Task<IActionResult> Index()

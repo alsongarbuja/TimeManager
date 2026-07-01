@@ -6,7 +6,7 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.JobProfile
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Policy = "AdminPolicy")]
     public class JobProfileController : Controller
     {
         private readonly IJobProfileService jobProfileService;

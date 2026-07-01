@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.Services;
 
@@ -43,13 +44,13 @@ namespace TimeManager.Backend.Data
 
         private static async Task SeedIdentityAsync(UserManager<User> userManager, RoleManager<Role> roleManager, IConfiguration configuration) {
             var roles = new[] {
-                new Role { Name = "SuperAdmin", Description = "Super user with all access" },
-                new Role { Name = "Admin", Description = "Admin user with all access in a department" },
-                new Role { Name = "Manager", Description = "Manager with department based managing tools" }, 
-                new Role { Name = "Employee", Description = "Full time employee" }, 
-                new Role { Name = "Student Employee", Description = "Student employee" }, 
-                new Role { Name = "Lead", Description = "Full time employee with few extra settings" }, 
-                new Role { Name = "Temp Employee", Description = "Temporary worker" }, 
+                new Role { Name = AppConstants.SUPER_ADMIN_ROLE, Description = "Super user with all access" },
+                new Role { Name = AppConstants.ADMIN_ROLE, Description = "Admin user with all access in a department" },
+                new Role { Name = AppConstants.MANAGER_ROLE, Description = "Manager with department based managing tools" }, 
+                new Role { Name = AppConstants.EMPLOYEE_ROLE, Description = "Full time employee" }, 
+                new Role { Name = AppConstants.STUDENT_ROLE, Description = "Student employee" }, 
+                new Role { Name = AppConstants.LEAD_ROLE, Description = "Full time employee with few extra settings" }, 
+                new Role { Name = AppConstants.TEMP_EMPLOYEE_ROLE, Description = "Temporary worker" }, 
             };
             
             foreach (var role in roles)
@@ -85,7 +86,7 @@ namespace TimeManager.Backend.Data
 
                     if (createResult.Succeeded)
                     {
-                        await userManager.AddToRoleAsync(newSuperAdmin, "SuperAdmin");
+                        await userManager.AddToRoleAsync(newSuperAdmin, AppConstants.SUPER_ADMIN_ROLE);
                     } else
                     {
                         throw new InvalidDataException(createResult.Errors.ToList()[0].Description);

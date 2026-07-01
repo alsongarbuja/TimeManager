@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.AuthManagement;
@@ -59,12 +60,6 @@ builder.Services.AddControllersWithViews(options =>
 //    });
 //});
 
-//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-//var serverVersion = ServerVersion.AutoDetect(connectionString);
-
-//builder.Services.AddDbContext<HrmsDbContext>(options =>
-//    options.UseMySql(connectionString, serverVersion));
-
 var connectionString = builder.Configuration.GetConnectionString("SQLConnectionString");
 
 builder.Services.AddDbContext<HrmsDbContext>(options =>
@@ -100,6 +95,9 @@ builder.Services.AddAuthentication()
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:KioskSecret"]!)),
         };
     });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AdminPolicy", policy => policy.RequireRole(AppConstants.SUPER_ADMIN_ROLE, AppConstants.ADMIN_ROLE));
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

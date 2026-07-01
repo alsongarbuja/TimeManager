@@ -1,4 +1,5 @@
 ﻿@model TimeManager.Backend.ViewModels.UnitViewModel
+@using TimeManager.Backend.Common
 
 @{
     Layout = "_FormWrapper";
@@ -15,7 +16,7 @@
     <custom-input asp-for="Index" />
     <custom-input asp-for="Description" classes="grid-col-2" />
 
-    @if (User.IsInRole("SuperAdmin"))
+    @if (User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
         {
             <custom-select asp-for="DepartmentId" asp-items="@Model.Departments" classes="grid-col-2" />
         }

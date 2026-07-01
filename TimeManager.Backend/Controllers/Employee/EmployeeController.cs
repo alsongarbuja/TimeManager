@@ -6,7 +6,7 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Employee
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Policy = "AdminPolicy")]
     public class EmployeeController : Controller
     {
         private readonly IEmployeeService _employeeService;

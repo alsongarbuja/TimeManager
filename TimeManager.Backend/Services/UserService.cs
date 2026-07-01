@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.ViewModels;
@@ -63,7 +64,7 @@ namespace TimeManager.Backend.Services
                 .Where(u => !hrmsDbContext.UserRoles
                 .Join(hrmsDbContext.Roles, ur => ur.RoleId, r => r.Id,
                     (ur, r) => new { ur.UserId, r.Name })
-                .Any(ur => ur.UserId == u.Id && ur.Name == "SuperAdmin"))
+                .Any(ur => ur.UserId == u.Id && ur.Name == AppConstants.SUPER_ADMIN_ROLE))
                 .Select(u => new SelectListItem
                 {
                     Text = u.UserName,
@@ -76,7 +77,7 @@ namespace TimeManager.Backend.Services
                     .Where(u => !hrmsDbContext.UserRoles
                     .Join(hrmsDbContext.Roles, ur => ur.RoleId, r => r.Id, 
                         (ur, r) => new { ur.UserId, r.Name })
-                    .Any(ur => ur.UserId == u.Id && (ur.Name == "SuperAdmin" || ur.Name == "Admin")))
+                    .Any(ur => ur.UserId == u.Id && (ur.Name == AppConstants.SUPER_ADMIN_ROLE || ur.Name == "Admin")))
                     .Select(u => new SelectListItem
                         {
                             Text = u.UserName,
@@ -97,7 +98,7 @@ namespace TimeManager.Backend.Services
                         ur => ur.RoleId, 
                         r => r.Id, 
                         (ur, r) => new { ur.UserId, r.Name })
-                    .Any(ur => ur.UserId == u.Id && ur.Name == "SuperAdmin"))
+                    .Any(ur => ur.UserId == u.Id && ur.Name == AppConstants.SUPER_ADMIN_ROLE))
                     .Select(u => new UserViewModel
                         {
                             Id = u.Id,

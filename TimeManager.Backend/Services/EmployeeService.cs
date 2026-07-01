@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
@@ -86,7 +87,7 @@ namespace TimeManager.Backend.Services
                         ur => ur.RoleId,
                         r => r.Id,
                         (ur, r) => new { ur.UserId, r.Name })
-                    .Where(x => x.Name == "SuperAdmin" || x.Name == "Admin")
+                    .Where(x => x.Name == AppConstants.SUPER_ADMIN_ROLE || x.Name == AppConstants.ADMIN_ROLE)
                     .Select(x => x.UserId)
                     .ToHashSetAsync();
 

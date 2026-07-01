@@ -6,7 +6,7 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.ProfileTemplate
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Policy = "AdminPolicy")]
     public class ProfileTemplateController : Controller
     {
         private readonly IProfileTemplateService profileTemplateService;

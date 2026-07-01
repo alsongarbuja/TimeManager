@@ -1,4 +1,6 @@
 ﻿@using TimeManager.Backend.Extensions
+@using TimeManager.Backend.Common
+
 @{
     List<LinkGroup> _links = [
         new LinkGroup {
@@ -9,13 +11,13 @@
         Text = "Dashboard",
         Url = "dashboard",
         IconClass = "ri-layout-grid-line",
-        Roles = ["SuperAdmin", "Admin", "Manager", "Student Employee", "Temp Employee", "Lead", "Employee"]
+        Roles = AppConstants.AllRoles(),
         },
         new LinkProps {
         Text = "Report",
         Url = "report",
         IconClass = "ri-file-chart-line",
-        Roles = ["SuperAdmin", "Admin"]
+        Roles = AppConstants.AdminRoles(),
         }
         ],
         },
@@ -28,19 +30,19 @@
                                     Text = "Department",
                                     Url = "department",
                                     IconClass = "ri-building-4-line",
-                                    Roles = ["SuperAdmin"]
+                                    Roles = [AppConstants.SUPER_ADMIN_ROLE]
                                  },
                                 new LinkProps {
                                     Text = "Roles",
                                     Url = "role",
                                     IconClass = "ri-group-3-line",
-                                    Roles = ["SuperAdmin"]
+                                    Roles = [AppConstants.SUPER_ADMIN_ROLE]
                                 },
                                 new LinkProps {
                                     Text = "Users",
                                     Url = "user",
                                     IconClass = "ri-user-line",
-                                    Roles = ["SuperAdmin"]
+                                    Roles = [AppConstants.SUPER_ADMIN_ROLE]
                                 },
                             ],
 },
@@ -54,45 +56,39 @@
         Text = "Unit",
         Url = "unit",
         IconClass = "ri-archive-drawer-line",
-        Roles = ["SuperAdmin", "Admin"]
+        Roles = AppConstants.AdminRoles(),
         },
         new LinkProps {
         Text = "Kiosk",
         Url = "kiosk",
         IconClass = "ri-computer-line",
-        Roles = ["SuperAdmin", "Admin"]
+        Roles = [AppConstants.SUPER_ADMIN_ROLE]
         },
         new LinkProps {
         Text = "Punches",
         Url = "punch",
         IconClass = "ri-hourglass-line",
-        Roles = ["SuperAdmin", "Admin"]
+        Roles = AppConstants.AdminRoles(),
         },
 
         new LinkProps {
         Text = "Pay Period",
         Url = "payperiod",
         IconClass = "ri-calendar-2-line",
-        Roles = ["SuperAdmin"]
+        Roles = [AppConstants.SUPER_ADMIN_ROLE]
         },
 
         new LinkProps {
         Text = "Employee Type",
         Url = "employeetype",
         IconClass = "ri-group-line",
-        Roles = ["SuperAdmin"]
+        Roles = [AppConstants.SUPER_ADMIN_ROLE]
         },
-        // new LinkProps {
-        // Text = "Role",
-        // Url = "role",
-        // IconClass = "ri-layout-grid-line",
-        // Roles = ["SuperAdmin"]
-        // },
         new LinkProps {
         Text = "Pay Frequency",
         Url = "payfrequency",
         IconClass = "ri-bill-line",
-        Roles = ["SuperAdmin"]
+        Roles = [AppConstants.SUPER_ADMIN_ROLE]
         },
         ],
         },
@@ -104,25 +100,25 @@
                 Text = "Employee",
                 Url = "employee",
                 IconClass = "ri-folder-user-line",
-                Roles = ["SuperAdmin", "Admin"]
+                Roles = AppConstants.AdminRoles(),
             },
             new LinkProps {
                 Text = "Profile Template",
                 Url = "profiletemplate",
                 IconClass = "ri-file-user-line",
-                Roles = ["SuperAdmin", "Admin"]
+                Roles = AppConstants.AdminRoles(),
             },
             new LinkProps {
                 Text = "Job Profile",
                 Url = "jobprofile",
                 IconClass = "ri-account-pin-box-line",
-                Roles = ["SuperAdmin", "Admin"]
+                Roles = AppConstants.AdminRoles(),
             },
             new LinkProps {
                 Text = "Scheduler",
                 Url = "scheduler",
                 IconClass = "ri-calendar-line",
-                Roles = ["SuperAdmin", "Admin", "Manager",]
+                Roles = AppConstants.TopLevelRoles(),
             }
         ],
     },
@@ -182,16 +178,16 @@
 @functions {
     public class LinkGroup
     {
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
         public List<LinkProps> LinkData { get; set; } = new();
         public string? ByRole { get; set; }
     }
 
     public class LinkProps
     {
-        public string Text { get; set; }
-        public string Url { get; set; }
-        public string IconClass { get; set; }
-        public string[] Roles { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string IconClass { get; set; } = string.Empty;
+        public string[] Roles { get; set; } = [];
     }
 }

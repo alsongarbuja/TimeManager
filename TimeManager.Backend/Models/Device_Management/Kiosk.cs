@@ -19,7 +19,7 @@ namespace TimeManager.Backend.Models.Device_Management
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "Allowed IP Address is required")]
-        public IPAddress AllowedIPAddress { get; set; }
+        public required IPAddress AllowedIPAddress { get; set; }
 
         [Required(ErrorMessage = "Departmetn ID is required")]
         public int DepartmentId { get; set; }

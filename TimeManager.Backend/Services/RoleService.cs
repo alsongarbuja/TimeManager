@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.AuthManagement;
@@ -12,10 +13,11 @@ namespace TimeManager.Backend.Services
     {
         Task<IEnumerable<RoleViewModel>> GetRolesAsync();
         Task<Role> GetRoleByIdAsync(int id);
+        Task<Role> GetRoleByNameAsync(string name);
         Task CreateRoleAsync(RoleDto roleDto);
         Task<Role?> UpdateRoleAsync(int id, RoleDto roleDto);
         Task<int?> DeleteRoleByIdAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(string selectedItem = "");
+        Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(int selectedId = 0);
     }
 
     public class RoleService(HrmsDbContext hrmsDbContext) : IRoleService
@@ -39,14 +41,19 @@ namespace TimeManager.Backend.Services
             return await hrmsDbContext.Roles.FindOrThrowAsync(id);
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(string selectedItem = "")
+        public async Task<Role> GetRoleByNameAsync(string name)
+        {
+            return await hrmsDbContext.Roles.WhereOrThrowAsync(r => r.Name == name);
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(int selectedId = 0)
         {
             var roles = await hrmsDbContext.Roles
-                .Where(r => r.Name != "SuperAdmin")
+                .Where(r => r.Name != AppConstants.SUPER_ADMIN_ROLE)
                 .Select(r => new SelectListItem {
                     Text = r.Name,
                     Value = r.Id.ToString(),
-                    Selected = r.Name == selectedItem,
+                    Selected = r.Id == selectedId,
                 }).ToListAsync();
             return roles;
         }
@@ -54,7 +61,7 @@ namespace TimeManager.Backend.Services
         public async Task<IEnumerable<RoleViewModel>> GetRolesAsync()
         {
             var roles = await hrmsDbContext.Roles
-                .Where(r => r.Name != "SuperAdmin")
+                .Where(r => r.Name != AppConstants.SUPER_ADMIN_ROLE)
                 .Select(r => new RoleViewModel
                     {
                         Id = r.Id,

@@ -8,7 +8,7 @@ namespace TimeManager.Backend.TagHelpers
     public class CustomInputTagHelper: TagHelper
     {
         [HtmlAttributeName("asp-for")]
-        public ModelExpression For { get; set; }
+        public required ModelExpression For { get; set; }
 
         [HtmlAttributeNotBound]
         [ViewContext]
@@ -17,11 +17,14 @@ namespace TimeManager.Backend.TagHelpers
         [HtmlAttributeName("classes")]
         public string? Classes { get; set; }
 
+        [HtmlAttributeName("required")]
+        public bool? Required { get; set; }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             var propertyName = For.Name;
             var labelText = For.Metadata.DisplayName ?? For.Metadata.PropertyName ?? propertyName;
-            var isRequired = For.Metadata.IsRequired;
+            var isRequired = Required ?? For.Metadata.IsRequired;
             var isMultiLine = For.Metadata.DataTypeName == "MultilineText";
 
             var required = isRequired ? "<span class='form-required'>*</span>" : string.Empty;
@@ -69,7 +72,7 @@ namespace TimeManager.Backend.TagHelpers
 
             var hasErrors = ViewContext.ModelState.TryGetValue(propertyName, out var modelStateEntry) && modelStateEntry.Errors.Any();
 
-            var errorMessage = hasErrors ? modelStateEntry.Errors.First().ErrorMessage : string.Empty;
+            var errorMessage = hasErrors ? modelStateEntry?.Errors.First().ErrorMessage : string.Empty;
 
             var classes = hasErrors ? "form-input form-input-error" : "form-input";
 

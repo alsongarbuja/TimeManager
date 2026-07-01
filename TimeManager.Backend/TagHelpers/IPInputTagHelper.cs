@@ -7,7 +7,7 @@ namespace TimeManager.Backend.TagHelpers
     public class IPInputTagHelper : TagHelper
     {
         [HtmlAttributeName("asp-for")]
-        public ModelExpression For { get; set; }
+        public required ModelExpression For { get; set; }
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {

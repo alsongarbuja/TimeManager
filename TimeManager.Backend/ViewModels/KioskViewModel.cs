@@ -20,7 +20,7 @@ namespace TimeManager.Backend.ViewModels
 
         [Display(Name = "Allowed Ip address")]
         [Required (ErrorMessage = "Allowed Ip address cannot be empty")]
-        public IPAddress AllowedIPAddress { get; set; }
+        public required IPAddress AllowedIPAddress { get; set; }
 
         [Display(Name = "Department")]
         public int DepartmentId { get; set; }

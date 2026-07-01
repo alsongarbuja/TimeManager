@@ -10,16 +10,8 @@ namespace TimeManager.Backend.Controllers.PunchManagement
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PunchController: ControllerBase
+    public class PunchController(HrmsDbContext ctx, ILogger<PunchController> logger) : ControllerBase
     {
-        private readonly HrmsDbContext _context;
-        private readonly ILogger<PunchController> _logger;
-
-        public PunchController(HrmsDbContext ctx, ILogger<PunchController> logger)
-        {
-            _context = ctx;
-            _logger = logger;
-        }
 
         //[Authorize(AuthenticationSchemes = "Kiosk")]
         [AllowAnonymous]
@@ -31,7 +23,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
             //    return Unauthorized(new { message = "Invalid or missing Kiosk session" });
             //}
 
-            var jobProfile = await _context.JobProfile.Where(
+            var jobProfile = await ctx.JobProfile.Where(
                 jp => jp.Employee.UniqueId == punchEntryDto.UniqueId &&
                     jp.ProfileTemplate.Unit.DepartmentId == punchEntryDto.DepartmentId
                 ).Select(jp => new { 
@@ -42,10 +34,11 @@ namespace TimeManager.Backend.Controllers.PunchManagement
 
             if (jobProfile == null)
             {
+                logger.LogError("No Job profile found for the given Id");
                 return NotFound(new { message = "No job profile found for the given Id" });
             }
 
-            PunchEntry? punchEntry = await _context.PunchEntry.Where(
+            PunchEntry? punchEntry = await ctx.PunchEntry.Where(
                     pe => pe.JobProfileId == jobProfile.id && pe.ClockOut == null
                 ).FirstOrDefaultAsync();
 
@@ -54,7 +47,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
 
             if (punchEntry != null)
             {
-                _context.Entry(punchEntry).CurrentValues.SetValues(new { 
+                ctx.Entry(punchEntry).CurrentValues.SetValues(new { 
                     ClockOut = DateTime.UtcNow
                 });
                 msg = "Succefully clocked out!!";
@@ -63,9 +56,9 @@ namespace TimeManager.Backend.Controllers.PunchManagement
             {
                 if (IsClockInAllowed(jobProfile.shiftStartTime, jobProfile.earlyBufferMin))
                 {
-                    _context.PunchEntry.Add(new PunchEntry {
+                    ctx.PunchEntry.Add(new PunchEntry {
                         ClockIn = DateTime.UtcNow,
-                        JobProfileId = (int)jobProfile.id
+                        JobProfileId = (int)jobProfile.id!
                     });
                     msg = "Succefully clocked in!!";
                 } else
@@ -74,11 +67,11 @@ namespace TimeManager.Backend.Controllers.PunchManagement
                 }
             }
 
-            await _context.SaveChangesAsync();
+            await ctx.SaveChangesAsync();
 
-            return Ok(new { message = msg, isClockedOut = isClockedOut });
+            return Ok(new { message = msg, isClockedOut });
         }
-        private bool IsClockInAllowed(TimeOnly startShiftTime, int EarlyBufferMin)
+        private static bool IsClockInAllowed(TimeOnly startShiftTime, int EarlyBufferMin)
         {
             TimeSpan bufferMin = TimeSpan.FromMinutes(EarlyBufferMin);
 

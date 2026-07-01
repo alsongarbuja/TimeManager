@@ -31,7 +31,7 @@ namespace TimeManager.Backend.ViewModels
 
     public class EmployeeData
     {
-        public EmployeeViewModel EmployeeView { get; set; }
+        public EmployeeViewModel EmployeeView { get; set; } = new();
 
         [Display(Name = "User")]
         public int UserId { get; set; }
@@ -39,7 +39,7 @@ namespace TimeManager.Backend.ViewModels
         [Display(Name = "Department")]
         public int DepartmentId { get; set; }
 
-        public IEnumerable<SelectListItem> Departments { get; set; }
-        public IEnumerable<SelectListItem> Users { get; set; }
+        public IEnumerable<SelectListItem> Departments { get; set; } = [];
+        public IEnumerable<SelectListItem> Users { get; set; } = [];
     }
 }

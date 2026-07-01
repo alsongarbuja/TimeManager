@@ -14,8 +14,8 @@ namespace TimeManager.Backend.ViewModels
         [DataType(DataType.Time)]
         public TimeOnly ShiftStartTime { get; set; }
 
-        [Required(ErrorMessage = "Early buffer time is required") ,Display(Name = "Early clock (min)")]
-        public int EarlyClockInBufferMin { get; set; }
+        [Required(ErrorMessage = "Early buffer time is required"), Display(Name = "Early clock (min)")]
+        public int EarlyClockInBufferMin { get; set; } = 5;
 
         public IEnumerable<SelectListItem> Units { get; set; } = [];
 

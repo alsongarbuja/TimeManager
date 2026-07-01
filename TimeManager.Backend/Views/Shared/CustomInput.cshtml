@@ -38,7 +38,7 @@
     </label>
     
     <div class="form-input-wrapper">
-        @if (Model?.Metadata.DataTypeName == "MultilineText")
+        @if (Model?.Metadata?.DataTypeName == "MultilineText")
         {
             <textarea asp-for="@Model" class="form-input"></textarea>
         }

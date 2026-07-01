@@ -1,4 +1,5 @@
 ﻿@using TimeManager.Backend.Models.Components
+@using TimeManager.Backend.Common
 @using TimeManager.Backend.ViewModels
 @model IEnumerable<EmployeeViewModel>
 
@@ -6,7 +7,7 @@
     Layout = "_ListWrapper";
     ViewData["Title"] = "Employee";
 
-    List<string> Headers = ["SO Id", "Name", "Email", "Department"];
+    List<string> Headers = User.IsInRole(AppConstants.SUPER_ADMIN_ROLE) ? ["SO Id", "Name", "Email", "Department"] : ["SO Id", "Name", "Email"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Employee";
     ViewData["ModuleDesc"] = "Manage the employee data in the system";
@@ -30,13 +31,16 @@ else
             <td class="table-cell">@d.UniqueId</td>
             <td class="table-cell">@d.FirstName @d.LastName</td>
             <td class="table-cell">@d.Email</td>
-            <td class="table-cell">@d.DepartmentName</td>
+            @if (User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
+            {
+                <td class="table-cell">@d.DepartmentName</td>
+            }
             @await Html.PartialAsync("ActionTd", new ActionTdViewModel
 {
         Controller = "Employee",
         Id = d.Id,
-        hasEdit = true,
-        hasDelete = true,
+        HasEdit = true,
+        HasDelete = true,
 })
         </tr>
     }

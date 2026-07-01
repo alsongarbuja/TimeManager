@@ -5,9 +5,9 @@ namespace TimeManager.Backend.ViewModels
 {
     public class ReportViewModel
     {
-        public IEnumerable<SelectListItem> PayPeriods { get; set; }
-        public IEnumerable<SelectListItem> Units { get; set; }
-        public IEnumerable<SelectListItem> Users { get; set; }
+        public IEnumerable<SelectListItem> PayPeriods { get; set; } = [];
+        public IEnumerable<SelectListItem> Units { get; set; } = [];
+        public IEnumerable<SelectListItem> Users { get; set; } = [];
 
         [Display(Name = "Pay Period")]
         public int? PayPeriodId { get; set; }
@@ -43,7 +43,7 @@ namespace TimeManager.Backend.ViewModels
     public class ReportGeneratedUnitViewModel
     {
         [Required]
-        public List<ReportGeneratedViewModel> Reports { get; set; }
+        public List<ReportGeneratedViewModel> Reports { get; set; } = [];
     }
 
     public class DayReport

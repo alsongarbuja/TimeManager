@@ -15,7 +15,7 @@ namespace TimeManager.Backend.Services
         Task CreateProfileTemplateAsync(ProfileTemplateViewModel pvm);
         Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm);
         Task<int?> DeleteProfileTemplateAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync();
+        Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync(int selectedId = 0);
     }
 
     public class ProfileTemplateService(HrmsDbContext hrmsDbContext) : IProfileTemplateService
@@ -46,12 +46,13 @@ namespace TimeManager.Backend.Services
             return await hrmsDbContext.ProfileTemplate.FindOrThrowAsync(id);
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync()
+        public async Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync(int selectedId = 0)
         {
             var profileTemplates = await hrmsDbContext.ProfileTemplate.Select(pt => new SelectListItem
             {
                 Text = $"{pt.Unit.Name} / {pt.Role.Name}",
                 Value = pt.Id.ToString(),
+                Selected = pt.Id == selectedId,
             }).ToListAsync();
             return profileTemplates;
         }

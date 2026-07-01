@@ -7,16 +7,9 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Punch
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
-    public class PunchController : Controller
+    [Authorize(Policy = "AdminPolicy")]
+    public class PunchController(IPunchServices punchServices) : Controller
     {
-        private readonly IPunchServices punchServices;
-
-        public PunchController(IPunchServices punchServices)
-        {
-            this.punchServices = punchServices;
-        }
-
         public async Task<IActionResult> Index()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
@@ -29,7 +22,14 @@ namespace TimeManager.Backend.Controllers.Punch
         {
             var punch = await punchServices.GetPunchByIdAsync(id);
             if (punch == null) return NotFound();
-            return View(punch);
+            return View(new PunchViewModel
+            {
+                Id = punch.Id,
+                ClockInTime = punch.ClockIn,
+                ClockOutTime = punch.ClockOut,
+                EmployeeId = punch.JobProfileId,
+                Name = $"{punch.JobProfile.Employee.FirstName} {punch.JobProfile.Employee.LastName}"
+            });
         }
 
         [HttpPost]

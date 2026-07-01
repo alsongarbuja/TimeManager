@@ -6,33 +6,15 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.ProfileTemplate
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
-    public class ProfileTemplateController : Controller
+    [Authorize(Policy = "AdminPolicy")]
+    public class ProfileTemplateController(
+        IProfileTemplateService profileTemplateService,
+        IUnitService unitService,
+        IRoleService roleService,
+        IEmployeeTypeService employeeTypeService,
+        IPayFrequencyService payFrequencyService
+        ) : Controller
     {
-        private readonly IProfileTemplateService profileTemplateService;
-        private readonly IUnitService unitService;
-        private readonly IRoleService roleService;
-        private readonly IEmployeeTypeService employeeTypeService;
-        private readonly IPayFrequencyService payFrequencyService;
-        private readonly IConfiguration configuration;
-
-        public ProfileTemplateController(
-            IProfileTemplateService profileTemplateService, 
-            IUnitService unitService, 
-            IRoleService roleService, 
-            IEmployeeTypeService employeeTypeService,
-            IPayFrequencyService payFrequencyService,
-            IConfiguration configuration
-        )
-        {
-            this.profileTemplateService = profileTemplateService;
-            this.unitService = unitService;
-            this.roleService = roleService;
-            this.employeeTypeService = employeeTypeService;
-            this.payFrequencyService = payFrequencyService;
-            this.configuration = configuration;
-        }
-
         public async Task<IActionResult> Index()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
@@ -44,7 +26,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         public async Task<IActionResult> Create()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            ProfileTemplateViewModel pvm = new ProfileTemplateViewModel
+            ProfileTemplateViewModel pvm = new()
             {
                 Units = (await unitService.GetUnitReportOptionsAsync(departmentId)),
                 Roles = (await roleService.GetRoleOptionsAsync()),
@@ -68,7 +50,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
             var pt = await profileTemplateService.GetProfileTemplateByIdAsync(id);
             if (pt == null) return NotFound();
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            ProfileTemplateViewModel pvm = new ProfileTemplateViewModel
+            ProfileTemplateViewModel pvm = new()
             {
                 Id = id,
                 UnitId = pt.UnitId,
@@ -76,9 +58,11 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
                 PayFrequencyId = pt.PayFrequencyId,
                 RoleId = pt.RoleId,
                 Units = (await unitService.GetUnitReportOptionsAsync(departmentId)),
-                Roles = (await roleService.GetRoleOptionsAsync()),
-                EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
-                PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
+                Roles = (await roleService.GetRoleOptionsAsync(pt.RoleId)),
+                EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync(pt.EmployeeTypeId)),
+                PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync(pt.PayFrequencyId)),
+                ShiftStartTime = pt.ShiftStartTime,
+                EarlyClockInBufferMin = pt.EarlyClockInBufferMin,
             };
             return View(pvm);
         }
@@ -88,8 +72,13 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         public async Task<IActionResult> Edit(int id, ProfileTemplateViewModel pvm)
         {
             var pt = await profileTemplateService.UpdateProfileTemplateASync(id, pvm);
+            if (pt == null)
+            {
+                TempData["error"] = "Profile Template not updated. Please try again later";
+                return RedirectToAction(nameof(Index));
+            }
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            ProfileTemplateViewModel pv = new ProfileTemplateViewModel
+            ProfileTemplateViewModel pv = new()
             {
                 Id = id,
                 UnitId = pt.UnitId,

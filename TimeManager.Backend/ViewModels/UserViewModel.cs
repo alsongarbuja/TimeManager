@@ -35,7 +35,7 @@ namespace TimeManager.Backend.ViewModels
         public string? ConfirmPassword { get; set; }
 
         [Required(ErrorMessage = "Role is required"), Display(Name = "Role")]
-        public string Role { get; set; } = string.Empty;
+        public int Role { get; set; }
 
         public IEnumerable<SelectListItem> AvailableRoles { get; set; } = [];
     }

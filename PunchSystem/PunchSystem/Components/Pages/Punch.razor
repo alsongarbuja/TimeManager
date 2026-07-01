@@ -87,6 +87,7 @@ else
 
     private bool isInitializing = true;
     private bool initFailed = false;
+    private bool isAvailable = true;
 
     private bool showModal = false;
     private string apiMessage = "";
@@ -128,66 +129,71 @@ else
 
     private async Task HandleClockInOut()
     {
-        try
-        {
-            errorMessage = "";
-
-            // if (!KioskSession.IsInitialized)
-            // {
-            //     await InitializeKiosk();
-            //     if (initFailed) return;
-            // }
-
-            var res = await Http.PostAsJsonAsync("api/punch", new
+        if (isAvailable && !string.IsNullOrEmpty(cioModel.UniqueId))
+        {   
+            try
             {
-                UniqueId = cioModel.UniqueId,
-                DepartmentId = 1,
-            });
+                errorMessage = "";
 
-            // if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            // {
-            //     KioskSession.Invalidate();
-            //     await InitializeKiosk();
-            //     if (initFailed) return;
+                // if (!KioskSession.IsInitialized)
+                // {
+                //     await InitializeKiosk();
+                //     if (initFailed) return;
+                // }
 
-            //     res = await Http.PostAsJsonAsync("api/punch", new { UniqueId = cioModel.UniqueId });
-            // }
-
-            var result = await res.Content.ReadFromJsonAsync<ApiErrorResponse>();
-            if (result is not null)
-            {
-                if (!res.IsSuccessStatusCode)
+                var res = await Http.PostAsJsonAsync("api/punch", new
                 {
-                    errorMessage = result.Message;
-                }
-                else
-                {
-                    modalBg = result.IsClockedOut ? "success-modal-out" : "success-modal-in";
-                    apiMessage = result.Message ?? "Operation Successful";
-                    operationTime = result.Time ?? DateTime.Now.ToString("hh:mm tt");
-                    greetingMessage = result.Greeting ?? "Have a great day!";
+                    UniqueId = cioModel.UniqueId,
+                    DepartmentId = 1,
+                });
 
-                    await TriggerSuccessModal();
+                // if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                // {
+                //     KioskSession.Invalidate();
+                //     await InitializeKiosk();
+                //     if (initFailed) return;
+
+                //     res = await Http.PostAsJsonAsync("api/punch", new { UniqueId = cioModel.UniqueId });
+                // }
+
+                var result = await res.Content.ReadFromJsonAsync<ApiErrorResponse>();
+                if (result is not null)
+                {
+                    if (!res.IsSuccessStatusCode)
+                    {
+                        errorMessage = result.Message;
+                    }
+                    else
+                    {
+                        modalBg = result.IsClockedOut ? "success-modal-out" : "success-modal-in";
+                        apiMessage = result.Message ?? "Operation Successful";
+                        operationTime = result.Time ?? DateTime.Now.ToString("hh:mm tt");
+                        greetingMessage = result.Greeting ?? "Have a great day!";
+
+                        await TriggerSuccessModal();
+                    }
                 }
+
+                cioModel.UniqueId = "";
             }
-
-            cioModel.UniqueId = "";
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            errorMessage = "An unexpected error occurred. Please try again.";
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                errorMessage = "An unexpected error occurred. Please try again.";
+            }
         }
     }
 
     private async Task TriggerSuccessModal()
     {
         showModal = true;
+        isAvailable = false;
         StateHasChanged();
 
-        await Task.Delay(8000);
+        await Task.Delay(3000);
 
         showModal = false;
+        isAvailable = true;
         StateHasChanged();
 
         await myIdeo.FocusAsync();

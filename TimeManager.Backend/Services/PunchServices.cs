@@ -10,23 +10,15 @@ namespace TimeManager.Backend.Services
     public interface IPunchServices
     {
         Task<PunchViewOverall> GetPunchesAsync(int? departmentId);
-        Task<PunchViewModel> GetPunchByIdAsync(int id);
+        Task<PunchEntry?> GetPunchByIdAsync(int id);
         Task<PunchEntry?> UpdatePunchAsync(int id, PunchDto punchEntryDto);
     }
 
     public class PunchServices(HrmsDbContext context) : IPunchServices
     {
-        public async Task<PunchViewModel> GetPunchByIdAsync(int id)
+        public async Task<PunchEntry?> GetPunchByIdAsync(int id)
         {
-            var punch = await context.PunchEntry.FindOrThrowAsync(id);
-            return new PunchViewModel
-            {
-                Id = punch.Id,
-                ClockInTime = punch.ClockIn,
-                ClockOutTime = punch.ClockOut,
-                EmployeeId = punch.JobProfileId,
-                Name = $"{punch.JobProfile.Employee.FirstName} {punch.JobProfile.Employee.LastName}"
-            };
+             return await context.PunchEntry.Include(p => p.JobProfile).ThenInclude(jp => jp.Employee).Where(p => p.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<PunchViewOverall> GetPunchesAsync(int? departmentId)
@@ -45,7 +37,7 @@ namespace TimeManager.Backend.Services
                 employees = await context.JobProfile.Where(e => e.ProfileTemplate.Unit.Department.Id == departmentId).Select(e => new Employees
                 {
                     Id = e.Id,
-                    Name = $"{e.Employee.FirstName} {e.Employee.LastName}"
+                    Name = $"{e.Employee.FirstName} {e.Employee.LastName} / {e.ProfileTemplate.Unit.Name}"
                 }).ToListAsync();
             }
 

@@ -6,7 +6,7 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Unit
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Policy = "AdminPolicy")]
     public class UnitController(IUnitService unitService, IDepartmentService departmentService) : Controller
     {
         public async Task<IActionResult> Index()
@@ -37,7 +37,7 @@ namespace TimeManager.Backend.Controllers.Unit
                            .Select(x => new
                            {
                                x.Key,
-                               Errors = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
+                               Errors = string.Join(", ", x.Value?.Errors.Select(e => e.ErrorMessage)!)
                            });
 
                 foreach (var error in errors)
@@ -52,7 +52,7 @@ namespace TimeManager.Backend.Controllers.Unit
             {
                 Name = unitViewModel.Name,
                 Description = unitViewModel.Description,
-                DepartmentId = departmentId ?? (int)unitViewModel.DepartmentId,
+                DepartmentId = departmentId ?? (int)unitViewModel.DepartmentId!,
                 Index = unitViewModel.Index,
             });
             TempData["Success"] = "Unit created";
@@ -63,6 +63,7 @@ namespace TimeManager.Backend.Controllers.Unit
         public async Task<IActionResult> Edit(int id)
         {
             var unit = await unitService.GetUnitByIdAsync(id);
+
             if (unit == null) return NotFound();
             return View(new UnitViewModel
             {
@@ -87,7 +88,7 @@ namespace TimeManager.Backend.Controllers.Unit
                 Name = uvm.Name,
                 Index = uvm.Index,
                 Description = uvm.Description,
-                DepartmentId = departmentId ?? (int)uvm.DepartmentId,
+                DepartmentId = departmentId ?? (int)uvm.DepartmentId!,
             });
 
             if (d == null)

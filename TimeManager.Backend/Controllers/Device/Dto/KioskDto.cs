@@ -9,7 +9,7 @@ namespace TimeManager.Backend.Controllers.Device.Dto
         public int DepartmentId { get; set; }
 
         [Required(ErrorMessage = "Ip Address is required")]
-        public IPAddress AllowedIPAddress { get; set; }
+        public required IPAddress AllowedIPAddress { get; set; }
 
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = string.Empty;

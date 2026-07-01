@@ -4,7 +4,7 @@
 }
 
 <td class="table-actions">
-    @if(Model.hasDelete)
+    @if(Model.HasDelete)
     {
         <form method="post" asp-controller="@Model.Controller" asp-action="Delete" asp-route-id="@Model.Id" onsubmit="return confirm('Delete this resource?')">
             @Html.AntiForgeryToken()
@@ -14,7 +14,7 @@
         </form>
     }
 
-    @if(Model.hasEdit)
+    @if(Model.HasEdit)
     {
         <a asp-controller="@Model.Controller" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-action-edit">
             <i class="ri-edit-line"></i>

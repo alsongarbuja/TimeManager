@@ -1,41 +1,36 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using PP = TimeManager.Backend.Models.Punch_Management.PayPeriod;
 
 namespace TimeManager.Backend.Controllers.PunchManagement.Utility
 {
-    public class PayPeriodUtility
+    public class PayPeriodUtility(HrmsDbContext hrmsDbContext)
     {
-        private readonly HrmsDbContext _hrmsDbContext;
-
-        public PayPeriodUtility(HrmsDbContext hrmsDbContext)
-        {
-            _hrmsDbContext = hrmsDbContext;
-        }
-
         public async Task<PP?> GetCurrentPayPeriod() { 
             DateTimeOffset dateNow = DateTimeOffset.Now.UtcDateTime;
 
-            PP? pp = await _hrmsDbContext.PayPeriod.Where(
+            PP? pp = await hrmsDbContext.PayPeriod.Where(
                 pp => dateNow >= pp.StartDate && dateNow <= pp.EndDate
                 ).FirstOrDefaultAsync();
 
             return pp ?? null;
         }
 
-        public async Task<PP?> GetPayPeriodByIdAsync(int id)
+        public async Task<PP?> GetPreviousPayPeriod()
         {
-            PP pp = await _hrmsDbContext.PayPeriod.FindAsync(id);
+            DateTimeOffset dateNow = DateTimeOffset.Now.UtcDateTime;
+
+            PP? pp = await hrmsDbContext.PayPeriod.Where(
+                    p => p.EndDate < dateNow
+                ).OrderByDescending(p => p.EndDate).FirstOrDefaultAsync();
+
             return pp;
         }
 
-        public async Task<Dictionary<string, string>> GetDateToDayMap()
+        public async Task<PP?> GetPayPeriodByIdAsync(int id)
         {
-            var map = new Dictionary<string, string>();
-
-            PP pp = await GetCurrentPayPeriod();
-
-            return map;
+            return await hrmsDbContext.PayPeriod.FindOrThrowAsync(id);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
@@ -15,7 +16,7 @@ namespace TimeManager.Backend.Services
         Task<int> CreateEmployeeAsync(EmployeeDto employeeDto);
         Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto);
         Task<int?> DeleteEmployeeByIdAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync();
+        Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync(int selectedId = 0);
         Task<Employee?> GetEmployeeByUserIdAsync(int id);
         Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id);
     }
@@ -24,7 +25,7 @@ namespace TimeManager.Backend.Services
     {
         public async Task<int> CreateEmployeeAsync(EmployeeDto employeeDto)
         {
-            Employee employee = new Employee
+            Employee employee = new()
             {
                 FirstName = employeeDto.FirstName,
                 LastName = employeeDto.LastName,
@@ -56,12 +57,13 @@ namespace TimeManager.Backend.Services
             return employee;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync()
+        public async Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync(int selectedId = 0)
         {
             var employees = await hrmsDbContext.Employee.Select(e => new SelectListItem
             {
                 Text = $"{e.FirstName} {e.LastName}",
-                Value = e.Id.ToString()
+                Value = e.Id.ToString(),
+                Selected = e.Id == selectedId,
             }).ToListAsync();
             return employees;
         }
@@ -75,7 +77,7 @@ namespace TimeManager.Backend.Services
                     Id = e.Id,
                     FirstName = e.FirstName, 
                     LastName = e.LastName,
-                    Email = e.User.Email,
+                    Email = e.User.Email ?? string.Empty,
                     UniqueId = e.UniqueId,
                     DepartmentName = e.Department.Name,
                 }).ToListAsync();
@@ -86,7 +88,7 @@ namespace TimeManager.Backend.Services
                         ur => ur.RoleId,
                         r => r.Id,
                         (ur, r) => new { ur.UserId, r.Name })
-                    .Where(x => x.Name == "SuperAdmin" || x.Name == "Admin")
+                    .Where(x => x.Name == AppConstants.SUPER_ADMIN_ROLE || x.Name == AppConstants.ADMIN_ROLE)
                     .Select(x => x.UserId)
                     .ToHashSetAsync();
 
@@ -97,7 +99,7 @@ namespace TimeManager.Backend.Services
                             Id = e.Id,
                             FirstName = e.FirstName,
                             LastName = e.LastName,
-                            Email = e.User.Email,
+                            Email = e.User.Email ?? string.Empty,
                             UniqueId = e.UniqueId,
                             DepartmentName = e.Department.Name,
                         }).ToListAsync();

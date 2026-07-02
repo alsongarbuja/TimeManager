@@ -43,7 +43,7 @@ namespace TimeManager.Backend.Services
 
         public async Task<Unit> GetUnitByIdAsync(int id)
         {
-            return await context.Unit.FindOrThrowAsync(id);
+            return await context.Unit.Include(u => u.Department).Where(u => u.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId)

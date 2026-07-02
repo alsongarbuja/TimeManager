@@ -13,8 +13,11 @@
 
     <div class="rg-header">
         <div class="rg-header-text">
-            <p class="rg-eyebrow">Unit Overview</p>
-            <h1 class="rg-title">Reports by User</h1>
+            @if (Model.Reports.Count > 0)
+            {
+                <p class="rg-eyebrow">@Model.Reports[0]?.UnitName Overview</p>
+            }
+            <h1 class="rg-title">Reports by Unit</h1>
         </div>
         <form asp-controller="Report" asp-action="ExportToExcel" method="post">
             @Html.AntiForgeryToken()
@@ -57,8 +60,8 @@
                     <!-- Accordion header -->
                     <button class="rbu-trigger" type="button" onclick="toggleItem(this)" aria-expanded="false">
                         <div class="rbu-trigger-left">
+                            <span></span>
                             <span class="rbu-trigger-name">@report.Name</span>
-                            <span class="rbu-trigger-meta">Job Profile #@report.JobProfileId</span>
                         </div>
                         <div class="rbu-trigger-right">
                             <span class="rbu-pill">@report.TotalHours.ToString("F2") hrs</span>

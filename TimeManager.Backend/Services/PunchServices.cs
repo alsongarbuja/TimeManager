@@ -12,10 +12,19 @@ namespace TimeManager.Backend.Services
         Task<PunchViewOverall> GetPunchesAsync(int? departmentId);
         Task<PunchEntry?> GetPunchByIdAsync(int id);
         Task<PunchEntry?> UpdatePunchAsync(int id, PunchDto punchEntryDto);
+        Task<int?> DeletePunchByIdAsync(int id);
     }
 
     public class PunchServices(HrmsDbContext context) : IPunchServices
     {
+        public async Task<int?> DeletePunchByIdAsync(int id)
+        {
+            var punch = await context.PunchEntry.FindOrThrowAsync(id);
+            context.PunchEntry.Remove(punch);
+            await context.SaveChangesAsync();
+            return id;
+        }
+
         public async Task<PunchEntry?> GetPunchByIdAsync(int id)
         {
              return await context.PunchEntry.Include(p => p.JobProfile).ThenInclude(jp => jp.Employee).Where(p => p.Id == id).FirstOrDefaultAsync();

@@ -6,7 +6,7 @@
     Layout = "_ListWrapper";
     ViewData["Title"] = "Profile Template";
 
-    List<string> Headers = ["Role", "Employee Type", "Unit", "Shift Start Time", "Early Clock in buffer"];
+    List<string> Headers = ["Unit", "Role", "Shift Start Time", "Early Clock in buffer"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Profile Template";
     ViewData["ModuleDesc"] = "Manage the profile templates in the department";
@@ -27,9 +27,8 @@ else
     foreach (var d in Model)
     {
         <tr class="table-row">
-            <td class="table-cell">@d.Role</td>
-            <td class="table-cell">@d.EmployeeType</td>
             <td class="table-cell">@d.Unit</td>
+            <td class="table-cell">@d.Role</td>
             <td class="table-cell">@d.ShiftStartTime</td>
             <td class="table-cell">@d.EarlyClockInBufferMin min</td>
             @await Html.PartialAsync("ActionTd", new ActionTdViewModel

@@ -50,7 +50,7 @@ namespace TimeManager.Backend.Services
         {
             var profileTemplates = await hrmsDbContext.ProfileTemplate.Select(pt => new SelectListItem
             {
-                Text = $"{pt.Unit.Name} / {pt.Role.Name}",
+                Text = $"{pt.Unit.Name} ({pt.Unit.Index}) / {pt.Role.Name}",
                 Value = pt.Id.ToString(),
                 Selected = pt.Id == selectedId,
             }).ToListAsync();
@@ -66,7 +66,7 @@ namespace TimeManager.Backend.Services
                 profileTemplates = await hrmsDbContext.ProfileTemplate.Select(pt => new ProfileTemplateViewModel
                 {
                     Id = pt.Id,
-                    Unit = pt.Unit.Name,
+                    Unit = $"{pt.Unit.Name} - {pt.Unit.Index}",
                     Role = pt.Role.Name ?? "Default",
                     EmployeeType = pt.EmployeeType.Name,
                     ShiftStartTime = pt.ShiftStartTime,
@@ -79,7 +79,7 @@ namespace TimeManager.Backend.Services
                     .Select(pt => new ProfileTemplateViewModel
                     {
                         Id = pt.Id,
-                        Unit = pt.Unit.Name,
+                        Unit = $"{pt.Unit.Name} - {pt.Unit.Index}",
                         Role = pt.Role.Name ?? "Default",
                         EmployeeType = pt.EmployeeType.Name,
                         ShiftStartTime = pt.ShiftStartTime,
@@ -92,9 +92,15 @@ namespace TimeManager.Backend.Services
 
         public async Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm)
         {
-            var profileTemplate = await hrmsDbContext.ProfileTemplate.FindAsync(id);
-            if (profileTemplate == null) return null;
-            hrmsDbContext.Entry(profileTemplate).CurrentValues.SetValues(pvm);
+            var profileTemplate = await hrmsDbContext.ProfileTemplate.FindOrThrowAsync(id);
+            hrmsDbContext.Entry(profileTemplate).CurrentValues.SetValues(new {
+                pvm.EarlyClockInBufferMin,
+                pvm.ShiftStartTime,
+                pvm.RoleId,
+                pvm.EmployeeTypeId,
+                pvm.PayFrequencyId,
+                pvm.UnitId,
+            });
             await hrmsDbContext.SaveChangesAsync();
             return profileTemplate;
         }

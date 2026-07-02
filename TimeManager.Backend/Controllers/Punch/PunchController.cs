@@ -52,5 +52,13 @@ namespace TimeManager.Backend.Controllers.Punch
             TempData["success"] = "Successfully edited the data";
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await punchServices.DeletePunchByIdAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

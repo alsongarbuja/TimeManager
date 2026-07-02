@@ -11,11 +11,6 @@ namespace TimeManager.Backend.Services
 {
     public interface IReportService
     {
-        //Task<IEnumerable<ReportViewModel>> GetReportsAsync();
-        //Task<ReportDto> GetReportByIdAsync(int id);
-        //Task CreateReportAsync(ReportDto reportDto);
-        //Task<ReportDto?> UpdateReportAsync(int id, ReportDto reportDto);
-        //Task<int?> DeleteReportByIdAsync(int id);
         Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id, int payPeriodId = 0);
         Task<IEnumerable<ReportGeneratedViewModel>> GenerateReportByUnitId(int id, int payPeriodId = 0);
     }
@@ -24,7 +19,7 @@ namespace TimeManager.Backend.Services
     {
         public async Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id, int payPeriodId = 0)
         {
-            JobProfile? jp = await hrmsDbContext.JobProfile.Include(jp => jp.Employee).AsSplitQuery().FirstOrDefaultAsync(j => j.Id == id);
+            JobProfile? jp = await hrmsDbContext.JobProfile.Include(jp => jp.Employee).Include(jp => jp.ProfileTemplate).ThenInclude(pt => pt.Unit).AsSplitQuery().FirstOrDefaultAsync(j => j.Id == id);
 
             if (jp == null) return null;
 
@@ -46,6 +41,7 @@ namespace TimeManager.Backend.Services
                 TotalWorkedHours = 0.0,
                 WeekOne = [],
                 WeekTwo = [],
+                UnitName = jp.ProfileTemplate.Unit.Name,
             };
 
             for (int i = 0; i < punches.Count; i++)

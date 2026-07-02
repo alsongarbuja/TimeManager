@@ -31,6 +31,7 @@ namespace TimeManager.Backend.Controllers.Employee
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EmployeeData employeeData)
         {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             int id = await employeeService.CreateEmployeeAsync(new EmployeeDto
             {
                 Email = employeeData.EmployeeView.Email,
@@ -38,7 +39,7 @@ namespace TimeManager.Backend.Controllers.Employee
                 FirstName = employeeData.EmployeeView.FirstName,
                 LastName = employeeData.EmployeeView.LastName,
                 UserId = employeeData.UserId,
-                DepartmentId = employeeData.DepartmentId,
+                DepartmentId = departmentId ?? employeeData.DepartmentId,
             });
             return RedirectToAction(nameof(Index));
         }

@@ -50,7 +50,7 @@ namespace TimeManager.Backend.Services
                     Id = jp.Id,
                     EmployeeId = jp.EmployeeId,
                     EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
+                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index}) / {jp.ProfileTemplate.Role.Name}",
                 }).ToListAsync();
             } else
             {
@@ -62,7 +62,7 @@ namespace TimeManager.Backend.Services
                     Id = jp.Id,
                     EmployeeId = jp.EmployeeId,
                     EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
+                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index})/ {jp.ProfileTemplate.Role.Name}",
                 }).ToListAsync();
             }
 

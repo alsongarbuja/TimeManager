@@ -73,7 +73,7 @@ namespace TimeManager.Backend.Controllers
 
             using (var workbook = new XLWorkbook())
             {
-                var worksheet = workbook.Worksheets.Add($"Clock In-Out Report for {rvm.PayPeriodId}");
+                var worksheet = workbook.Worksheets.Add($"Report-{pp.StartDate:MMM dd} to {pp.EndDate:MMM dd}");
 
                 // Headers
                 int col = 2;
@@ -105,6 +105,10 @@ namespace TimeManager.Backend.Controllers
                         {
                             worksheet.Cell(currentRow, currentRowCol).Value = $"{entry.Hours:F2} ({entry.Type})";
                         }
+                        else
+                        {
+                            worksheet.Cell(currentRow, currentRowCol).Value = "-";
+                        }
                         currentRowCol += 1;
                     }
 
@@ -113,6 +117,10 @@ namespace TimeManager.Backend.Controllers
                         if (d.WeekTwo.TryGetValue(day, out var entry))
                         {
                             worksheet.Cell(currentRow, currentRowCol).Value = $"{entry.Hours:F2} ({entry.Type})";
+                        }
+                        else
+                        {
+                            worksheet.Cell(currentRow, currentRowCol).Value = "-";
                         }
                         currentRowCol += 1;
                     }

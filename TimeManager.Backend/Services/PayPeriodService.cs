@@ -1,20 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Punch_Management;
+using TimeManager.Backend.Models.Requests;
+using TimeManager.Backend.Models.Responses;
+using TimeManager.Backend.Utility;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Services
 {
     public interface IPayPeriodService
     {
-        Task<IEnumerable<PayPeriodViewModel>> GetPayPeriodsAsync();
+        Task<PayPeriod> GetPayPeriodByIdAsync(int id);
+        Task<PagedResponse<PayPeriodViewModel>> GetPayPeriodsAsync(PaginationFilter filter);
         Task<IEnumerable<SelectListItem>> GetPayPeriodOptionsAsync();
         Task AutoGeneratePayPeriod();
     }
 
-    public class PayPeriodService(HrmsDbContext context, ILogger<PayPeriodService> logger, PayPeriodUtility payPeriodUtility) : IPayPeriodService
+    public class PayPeriodService(
+        HrmsDbContext context, 
+        ILogger<PayPeriodService> logger, 
+        PayPeriodUtility payPeriodUtility
+        ) : IPayPeriodService
     {
         public async Task<IEnumerable<SelectListItem>> GetPayPeriodOptionsAsync()
         {
@@ -34,17 +44,22 @@ namespace TimeManager.Backend.Services
             return payPeriods;
         }
 
-        public async Task<IEnumerable<PayPeriodViewModel>> GetPayPeriodsAsync()
+        public async Task<PagedResponse<PayPeriodViewModel>> GetPayPeriodsAsync(PaginationFilter filter)
         {
+            var query = context.PayPeriod.AsNoTracking().AsQueryable();
+            int totalRecords = await query.CountAsync();
+
+            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+
             var currentPayPeriod = await payPeriodUtility.GetCurrentPayPeriod();
 
-            if (currentPayPeriod == null) return [];
+            if (currentPayPeriod == null) return new PagedResponse<PayPeriodViewModel>([], pageNumber, pageSize, totalRecords);
 
-            var payperiods = await context.PayPeriod.Where(pp => currentPayPeriod.StartDate <= pp.StartDate).Select(p => new PayPeriodViewModel { 
+            var payperiods = await query.Where(pp => currentPayPeriod.StartDate <= pp.StartDate).Skip((pageNumber - 1) * pageSize).Take(pageSize).Select(p => new PayPeriodViewModel { 
                 StartDate = p.StartDate.ToString("MMM d yyyy"),
                 EndDate = p.EndDate.ToString("MMM d yyyy")
             }).ToListAsync();
-            return payperiods;
+            return new PagedResponse<PayPeriodViewModel>(payperiods, pageNumber, pageSize, totalRecords);
         }
 
         public async Task AutoGeneratePayPeriod()
@@ -130,6 +145,11 @@ namespace TimeManager.Backend.Services
             {
                 await context.SaveChangesAsync();
             }
+        }
+
+        public async Task<PayPeriod> GetPayPeriodByIdAsync(int id)
+        {
+            return await context.PayPeriod.FindOrThrowAsync(id);
         }
     }
 }

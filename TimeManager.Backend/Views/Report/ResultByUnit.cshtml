@@ -13,9 +13,20 @@
 
     <div class="rg-header">
         <div class="rg-header-text">
-            <p class="rg-eyebrow">Unit Overview</p>
-            <h1 class="rg-title">Reports by User</h1>
+            @if (Model.Reports.Count > 0)
+            {
+                <p class="rg-eyebrow">@Model.Reports[0]?.UnitName Overview</p>
+            }
+            <h1 class="rg-title">Reports by Unit</h1>
         </div>
+        <form asp-controller="Report" asp-action="ExportToExcel" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="UnitId" value="@Model.UnitId" />
+            <input type="hidden" name="PayPeriodId" value="@Model.PayPeriodId" />
+            <Button type="submit" class="rg-back">
+                <i class="ri-download-line"></i> Download Excel
+            </Button>
+        </form>
         <a asp-controller="Report" asp-action="Index" class="rg-back">← Back to Reports</a>
     </div>
 
@@ -49,8 +60,8 @@
                     <!-- Accordion header -->
                     <button class="rbu-trigger" type="button" onclick="toggleItem(this)" aria-expanded="false">
                         <div class="rbu-trigger-left">
+                            <span></span>
                             <span class="rbu-trigger-name">@report.Name</span>
-                            <span class="rbu-trigger-meta">Job Profile #@report.JobProfileId</span>
                         </div>
                         <div class="rbu-trigger-right">
                             <span class="rbu-pill">@report.TotalHours.ToString("F2") hrs</span>

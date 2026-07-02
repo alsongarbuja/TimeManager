@@ -4,13 +4,16 @@ using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.AuthManagement;
+using TimeManager.Backend.Models.Requests;
+using TimeManager.Backend.Models.Responses;
+using TimeManager.Backend.Utility;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Services
 {
     public interface IUserService
     {
-        Task<IEnumerable<UserViewModel>> GetUsersAsync();
+        Task<PagedResponse<UserViewModel>> GetUsersAsync(PaginationFilter filter);
         Task<(User? User, Role? Role)> GetUserByIdAsync(int id);
         //Task CreateUserAsync(UserViewModel uvm);
         Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm);
@@ -91,23 +94,35 @@ namespace TimeManager.Backend.Services
             return users;
         }
 
-        public async Task<IEnumerable<UserViewModel>> GetUsersAsync()
+        public async Task<PagedResponse<UserViewModel>> GetUsersAsync(PaginationFilter filter)
         {
+            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+
+            var query = hrmsDbContext.Users.AsNoTracking().AsQueryable();
+            int totalRecords = await query.Where(u => !hrmsDbContext.UserRoles.
+                    Join(hrmsDbContext.Roles,
+                        ur => ur.RoleId,
+                        r => r.Id,
+                        (ur, r) => new { ur.UserId, r.Name })
+                    .Any(ur => ur.UserId == u.Id && ur.Name == AppConstants.SUPER_ADMIN_ROLE)).CountAsync();
+
             IEnumerable<UserViewModel> users = [];
-            users = await hrmsDbContext.Users
+            users = await query
                 .Where(u => !hrmsDbContext.UserRoles.
                     Join(hrmsDbContext.Roles, 
                         ur => ur.RoleId, 
                         r => r.Id, 
                         (ur, r) => new { ur.UserId, r.Name })
                     .Any(ur => ur.UserId == u.Id && ur.Name == AppConstants.SUPER_ADMIN_ROLE))
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(u => new UserViewModel
                         {
                             Id = u.Id,
                             UserName = u.UserName,
                             Email = u.Email,
                         }).ToListAsync();
-            return users;
+            return new PagedResponse<UserViewModel>(users, pageNumber, pageSize, totalRecords);
         }
 
         public async Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm)

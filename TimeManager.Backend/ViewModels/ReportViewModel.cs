@@ -27,6 +27,8 @@ namespace TimeManager.Backend.ViewModels
         [Required(ErrorMessage = "Job profile Id is required")]
         public int JobProfileId { get; set; }
 
+        public string UnitName { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Total Hours required")]
         public double TotalHours { get; set; } = 0.0;
 
@@ -36,14 +38,18 @@ namespace TimeManager.Backend.ViewModels
         [Required(ErrorMessage = "Total Holiday Hours required")]
         public double TotalHolidayHours { get; set; } = 0.0;
 
-        public Dictionary<string, DayReport> WeekOne { get; set; } = new();
-        public Dictionary<string, DayReport> WeekTwo { get; set; } = new();
+        public Dictionary<string, DayReport> WeekOne { get; set; } = [];
+        public Dictionary<string, DayReport> WeekTwo { get; set; } = [];
     }
 
     public class ReportGeneratedUnitViewModel
     {
         [Required]
         public List<ReportGeneratedViewModel> Reports { get; set; } = [];
+
+        public int UnitId { get; set; }
+
+        public int PayPeriodId { get; set; }
     }
 
     public class DayReport

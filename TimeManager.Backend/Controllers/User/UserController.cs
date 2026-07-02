@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using TimeManager.Backend.Models.Requests;
+using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 using U = TimeManager.Backend.Models.AuthManagement.User;
@@ -11,9 +13,9 @@ namespace TimeManager.Backend.Controllers.User
     public class UserController(UserManager<U> userManager, IUserService userService, IRoleService roleService, IConfiguration configuration) : Controller
     {
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
         {
-            var users = await userService.GetUsersAsync();
+            PagedResponse<UserViewModel> users = await userService.GetUsersAsync(filter);
             return View(users);
         }
 

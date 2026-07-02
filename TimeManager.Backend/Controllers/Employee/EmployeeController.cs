@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Extensions;
+using TimeManager.Backend.Models.Requests;
+using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
@@ -9,10 +11,10 @@ namespace TimeManager.Backend.Controllers.Employee
     [Authorize(Policy = "AdminPolicy")]
     public class EmployeeController(IEmployeeService employeeService, IDepartmentService departmentService, IUserService userService) : Controller
     {
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            var employees = await employeeService.GetEmployeesAsync(departmentId);
+            PagedResponse<EmployeeViewModel> employees = await employeeService.GetEmployeesAsync(departmentId, filter);
             return View(employees);
         }
 
@@ -31,6 +33,7 @@ namespace TimeManager.Backend.Controllers.Employee
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EmployeeData employeeData)
         {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             int id = await employeeService.CreateEmployeeAsync(new EmployeeDto
             {
                 Email = employeeData.EmployeeView.Email,
@@ -38,7 +41,7 @@ namespace TimeManager.Backend.Controllers.Employee
                 FirstName = employeeData.EmployeeView.FirstName,
                 LastName = employeeData.EmployeeView.LastName,
                 UserId = employeeData.UserId,
-                DepartmentId = employeeData.DepartmentId,
+                DepartmentId = departmentId ?? employeeData.DepartmentId,
             });
             return RedirectToAction(nameof(Index));
         }

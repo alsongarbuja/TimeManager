@@ -4,13 +4,16 @@ using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
+using TimeManager.Backend.Models.Requests;
+using TimeManager.Backend.Models.Responses;
+using TimeManager.Backend.Utility;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Services
 {
     public interface IJobProfileService
     {
-        Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId);
+        Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId, PaginationFilter filter);
         Task<JobProfile> GetJobProfileByIdAsync(int id);
         Task CreateJobProfileAsync(JobProfileViewModel jpvm);
         Task<JobProfile?> UpdateJobProfileASync(int id, JobProfileViewModel jpvm);
@@ -39,34 +42,49 @@ namespace TimeManager.Backend.Services
             return await context.JobProfile.FindOrThrowAsync(id);
         }
 
-        public async Task<IEnumerable<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId)
+        public async Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId, PaginationFilter filter)
         {
+            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+            int totalRecords = 0;
+
+            var query = context.JobProfile.AsNoTracking().AsQueryable();
+
             IEnumerable<JobProfileViewModel> jobprofiles = [];
             
             if (departmentId == null)
             {
-                jobprofiles = await context.JobProfile.Select(jp =>
+                totalRecords = await query.CountAsync();
+                jobprofiles = await query
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(jp =>
                 new JobProfileViewModel {
                     Id = jp.Id,
                     EmployeeId = jp.EmployeeId,
                     EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
+                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index}) / {jp.ProfileTemplate.Role.Name}",
                 }).ToListAsync();
             } else
             {
-                jobprofiles = await context.JobProfile
+                totalRecords = await query
                     .Where(jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId)
+                    .CountAsync();
+
+                jobprofiles = await query
+                    .Where(jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(jp =>
                 new JobProfileViewModel
                 {
                     Id = jp.Id,
                     EmployeeId = jp.EmployeeId,
                     EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} / {jp.ProfileTemplate.Role.Name}",
+                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index})/ {jp.ProfileTemplate.Role.Name}",
                 }).ToListAsync();
             }
 
-            return jobprofiles;
+            return new PagedResponse<JobProfileViewModel>(jobprofiles, pageNumber, pageSize, totalRecords);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId)

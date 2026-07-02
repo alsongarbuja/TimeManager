@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Extensions;
+using TimeManager.Backend.Models.Requests;
+using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
@@ -10,10 +12,10 @@ namespace TimeManager.Backend.Controllers.Punch
     [Authorize(Policy = "AdminPolicy")]
     public class PunchController(IPunchServices punchServices) : Controller
     {
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            var data = await punchServices.GetPunchesAsync(departmentId);
+            PagedResponse<PunchViewModel> data = await punchServices.GetPunchesAsync(departmentId, filter);
             return View(data);
         }
 
@@ -50,6 +52,14 @@ namespace TimeManager.Backend.Controllers.Punch
             }
 
             TempData["success"] = "Successfully edited the data";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await punchServices.DeletePunchByIdAsync(id);
             return RedirectToAction(nameof(Index));
         }
     }

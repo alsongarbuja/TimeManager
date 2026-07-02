@@ -1,5 +1,6 @@
-﻿@using TimeManager.Backend.ViewModels
-@model IEnumerable<PayPeriodViewModel>
+﻿@using TimeManager.Backend.Models.Responses
+@using TimeManager.Backend.ViewModels
+@model PagedResponse<PayPeriodViewModel>
 
 @{
     Layout = "_ListWrapper";
@@ -10,9 +11,17 @@
     ViewData["ModuleTitle"] = "Pay Period";
     ViewData["ModuleDesc"] = "Manage the pay periods in the system";
     ViewData["HasAction"] = "false";
+    ViewData["Controller"] = "PayPeriod";
+    ViewData["HasCreate"] = false;
+    ViewData["HasPagination"] = true;
+
+    ViewData["TotalPages"] = Model.TotalPages;
+    ViewData["CurrentPage"] = Model.PageNumber;
+    ViewData["TotalRecords"] = Model.TotalRecords;
+    ViewData["PageSize"] = Model.PageSize;
 }
 
-@if (Model.Count() <= 0)
+@if (Model.Data.Count() <= 0)
 {
     <tr>
         <td colspan="@Headers.Count"
@@ -23,7 +32,7 @@
 }
 else
 {
-    foreach (var d in Model)
+    foreach (var d in Model.Data)
     {
         <tr class="table-row">
             <td class="table-cell">@d.StartDate</td>

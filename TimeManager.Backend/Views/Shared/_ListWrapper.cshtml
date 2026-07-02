@@ -1,8 +1,17 @@
 ﻿@{
     Layout = "_AdminLayout";
     var headers = ViewData["Headers"] as List<string>;
-    var hasCreateController = ViewData["Controller"] as string;
+    bool hasCreate = ViewData["HasCreate"] as bool? ?? true;
+    var controller = ViewData["Controller"] as string;
     var hasAction = ViewData["HasAction"] as string;
+
+    // Pagination Related ViewData
+    bool hasPagination = ViewData["HasPagination"] as bool? ?? false;
+
+    int totalPages = ViewData["TotalPages"] as int? ?? 1;
+    int currentPage = ViewData["CurrentPage"] as int? ?? 1;
+    int totalRecords = ViewData["TotalRecords"] as int? ?? 1;
+    int pageSize = ViewData["PageSize"] as int? ?? 10;
 }
 
 <div class="page-container">
@@ -19,15 +28,70 @@
                 </p>
             </div>
 
-            @if (!string.IsNullOrEmpty(hasCreateController))
+            @if (hasCreate)
             {
-                <a asp-controller="@hasCreateController" asp-action="Create" class="btn-create">
+                <a asp-controller="@controller" asp-action="Create" class="btn-create">
                     Create
                 </a>
             }
 
             @RenderSection("CustomCreate", false)
         </div>
+
+        @if (hasPagination)
+        {
+            <div class="pagination-wrapper">
+                <div class="pagination-limit-controller">
+                    <form method="get" id="pageSizeForm" asp-action="Index" asp-controller="@controller">
+                        <input hidden name="pageNumber" value="1" />
+
+                        <div class="d-flex align-items-center">
+                            <label for="pageSize" class="me-2 mb-0 text-nowrap">Limit:</label>
+                            <select id="pageSize" name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <!═ Dynamically mark the current selection as 'selected' ═>
+                                    <option value="5" selected="@(pageSize == 5)">5</option>
+                                    <option value="10" selected="@(pageSize == 10)">10</option>
+                                    <option value="25" selected="@(pageSize == 25)">25</option>
+                                    <option value="50" selected="@(pageSize == 50)">50</option>
+                                </select>
+                            </div>
+                    </form>
+                </div>
+                <div class="pagination-page-controller">
+                    <a 
+                        asp-controller="@controller"
+                        asp-action="Index"
+                        asp-route-pageNumber="@(currentPage - 1)"
+                        asp-route-pageSize="@pageSize"
+                       tabindex="@(currentPage == 1 ? "-1" : "0")"
+                        class="btn btn-pag-arrow @(currentPage == 1 ? "btn-pag-arrow-disable" : "")"
+                    >
+                        <i class="ri-arrow-left-s-line"></i>
+                    </a>
+                    @for(int i = 1; i <= totalPages; i++)
+                    {            
+                        <a
+                            asp-controller="@controller"
+                            asp-action="Index"
+                            asp-route-pageNumber="@i"
+                            asp-route-pageSize="@pageSize"
+                            class="btn btn-pag-number @(i == currentPage ? "btn-pag-number-selected":"")"
+                        >
+                            @i
+                            </a>
+                    }
+                    <a
+                        asp-controller="@controller"
+                        asp-action="Index"
+                        asp-route-pageNumber="@(currentPage + 1)"
+                        asp-route-pageSize="@pageSize"
+                       tabindex="@(currentPage >= totalPages ? "-1" : "0")"
+                        class="btn btn-pag-arrow @(currentPage >= totalPages ? "btn-pag-arrow-disable" : "")">
+                        <i class="ri-arrow-right-s-line"></i>
+                    </a>
+                </div>
+            </div>
+        }
 
         <div class="table-card">
             <div class="table-responsive">
@@ -57,7 +121,6 @@
                 </table>
             </div>
         </div>
-
     </div>
 </div>
 

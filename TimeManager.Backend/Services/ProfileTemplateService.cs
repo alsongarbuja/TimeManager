@@ -4,13 +4,16 @@ using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
+using TimeManager.Backend.Models.Requests;
+using TimeManager.Backend.Models.Responses;
+using TimeManager.Backend.Utility;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Services
 {
     public interface IProfileTemplateService
     {
-        Task<IEnumerable<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId);
+        Task<PagedResponse<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId, PaginationFilter filter);
         Task<ProfileTemplate> GetProfileTemplateByIdAsync(int id);
         Task CreateProfileTemplateAsync(ProfileTemplateViewModel pvm);
         Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm);
@@ -57,13 +60,22 @@ namespace TimeManager.Backend.Services
             return profileTemplates;
         }
 
-        public async Task<IEnumerable<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId)
+        public async Task<PagedResponse<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId, PaginationFilter filter)
         {
+            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+
+            var query = hrmsDbContext.ProfileTemplate.AsNoTracking().AsQueryable();
+            int totalRecords = 0;
+
             IEnumerable<ProfileTemplateViewModel> profileTemplates = [];
             
             if (departmentId == null)
             {
-                profileTemplates = await hrmsDbContext.ProfileTemplate.Select(pt => new ProfileTemplateViewModel
+                totalRecords = await query.CountAsync();
+                profileTemplates = await query
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(pt => new ProfileTemplateViewModel
                 {
                     Id = pt.Id,
                     Unit = $"{pt.Unit.Name} - {pt.Unit.Index}",
@@ -74,8 +86,11 @@ namespace TimeManager.Backend.Services
                 }).ToListAsync();
             } else
             {
-                profileTemplates = await hrmsDbContext.ProfileTemplate
+                totalRecords = await query.Where(pt => pt.Unit.DepartmentId == departmentId).CountAsync();
+                profileTemplates = await query
                     .Where(pt => pt.Unit.DepartmentId == departmentId)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(pt => new ProfileTemplateViewModel
                     {
                         Id = pt.Id,
@@ -87,7 +102,7 @@ namespace TimeManager.Backend.Services
                     }).ToListAsync();
             }
 
-            return profileTemplates;
+            return new PagedResponse<ProfileTemplateViewModel>(profileTemplates, pageNumber, pageSize, totalRecords);
         }
 
         public async Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm)

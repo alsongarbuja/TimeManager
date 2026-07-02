@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Extensions;
+using TimeManager.Backend.Models.Requests;
+using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
@@ -9,10 +11,10 @@ namespace TimeManager.Backend.Controllers.JobProfile
     [Authorize(Policy = "AdminPolicy")]
     public class JobProfileController(IJobProfileService jobProfileService, IEmployeeService employeeService, IProfileTemplateService profileTemplateService) : Controller
     {
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            var jp = await jobProfileService.GetJobProfilesAsync(departmentId);
+            PagedResponse<JobProfileViewModel> jp = await jobProfileService.GetJobProfilesAsync(departmentId, filter);
             return View(jp);
         }
 

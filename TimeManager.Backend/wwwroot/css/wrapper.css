@@ -14,7 +14,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .btn-back {
@@ -40,12 +40,14 @@
     font-weight: 700;
     letter-spacing: -0.025em;
     color: #000000;
+    margin: 0;
 }
 
 .page-subtitle {
 /*    margin-top: 0.1rem;*/
     font-size: 0.875rem;
     color: #6b7280;
+    margin: .5rem 0;
 }
 
 .skip-link {
@@ -259,4 +261,47 @@
 .btn-action-edit {
     background-color: steelblue;
     width: fit-content;
+}
+
+.pagination-wrapper {
+    display: flex;
+    margin-block-end: 1em;
+    gap: .5em;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pagination-page-controller {
+    display: flex;
+    gap: .5em;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.btn-pag-arrow {
+    width: fit-content;
+    padding: .5em .5em;
+    text-decoration: none;
+}
+
+.btn-pag-arrow-disable {
+    background: gray;
+    opacity: 0.8;
+    cursor: not-allowed;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.btn-pag-number {
+    background: white;
+    text-decoration: none;
+    border: 1px solid lightsteelblue;
+    color: steelblue;
+}
+
+.btn-pag-number-selected {
+    background: steelblue;
+    color: white;
+    border: none;
+    pointer-events: none !important;
 }

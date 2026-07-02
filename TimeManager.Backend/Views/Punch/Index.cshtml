@@ -1,6 +1,7 @@
 ﻿@using TimeManager.Backend.Models.Components
+@using TimeManager.Backend.Models.Responses
 @using TimeManager.Backend.ViewModels
-@model PunchViewOverall
+@model PagedResponse<PunchViewModel>
 
 @{
     Layout = "_ListWrapper";
@@ -10,8 +11,16 @@
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Punches";
     ViewData["ModuleDesc"] = "Manage the punches in the system";
+    ViewData["Controller"] = "Punch";
+    ViewData["HasCreate"] = false;
 
-    IEnumerable<PunchViewModel> punches = Model.punches;
+    ViewData["HasPagination"] = true;
+    ViewData["TotalPages"] = Model.TotalPages;
+    ViewData["CurrentPage"] = Model.PageNumber;
+    ViewData["TotalRecords"] = Model.TotalRecords;
+    ViewData["PageSize"] = Model.PageSize;
+
+    IEnumerable<PunchViewModel> punches = Model.Data;
 }
 
 @if (punches.Count() <= 0)
@@ -35,10 +44,10 @@ else
                         name='emp-select'
                         class='form-input'>
                     <option value="all">All</option>
-                @foreach(var e in Model.employees)
+                @* @foreach(var e in Model.employees)
                     {
                         <option value="@e.Id">@e.Name</option>
-                    }
+                    } *@
                 </select>
             </div>
         </div>

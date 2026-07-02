@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Extensions;
+using TimeManager.Backend.Models.Requests;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
@@ -15,10 +16,10 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         IPayFrequencyService payFrequencyService
         ) : Controller
     {
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(PaginationFilter filter)
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            var profileTemplates = await profileTemplateService.GetProfileTemplatesAsync(departmentId);
+            var profileTemplates = await profileTemplateService.GetProfileTemplatesAsync(departmentId, filter);
             return View(profileTemplates);
         }
 

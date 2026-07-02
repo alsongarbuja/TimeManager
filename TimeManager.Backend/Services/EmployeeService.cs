@@ -5,13 +5,16 @@ using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
+using TimeManager.Backend.Models.Requests;
+using TimeManager.Backend.Models.Responses;
+using TimeManager.Backend.Utility;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Services
 {
     public interface IEmployeeService
     {
-        Task<IEnumerable<EmployeeViewModel>> GetEmployeesAsync(int? departmentId);
+        Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(int? departmentId, PaginationFilter filter);
         Task<Employee> GetEmployeeByIdAsync(int id);
         Task<int> CreateEmployeeAsync(EmployeeDto employeeDto);
         Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto);
@@ -68,12 +71,19 @@ namespace TimeManager.Backend.Services
             return employees;
         }
 
-        public async Task<IEnumerable<EmployeeViewModel>> GetEmployeesAsync(int? departmentId)
+        public async Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(int? departmentId, PaginationFilter filter)
         {
+            var query = hrmsDbContext.Employee.AsNoTracking().AsQueryable();
+            int totalRecords = 0;
+
+            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+
             IEnumerable<EmployeeViewModel> employees = [];
             if (departmentId == null)
             {
-                employees = await hrmsDbContext.Employee.Select(e => new EmployeeViewModel { 
+                totalRecords = await query.CountAsync();
+                employees = await query.Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize).Select(e => new EmployeeViewModel { 
                     Id = e.Id,
                     FirstName = e.FirstName, 
                     LastName = e.LastName,
@@ -92,8 +102,12 @@ namespace TimeManager.Backend.Services
                     .Select(x => x.UserId)
                     .ToHashSetAsync();
 
-                employees = await hrmsDbContext.Employee
+                totalRecords = await query.Where(e => e.DepartmentId == departmentId && !excludedUserIds.Contains(e.UserId)).CountAsync();
+
+                employees = await query
                     .Where(e => e.DepartmentId == departmentId && !excludedUserIds.Contains(e.UserId))
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(e => new EmployeeViewModel
                         {
                             Id = e.Id,
@@ -104,7 +118,7 @@ namespace TimeManager.Backend.Services
                             DepartmentName = e.Department.Name,
                         }).ToListAsync();
             }
-            return employees;
+            return new PagedResponse<EmployeeViewModel>(employees, pageNumber, pageSize, totalRecords);
         }
 
         public async Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id)

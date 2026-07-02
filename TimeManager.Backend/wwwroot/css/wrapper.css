@@ -48,6 +48,33 @@
     color: #6b7280;
 }
 
+.skip-link {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    color: #fff;
+    font-size: 12px;
+}
+
+.skip-link:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 10px 20px;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    background-color: #000000;
+    color: #ffffff;
+    font-weight: bold;
+    z-index: 9999;
+}
+
 /* Form Wrapper Styling */
 .form-card {
     border-radius: 1rem;

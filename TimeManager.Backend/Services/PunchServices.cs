@@ -35,24 +35,6 @@ namespace TimeManager.Backend.Services
 
         public async Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationFilter filter)
         {
-            IEnumerable<Employees> employees = [];
-
-            if (departmentId == null)
-            {
-                employees = await context.JobProfile.Select(e => new Employees
-                {
-                    Id = e.Id,
-                    Name = $"{e.Employee.FirstName} {e.Employee.LastName} / {e.ProfileTemplate.Unit.Name}"
-                }).ToListAsync();
-            } else
-            {
-                employees = await context.JobProfile.Where(e => e.ProfileTemplate.Unit.Department.Id == departmentId).Select(e => new Employees
-                {
-                    Id = e.Id,
-                    Name = $"{e.Employee.FirstName} {e.Employee.LastName} / {e.ProfileTemplate.Unit.Name}"
-                }).ToListAsync();
-            }
-
             (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
 
             var query = context.PunchEntry.AsNoTracking().AsQueryable();

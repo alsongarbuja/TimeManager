@@ -68,7 +68,7 @@
         },
         new LinkProps {
         Text = "Punches",
-        Url = "punch",
+        Url = "punch?pageNumber=1&pageSize=25",
         IconClass = "ri-hourglass-line",
         Roles = AppConstants.AdminRoles(),
         },
@@ -152,7 +152,7 @@
                             {
                                 var targetUrl = $"/app/{link.Url}";
 
-                                bool IsActive = string.Equals(ViewContext.HttpContext.Request.Path.ToString().Split("/")[2], link.Url, StringComparison.OrdinalIgnoreCase);
+                                bool IsActive = string.Equals(ViewContext.HttpContext.Request.Path.ToString().Split("/")[2].Split("?")[0], link.Url.Split("?")[0], StringComparison.OrdinalIgnoreCase);
                                 <li>
                                     <a href="@targetUrl" class="sidebar-link @(IsActive ? "is-active" : "")">
                                         <i class="@link.IconClass sidebar-link-icon"></i>

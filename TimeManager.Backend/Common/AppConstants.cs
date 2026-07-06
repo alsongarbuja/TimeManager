@@ -39,5 +39,15 @@
                 MANAGER_ROLE,
                 ];
         }
+
+        public static string[] EmployeeRoles()
+        {
+            return [
+                EMPLOYEE_ROLE,
+                TEMP_EMPLOYEE_ROLE,
+                STUDENT_ROLE,
+                LEAD_ROLE,
+                ];
+        }
     }
 }

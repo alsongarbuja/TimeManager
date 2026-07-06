@@ -25,4 +25,13 @@ namespace TimeManager.Backend.ViewModels
         public DateTime? ClockOutTime { get; set; }
 
     }
+
+    public class PunchStatusModel
+    {
+        public bool IsActive { get; set; }
+
+        public DateTime? TimeStamp { get; set; }
+
+        public DateTime? LastTimeStamp { get; set; }
+    }
 }

@@ -2,6 +2,7 @@
 using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
+using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.Models.Punch_Management;
 using TimeManager.Backend.Models.Requests;
 using TimeManager.Backend.Models.Responses;
@@ -16,6 +17,8 @@ namespace TimeManager.Backend.Services
         Task<PunchEntry?> GetPunchByIdAsync(int id);
         Task<PunchEntry?> UpdatePunchAsync(int id, PunchDto punchEntryDto);
         Task<int?> DeletePunchByIdAsync(int id);
+
+        Task<PunchStatusModel> GetCurrentUserPunchStauts(int profileId);
     }
 
     public class PunchServices(HrmsDbContext context) : IPunchServices
@@ -26,6 +29,49 @@ namespace TimeManager.Backend.Services
             context.PunchEntry.Remove(punch);
             await context.SaveChangesAsync();
             return id;
+        }
+
+        public async Task<PunchStatusModel> GetCurrentUserPunchStauts(int profileId)
+        {
+            DateTime todaysDate = DateTime.UtcNow.Date; 
+            var punchesToday = await context.PunchEntry.Where(pe => pe.JobProfileId == profileId && pe.ClockIn > todaysDate).OrderByDescending(pe => pe.ClockIn).ToListAsync();
+
+            if (punchesToday.Count == 0)
+            {
+                var punchYesterDay = await context.PunchEntry.Where(pe => pe.JobProfileId == profileId).OrderByDescending(pe => pe.ClockIn).FirstOrDefaultAsync();
+                
+                return new PunchStatusModel
+                {
+                    IsActive = false,
+                    LastTimeStamp = punchYesterDay?.ClockOut?.ToLocalTime()
+                };
+            }
+
+            bool isCurrentlyActive = true;
+            DateTime clockInTimeStamp = punchesToday[^1].ClockIn.ToLocalTime();
+            DateTime? clockOutTimeStamp = null;
+
+            if (punchesToday[0].ClockOut == null)
+            {
+                if (punchesToday.Count > 1)
+                {
+                    clockOutTimeStamp = punchesToday[1].ClockOut?.ToLocalTime();
+                } else
+                {
+                    clockOutTimeStamp = punchesToday[0].ClockOut?.ToLocalTime();
+                }
+            } else
+            {
+                isCurrentlyActive = false;
+                clockOutTimeStamp = punchesToday[0].ClockOut?.ToLocalTime();
+            }
+
+            return new PunchStatusModel
+            {
+                IsActive = isCurrentlyActive,
+                TimeStamp = clockInTimeStamp,
+                LastTimeStamp = clockOutTimeStamp,
+            };
         }
 
         public async Task<PunchEntry?> GetPunchByIdAsync(int id)

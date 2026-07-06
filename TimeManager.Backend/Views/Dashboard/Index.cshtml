@@ -1,6 +1,66 @@
-﻿@{
+﻿@using TimeManager.Backend.Common
+@using TimeManager.Backend.ViewModels
+@model DashboardViewModel
+
+@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Dashboard";
 }
 
-<h2>Welcome to dashboard</h2>
+@section scripts {
+    <script src="~/js//timeTracker.js" defer></script>
+}
+
+<h2>Welcome Back</h2>
+
+@if (User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
+{
+    <div></div>
+}
+
+@if (User.IsInRole(AppConstants.ADMIN_ROLE))
+{
+    
+}
+
+@if (AppConstants.EmployeeRoles().Any(role => User.IsInRole(role)))
+{
+    <div class="time-card @(Model.PunchStatus.IsActive ? "status-active" : "status-inactive")">
+        <div class="card-header">
+            <span class="card-title">Time Clock</span>
+            <span class="badge active-badge">Active</span>
+            <span class="badge inactive-badge">Inactive</span>
+        </div>
+
+        <div class="card-body">
+            <div class="state-content active-content">
+                <div class="metric-group">
+                    <span class="metric-label">Current Shift</span>
+                    <span id="running-total" class="metric-value" data-clockin="@Model.PunchStatus?.TimeStamp?.ToString("o")">0h 00m</span>
+                </div>
+                <div class="meta-info">
+                    Clocked in at <span class="time-stamp">@Model.PunchStatus.TimeStamp?.ToString("hh : mm tt")</span>
+                </div>
+            </div>
+
+            <div class="state-content inactive-content">
+                <div class="metric-group">
+                    <span class="metric-value placeholder">—</span>
+                </div>
+                <div class="meta-info">
+                    Last clocked out at <span class="time-stamp">@Model.PunchStatus.LastTimeStamp?.ToString("MMM dd hh:mm tt")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (User.IsInRole(AppConstants.LEAD_ROLE) || User.IsInRole(AppConstants.EMPLOYEE_ROLE))
+{
+    
+}
+
+@if (User.IsInRole(AppConstants.STUDENT_ROLE) || User.IsInRole(AppConstants.TEMP_EMPLOYEE_ROLE))
+{
+    <div></div>
+}

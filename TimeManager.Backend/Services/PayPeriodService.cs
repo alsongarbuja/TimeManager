@@ -57,7 +57,7 @@ namespace TimeManager.Backend.Services
 
             var payperiods = await query.Where(pp => currentPayPeriod.StartDate <= pp.StartDate).Skip((pageNumber - 1) * pageSize).Take(pageSize).Select(p => new PayPeriodViewModel { 
                 StartDate = p.StartDate.ToString("MMM d yyyy"),
-                EndDate = p.EndDate.ToString("MMM d yyyy")
+                EndDate = p.EndDate.ToLocalTime().ToString("MMM d yyyy")
             }).ToListAsync();
             return new PagedResponse<PayPeriodViewModel>(payperiods, pageNumber, pageSize, totalRecords);
         }

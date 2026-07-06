@@ -60,6 +60,7 @@ namespace TimeManager.Backend.Controllers
             }
 
             HttpContext.Session.SetInt32("DepartmentId", selected.DepartmentId);
+            HttpContext.Session.SetInt32("JobProfileId", model.SelectedProfileId);
             HttpContext.Session.Remove("PendingProfiles");
 
             return LocalRedirect("/app/dashboard");
@@ -81,8 +82,11 @@ namespace TimeManager.Backend.Controllers
             if (result.Succeeded)
             {
                 var user = await userManager.FindByNameAsync(model.UserName);
-                TempData["error"] = "User not found";
-                if (user == null) return View(model);
+                if (user == null)
+                {
+                    TempData["error"] = "User not found";
+                    return View(model);
+                }
                 var role = await userManager.GetRolesAsync(user);
 
                 if (role.Contains(AppConstants.SUPER_ADMIN_ROLE))
@@ -94,8 +98,11 @@ namespace TimeManager.Backend.Controllers
                 if (role.Contains(AppConstants.ADMIN_ROLE))
                 {
                     var employee = await employeeService.GetEmployeeByUserIdAsync(user.Id);
-                    TempData["error"] = "Employee data was not found for the User";
-                    if (employee == null) return View(model);
+                    if (employee == null)
+                    {
+                        TempData["error"] = "Employee data was not found for the User";
+                        return View(model);
+                    }
                     HttpContext.Session.SetInt32("DepartmentId", employee.DepartmentId);
                     return LocalRedirect(returnUrl ?? "/app/dashboard");
                 }
@@ -104,6 +111,7 @@ namespace TimeManager.Backend.Controllers
                 if (profiles.Count == 1)
                 {
                     HttpContext.Session.SetInt32("DepartmentId", profiles[0].ProfileTemplate.Unit.DepartmentId);
+                    HttpContext.Session.SetInt32("JobProfileId", profiles[0].Id);
                     return LocalRedirect(returnUrl ?? "/app/dashboard");
                 }
 

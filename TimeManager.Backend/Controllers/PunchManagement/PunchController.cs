@@ -34,7 +34,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
 
             if (jobProfile == null)
             {
-                logger.LogError("No Job profile found for the given Id");
+                logger.LogWarning("No Job profile found for the given Id");
                 return NotFound(new { message = "No job profile found for the given Id" });
             }
 
@@ -45,26 +45,30 @@ namespace TimeManager.Backend.Controllers.PunchManagement
             var msg = "";
             bool isClockedOut = false;
 
-            if (punchEntry != null)
-            {
-                ctx.Entry(punchEntry).CurrentValues.SetValues(new { 
-                    ClockOut = DateTime.UtcNow
-                });
-                msg = "Succefully clocked out!!";
-                isClockedOut = true;
-            } else
+            if (punchEntry == null)
             {
                 if (IsClockInAllowed(jobProfile.shiftStartTime, jobProfile.earlyBufferMin))
                 {
-                    ctx.PunchEntry.Add(new PunchEntry {
+                    ctx.PunchEntry.Add(new PunchEntry
+                    {
                         ClockIn = DateTime.UtcNow,
                         JobProfileId = (int)jobProfile.id!
                     });
                     msg = "Succefully clocked in!!";
-                } else
+                }
+                else
                 {
                     return BadRequest(new { message = "You cannot clock in at this time" });
                 }
+            } else
+            {
+                punchEntry.ClockOut = DateTime.UtcNow;
+                //ctx.Entry(punchEntry).CurrentValues.SetValues(new
+                //{
+                //    ClockOut = DateTime.UtcNow
+                //});
+                msg = "Succefully clocked out!!";
+                isClockedOut = true;
             }
 
             await ctx.SaveChangesAsync();

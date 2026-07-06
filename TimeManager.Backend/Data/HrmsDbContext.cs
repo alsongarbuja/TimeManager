@@ -78,6 +78,12 @@ namespace TimeManager.Backend.Data
                 .WithMany(pt => pt.JobProfile)
                 .HasForeignKey(jp => jp.ProfileTemplateId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PunchEntry>()
+                .HasIndex(pe => pe.JobProfileId)
+                .IsUnique()
+                .HasFilter("[ClockOut] IS NULL")
+                .HasDatabaseName("UX_PunchEntry_JobProfileId_OpenPunch");
         }
     }
 }

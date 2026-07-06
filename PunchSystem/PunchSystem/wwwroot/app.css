@@ -159,7 +159,7 @@ kbd {
     position: relative;
     overflow: hidden;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-    animation: modalScaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: modalScaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .success-modal-out {
@@ -195,8 +195,8 @@ kbd {
 }
 
 .modal-time {
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 1.5rem;
+    font-weight: 600;
     color: navajowhite;
     margin-bottom: 1.5rem;
 }
@@ -214,7 +214,7 @@ kbd {
     height: 4px;
     background: #ffffff;
     width: 100%;
-    animation: progressCollapse 3s linear forwards;
+    animation: progressCollapse 2.5s linear forwards;
 }
 
 @keyframes progressCollapse {

@@ -1,3 +1,4 @@
+using ClosedXML.Parser;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -171,5 +172,21 @@ app.MapControllerRoute(
 );
 
 await DataSeeder.SeedDataAsync(app.Services);
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<HrmsDbContext>();
+        await context.Database.CanConnectAsync();
+        _ = await context.JobProfile.Select(jp => jp.Id).FirstOrDefaultAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while pre-warming the database context.");
+    }
+}
 
 app.Run();

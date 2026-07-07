@@ -17,6 +17,9 @@
     max-width: 420px;
     text-align: center;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .title {
@@ -80,6 +83,55 @@
     100% {
         top: 100%;
         opacity: 0;
+    }
+}
+
+.loading-spinner-container {
+    position: relative;
+    width: 140px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-ring {
+    width: 48px;
+    height: 48px;
+    border: 3px solid #f5f5f5;
+    border-top: 3px solid #111111;
+    border-radius: 50%;
+    animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.pulse-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: #111111;
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(0.8);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
     }
 }
 
@@ -159,7 +211,7 @@ kbd {
     position: relative;
     overflow: hidden;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-    animation: modalScaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: modalScaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .success-modal-out {
@@ -195,8 +247,8 @@ kbd {
 }
 
 .modal-time {
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 1.5rem;
+    font-weight: 600;
     color: navajowhite;
     margin-bottom: 1.5rem;
 }
@@ -214,7 +266,7 @@ kbd {
     height: 4px;
     background: #ffffff;
     width: 100%;
-    animation: progressCollapse 3s linear forwards;
+    animation: progressCollapse 2.5s linear forwards;
 }
 
 @keyframes progressCollapse {

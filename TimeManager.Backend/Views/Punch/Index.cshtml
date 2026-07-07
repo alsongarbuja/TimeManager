@@ -1,7 +1,6 @@
 ﻿@using TimeManager.Backend.Models.Components
-@using TimeManager.Backend.Models.Responses
 @using TimeManager.Backend.ViewModels
-@model PagedResponse<PunchViewModel>
+@model PunchViewOverall
 
 @{
     Layout = "_ListWrapper";
@@ -15,12 +14,12 @@
     ViewData["HasCreate"] = false;
 
     ViewData["HasPagination"] = true;
-    ViewData["TotalPages"] = Model.TotalPages;
-    ViewData["CurrentPage"] = Model.PageNumber;
-    ViewData["TotalRecords"] = Model.TotalRecords;
-    ViewData["PageSize"] = Model.PageSize;
+    ViewData["TotalPages"] = Model.Data.TotalPages;
+    ViewData["CurrentPage"] = Model.Data.PageNumber;
+    ViewData["TotalRecords"] = Model.Data.TotalRecords;
+    ViewData["PageSize"] = Model.Data.PageSize;
 
-    IEnumerable<PunchViewModel> punches = Model.Data;
+    IEnumerable<PunchViewModel> punches = Model.Data.Data;
 }
 
 @if (punches.Count() <= 0)
@@ -44,10 +43,10 @@ else
                         name='emp-select'
                         class='form-input'>
                     <option value="all">All</option>
-                @* @foreach(var e in Model.employees)
+                @foreach(var e in Model.Employees)
                     {
-                        <option value="@e.Id">@e.Name</option>
-                    } *@
+                        <option value="@e.Value">@e.Text</option>
+                    }
                 </select>
             </div>
         </div>
@@ -68,7 +67,7 @@ else
             {
                 Controller = "Punch",
                 Id = d.Id,
-                HasDelete = false,
+                // HasDelete = false,
             })
         </tr>
     }
@@ -79,7 +78,7 @@ else
         document.getElementById("emp-select").addEventListener("change", (e) => {
             let id = e.target.value;
             document.querySelectorAll("tr.table-row").forEach(row => {
-                if (id === "all" || row.dataset.employeeId === id) {
+                if (id === "all" || row.dataset.employeeId.toString() === id) {
                     row.style.display = "";
                 } else {
                     row.style.display = "none";

@@ -1,12 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+using TimeManager.Backend.Models.Responses;
 
 namespace TimeManager.Backend.ViewModels
 {
     public class PunchViewOverall
     {
-        public IEnumerable<Employees> employees { get; set; } = [];
+        public IEnumerable<SelectListItem> Employees { get; set; } = [];
 
-        public IEnumerable<PunchViewModel> punches { get; set; } = [];
+        public PagedResponse<PunchViewModel> Data { get; set; }
     }
 
     public class PunchViewModel
@@ -24,10 +26,12 @@ namespace TimeManager.Backend.ViewModels
 
     }
 
-    public class Employees
+    public class PunchStatusModel
     {
-        public int Id { get; set; }
+        public bool IsActive { get; set; }
 
-        public string Name { get; set; } = string.Empty;
+        public DateTime? TimeStamp { get; set; }
+
+        public DateTime? LastTimeStamp { get; set; }
     }
 }

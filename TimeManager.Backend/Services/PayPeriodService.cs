@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
@@ -57,7 +57,7 @@ namespace TimeManager.Backend.Services
 
             var payperiods = await query.Where(pp => currentPayPeriod.StartDate <= pp.StartDate).Skip((pageNumber - 1) * pageSize).Take(pageSize).Select(p => new PayPeriodViewModel { 
                 StartDate = p.StartDate.ToString("MMM d yyyy"),
-                EndDate = p.EndDate.ToString("MMM d yyyy")
+                EndDate = p.EndDate.ToLocalTime().ToString("MMM d yyyy")
             }).ToListAsync();
             return new PagedResponse<PayPeriodViewModel>(payperiods, pageNumber, pageSize, totalRecords);
         }
@@ -123,7 +123,7 @@ namespace TimeManager.Backend.Services
 
                 if (hasOverlap)
                 {
-                    Console.WriteLine($"Overlap detected for period {startDateUtc} to {endDateUtc}. Stopping generation");
+                    logger.LogInformation($"Overlap detected for period {startDateUtc} to {endDateUtc}. Stopping generation");
                     break;
                 }
 

@@ -21,7 +21,7 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId);
     }
 
-    public class JobProfileService(HrmsDbContext context) : IJobProfileService
+    public class JobProfileService(HrmsDbContext context, ILogger<JobProfile> logger) : IJobProfileService
     {
         public async Task CreateJobProfileAsync(JobProfileViewModel jpvm)
         {
@@ -53,6 +53,7 @@ namespace TimeManager.Backend.Services
             
             if (departmentId == null)
             {
+                logger.LogInformation("No department id found so sending all job profiles");
                 totalRecords = await query.CountAsync();
                 jobprofiles = await query
                     .Skip((pageNumber - 1) * pageSize)
@@ -66,6 +67,7 @@ namespace TimeManager.Backend.Services
                 }).ToListAsync();
             } else
             {
+                logger.LogInformation($"Sending job profile connected to the deparment id: {departmentId}");
                 totalRecords = await query
                     .Where(jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId)
                     .CountAsync();
@@ -115,7 +117,12 @@ namespace TimeManager.Backend.Services
         public async Task<JobProfile?> UpdateJobProfileASync(int id, JobProfileViewModel jpvm)
         {
             var jp = await context.JobProfile.FindAsync(id);
-            if (jp == null) return null;
+            if (jp == null)
+            {
+                logger.LogWarning($"No job profile with id: {id} found");
+
+                return null;
+            }
             context.Entry(jp).CurrentValues.SetValues(jpvm);
             await context.SaveChangesAsync();
             return jp;

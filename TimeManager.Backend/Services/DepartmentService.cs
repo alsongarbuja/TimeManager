@@ -18,7 +18,7 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync(int selectedId = 0);
     }
 
-    public class DepartmentService(HrmsDbContext context) : IDepartmentService
+    public class DepartmentService(HrmsDbContext context, ILogger<Department> logger) : IDepartmentService
     {
         public async Task CreateDepartmentAsync(DepartmentDto departmentDto)
         {
@@ -64,7 +64,11 @@ namespace TimeManager.Backend.Services
         public async Task<Department?> UpdateDepartmentAsync(int id, DepartmentDto departmentDto)
         {
             var dept = await context.Department.FindAsync(id);
-            if (dept == null) return null;
+            if (dept == null)
+            {
+                logger.LogWarning($"Department not found for id: {id}");
+                return null;
+            }
 
             context.Entry(dept).CurrentValues.SetValues(departmentDto);
             await context.SaveChangesAsync();

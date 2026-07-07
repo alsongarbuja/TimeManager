@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TimeManager.Backend.Extensions;
+using TimeManager.Backend.Services;
 
 namespace TimeManager.Backend.Controllers
 {
-    public class DashboardController : Controller
+    public class DashboardController(IDashboardService dashboardService) : Controller
     {
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            int? jobProfileId = HttpContext.Session.GetCurrentUserJobProfileId();
+            var data = await dashboardService.GetCurrentUserDashboardData(jobProfileId ?? 0);
+            return View(data);
         }
     }
 }

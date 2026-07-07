@@ -24,21 +24,33 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id);
     }
 
-    public class EmployeeService(HrmsDbContext hrmsDbContext) : IEmployeeService
+    public class EmployeeService(HrmsDbContext hrmsDbContext, ILogger<Employee> logger) : IEmployeeService
     {
         public async Task<int> CreateEmployeeAsync(EmployeeDto employeeDto)
         {
-            Employee employee = new()
+            bool exists = await hrmsDbContext.Employee.AnyAsync(e => e.UniqueId == employeeDto.UniqueId);
+
+            if (exists) {
+                throw new ArgumentException("The unqiue Id is already registered to an employee");
+            }
+
+            try
             {
-                FirstName = employeeDto.FirstName,
-                LastName = employeeDto.LastName,
-                UniqueId = employeeDto.UniqueId,
-                UserId = employeeDto.UserId,
-                DepartmentId = employeeDto.DepartmentId,
-            };
-            hrmsDbContext.Employee.Add(employee);
-            await hrmsDbContext.SaveChangesAsync();
-            return employee.Id;
+                Employee employee = new()
+                {
+                    FirstName = employeeDto.FirstName,
+                    LastName = employeeDto.LastName,
+                    UniqueId = employeeDto.UniqueId,
+                    UserId = employeeDto.UserId,
+                    DepartmentId = employeeDto.DepartmentId,
+                };
+                hrmsDbContext.Employee.Add(employee);
+                await hrmsDbContext.SaveChangesAsync();
+                return employee.Id;
+            } catch (Exception ex)
+            {
+                throw new Exception("Database operation failed", ex);
+            }
         }
 
         public async Task<int?> DeleteEmployeeByIdAsync(int id)
@@ -81,6 +93,7 @@ namespace TimeManager.Backend.Services
             IEnumerable<EmployeeViewModel> employees = [];
             if (departmentId == null)
             {
+                logger.LogInformation("No department Id found sending back all users");
                 totalRecords = await query.CountAsync();
                 employees = await query.Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize).Select(e => new EmployeeViewModel { 
@@ -93,6 +106,7 @@ namespace TimeManager.Backend.Services
                 }).ToListAsync();
             } else
             {
+                logger.LogInformation("Sending only the department connected users");
                 var excludedUserIds = await hrmsDbContext.UserRoles
                     .Join(hrmsDbContext.Roles,
                         ur => ur.RoleId,
@@ -124,7 +138,11 @@ namespace TimeManager.Backend.Services
         public async Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id)
         {
             var employee = await hrmsDbContext.Employee.Where(e => e.UserId == id).FirstOrDefaultAsync();
-            if (employee == null) return [];
+            if (employee == null)
+            {
+                logger.LogWarning($"No employee found with user id: {id}");
+                return [];
+            }
 
             var jobProfiles = await hrmsDbContext.JobProfile
                 .Include(jp => jp.ProfileTemplate)
@@ -139,7 +157,10 @@ namespace TimeManager.Backend.Services
         public async Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto)
         {
             var e = await hrmsDbContext.Employee.FindAsync(id);
-            if (e == null) return null;
+            if (e == null) { 
+                logger.LogWarning($"No employee found with user id: {id}");
+                return null; 
+            }
 
             hrmsDbContext.Entry(e).CurrentValues.SetValues(employeeDto);
             await hrmsDbContext.SaveChangesAsync();

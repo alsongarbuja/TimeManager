@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Requests;
@@ -10,13 +11,18 @@ using TimeManager.Backend.ViewModels;
 namespace TimeManager.Backend.Controllers.Punch
 {
     [Authorize(Policy = "AdminPolicy")]
-    public class PunchController(IPunchServices punchServices) : Controller
+    public class PunchController(IPunchServices punchServices, IJobProfileService jobProfileService) : Controller
     {
         public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
             PagedResponse<PunchViewModel> data = await punchServices.GetPunchesAsync(departmentId, filter);
-            return View(data);
+            IEnumerable<SelectListItem> employees = await jobProfileService.GetUserOptionsAsync(departmentId);
+            return View(new PunchViewOverall
+            {
+                Employees = employees,
+                Data = data,
+            });
         }
 
         [HttpGet]

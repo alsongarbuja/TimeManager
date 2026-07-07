@@ -19,7 +19,7 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetPayFrequencyOptionsAsync(int selectedId = 0);
     }
 
-    public class PayFrequencyService(HrmsDbContext hrmsDbContext) : IPayFrequencyService
+    public class PayFrequencyService(HrmsDbContext hrmsDbContext, ILogger<PayFrequency> logger) : IPayFrequencyService
     {
         public async Task CreatePayFrequencyAsync(PayFrequencyDto payFrequencyDto)
         {
@@ -70,7 +70,11 @@ namespace TimeManager.Backend.Services
         public async Task<PayFrequency?> UpdatePayFrequencyAsync(int id, PayFrequencyDto payFrequencyDto)
         {
             var pf = await hrmsDbContext.PayFrequency.FindAsync(id);
-            if (pf == null) return null;
+            if (pf == null)
+            {
+                logger.LogWarning($"No pay frequency with id: {id} found");
+                return null;
+            }
 
             hrmsDbContext.Entry(pf).CurrentValues.SetValues(payFrequencyDto);
             await hrmsDbContext.SaveChangesAsync();

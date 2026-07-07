@@ -1,3 +1,4 @@
+using ClosedXML.Parser;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,13 @@ DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+
+// Custom logging for fixed location system wide log recordings.
+string logFolder = Path.Combine(AppContext.BaseDirectory, "logs");
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddFile(Path.Combine(logFolder, "app-{Date}.txt"));
 
 builder.Services.AddIdentity<User, Role>(options =>
 {
@@ -79,6 +87,7 @@ builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPunchServices, PunchServices>();
 builder.Services.AddScoped<IKioskService, KioskService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<CurrentEmployeeService>();
 
 builder.Services.AddAuthentication()
@@ -163,5 +172,21 @@ app.MapControllerRoute(
 );
 
 await DataSeeder.SeedDataAsync(app.Services);
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<HrmsDbContext>();
+        await context.Database.CanConnectAsync();
+        _ = await context.JobProfile.Select(jp => jp.Id).FirstOrDefaultAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while pre-warming the database context.");
+    }
+}
 
 app.Run();

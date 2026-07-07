@@ -58,7 +58,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
                 EmployeeTypeId = pt.EmployeeTypeId,
                 PayFrequencyId = pt.PayFrequencyId,
                 RoleId = pt.RoleId,
-                Units = (await unitService.GetUnitReportOptionsAsync(departmentId)),
+                Units = (await unitService.GetUnitReportOptionsAsync(departmentId, pt.UnitId)),
                 Roles = (await roleService.GetRoleOptionsAsync(pt.RoleId)),
                 EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync(pt.EmployeeTypeId)),
                 PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync(pt.PayFrequencyId)),
@@ -72,26 +72,45 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProfileTemplateViewModel pvm)
         {
-            var pt = await profileTemplateService.UpdateProfileTemplateASync(id, pvm);
-            if (pt == null)
+            try
             {
-                TempData["error"] = "Profile Template not updated. Please try again later";
+                var pt = await profileTemplateService.UpdateProfileTemplateASync(id, pvm);
+                if (pt == null)
+                {
+                    TempData["error"] = "Profile Template not updated. Please try again later";
+                    return RedirectToAction(nameof(Index));
+                }
+                int? departmentId = HttpContext.Session.GetDepartmentId();
+                ProfileTemplateViewModel pv = new()
+                {
+                    Id = id,
+                    UnitId = pt.UnitId,
+                    EmployeeTypeId = pt.EmployeeTypeId,
+                    PayFrequencyId = pt.PayFrequencyId,
+                    RoleId = pt.RoleId,
+                    Units = (await unitService.GetUnitReportOptionsAsync(departmentId)),
+                    Roles = (await roleService.GetRoleOptionsAsync()),
+                    EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
+                    PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
+                };
                 return RedirectToAction(nameof(Index));
-            }
-            int? departmentId = HttpContext.Session.GetDepartmentId();
-            ProfileTemplateViewModel pv = new()
+            } catch (ArgumentException ex)
             {
-                Id = id,
-                UnitId = pt.UnitId,
-                EmployeeTypeId = pt.EmployeeTypeId,
-                PayFrequencyId = pt.PayFrequencyId,
-                RoleId = pt.RoleId,
-                Units = (await unitService.GetUnitReportOptionsAsync(departmentId)),
-                Roles = (await roleService.GetRoleOptionsAsync()),
-                EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
-                PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
-            };
-            return RedirectToAction(nameof(Index));
+                TempData["error"] = ex.Message;
+                int? departmentId = HttpContext.Session.GetDepartmentId();
+                return View(new ProfileTemplateViewModel
+                {
+                    Id = id,
+                    UnitId = pvm.UnitId,
+                    EmployeeTypeId = pvm.EmployeeTypeId,
+                    PayFrequencyId = pvm.PayFrequencyId,
+                    RoleId = pvm.RoleId,
+                    Units = (await unitService.GetUnitReportOptionsAsync(departmentId, pvm.UnitId)),
+                    Roles = (await roleService.GetRoleOptionsAsync(pvm.RoleId)),
+                    EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync(pvm.EmployeeTypeId)),
+                    PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync(pvm.PayFrequencyId))
+                });
+            }
         }
 
         [HttpPost]

@@ -107,6 +107,13 @@ namespace TimeManager.Backend.Services
 
         public async Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm)
         {
+            int count = await hrmsDbContext.ProfileTemplate.Where(pt => pt.RoleId == pvm.RoleId && pt.EmployeeTypeId == pvm.EmployeeTypeId && pt.PayFrequencyId == pvm.PayFrequencyId && pt.UnitId == pvm.UnitId).CountAsync();
+
+            if (count > 1)
+            {
+                throw new ArgumentException("Profile template with the combination of the role, employee type, pay frequency and unit already exists");
+            }
+
             var profileTemplate = await hrmsDbContext.ProfileTemplate.FindOrThrowAsync(id);
             hrmsDbContext.Entry(profileTemplate).CurrentValues.SetValues(new {
                 pvm.EarlyClockInBufferMin,

@@ -19,7 +19,7 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetEmployeeTypeOptionsAsync(int selectedId = 0);
     }
 
-    public class EmployeeTypeService(HrmsDbContext hrmsDbContext) : IEmployeeTypeService
+    public class EmployeeTypeService(HrmsDbContext hrmsDbContext, ILogger<EmployeeType> logger) : IEmployeeTypeService
     {
         public async Task CreateEmployeeTypeAsync(EmployeeTypeDto employeeTypeDto)
         {
@@ -57,7 +57,12 @@ namespace TimeManager.Backend.Services
         public async Task<EmployeeType?> UpdateEmployeeTypeAsync(int id, EmployeeTypeDto employeeTypeDto)
         {
             var et = await hrmsDbContext.EmployeeType.FindAsync(id);
-            if (et == null) return null;
+            if (et == null)
+            {
+                logger.LogWarning($"No employee type found with id: {id}");
+
+                return null;
+            }
 
             hrmsDbContext.Entry(et).CurrentValues.SetValues(employeeTypeDto);
             await hrmsDbContext.SaveChangesAsync();

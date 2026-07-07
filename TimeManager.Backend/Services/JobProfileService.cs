@@ -25,7 +25,7 @@ namespace TimeManager.Backend.Services
     {
         public async Task CreateJobProfileAsync(JobProfileViewModel jpvm)
         {
-            context.JobProfile.Add(new JobProfile { EmployeeId = jpvm.EmployeeId, ProfileTemplateId = jpvm.ProfileTemplateId });
+            context.JobProfile.Add(new JobProfile { EmployeeId = jpvm.EmployeeId, ProfileTemplateId = jpvm.ProfileTemplateId, JoinDate = jpvm.JoinDate, EndDate = jpvm.EndDate });
             await context.SaveChangesAsync();
         }
 
@@ -138,6 +138,11 @@ namespace TimeManager.Backend.Services
 
         [Required(ErrorMessage = "Employee Id is required")]
         public int EmployeeId { get; set; }
+
+        [Required(ErrorMessage = "Join Date is required")]
+        public DateTime JoinDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
 
         public string ProfileTemplateString { get; set; } = string.Empty;
         public string EmployeeString { get; set; } = string.Empty;

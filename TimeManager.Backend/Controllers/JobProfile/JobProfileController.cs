@@ -49,6 +49,8 @@ namespace TimeManager.Backend.Controllers.JobProfile
                 ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync(pt.ProfileTemplateId)),
                 EmployeeId = pt.EmployeeId,
                 ProfileTemplateId = pt.ProfileTemplateId,
+                JoinDate = pt.JoinDate,
+                EndDate = pt.EndDate,
             };
             return View(pvm);
         }
@@ -58,15 +60,30 @@ namespace TimeManager.Backend.Controllers.JobProfile
         public async Task<IActionResult> Edit(int id, JobProfileViewModel pvm)
         {
             var pt = await jobProfileService.UpdateJobProfileASync(id, pvm);
-            //JobProfileViewModel pv = new JobProfileViewModel
-            //{
-            //    Id = id,
-            //    Employees = (await employeeService.GetEmployeeOptionAsync()),
-            //    ProfileTemplates = (await employeeService.GetEmployeeOptionAsync()),
-            //    EmployeeId = pt.EmployeeId,
-            //    ProfileTemplateId = pt.ProfileTemplateId,
-            //};
-            return RedirectToAction(nameof(Index));
+            if (pt == null)
+            {
+                return View(new JobProfileViewModel
+                {
+                    Id = id,
+                    Employees = (await employeeService.GetEmployeeOptionAsync(pvm.EmployeeId)),
+                    ProfileTemplates = (await employeeService.GetEmployeeOptionAsync(pvm.ProfileTemplateId)),
+                    EmployeeId = pvm.EmployeeId,
+                    ProfileTemplateId = pvm.ProfileTemplateId,
+                    JoinDate = pvm.JoinDate,
+                    EndDate = pvm.EndDate,
+                });
+            }
+            TempData["success"] = "Job profile successfully updated";
+            return View(new JobProfileViewModel
+            {
+                Id = id,
+                Employees = (await employeeService.GetEmployeeOptionAsync(pt.EmployeeId)),
+                ProfileTemplates = (await employeeService.GetEmployeeOptionAsync(pt.ProfileTemplateId)),
+                EmployeeId = pt.EmployeeId,
+                ProfileTemplateId = pt.ProfileTemplateId,
+                JoinDate = pt.JoinDate,
+                EndDate = pt.EndDate,
+            });
         }
 
         [HttpPost]

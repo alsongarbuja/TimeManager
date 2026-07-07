@@ -2,7 +2,6 @@
 using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
-using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.Models.Punch_Management;
 using TimeManager.Backend.Models.Requests;
 using TimeManager.Backend.Models.Responses;
@@ -21,7 +20,7 @@ namespace TimeManager.Backend.Services
         Task<PunchStatusModel> GetCurrentUserPunchStauts(int profileId);
     }
 
-    public class PunchServices(HrmsDbContext context) : IPunchServices
+    public class PunchServices(HrmsDbContext context, ILogger<PunchEntry> logger) : IPunchServices
     {
         public async Task<int?> DeletePunchByIdAsync(int id)
         {
@@ -38,12 +37,14 @@ namespace TimeManager.Backend.Services
 
             if (punchesToday.Count == 0)
             {
-                var punchYesterDay = await context.PunchEntry.Where(pe => pe.JobProfileId == profileId).OrderByDescending(pe => pe.ClockIn).FirstOrDefaultAsync();
+                logger.LogInformation($"No punche entry with job profile id {profileId} found for today");
+                logger.LogInformation("Getting the last punch entry for clock out stamp");
+                var lastPunch = await context.PunchEntry.Where(pe => pe.JobProfileId == profileId).OrderByDescending(pe => pe.ClockIn).FirstOrDefaultAsync();
                 
                 return new PunchStatusModel
                 {
                     IsActive = false,
-                    LastTimeStamp = punchYesterDay?.ClockOut?.ToLocalTime()
+                    LastTimeStamp = lastPunch?.ClockOut?.ToLocalTime()
                 };
             }
 
@@ -53,15 +54,15 @@ namespace TimeManager.Backend.Services
 
             if (punchesToday[0].ClockOut == null)
             {
+                logger.LogInformation("Last punch has null clock out, employee is active");
                 if (punchesToday.Count > 1)
                 {
+                    logger.LogInformation("More than one punch entry found using that clock out time from entry one before the last punch");
                     clockOutTimeStamp = punchesToday[1].ClockOut?.ToLocalTime();
-                } else
-                {
-                    clockOutTimeStamp = punchesToday[0].ClockOut?.ToLocalTime();
-                }
+                } 
             } else
             {
+                logger.LogInformation("Last punch has clock out time, employee is inactive");
                 isCurrentlyActive = false;
                 clockOutTimeStamp = punchesToday[0].ClockOut?.ToLocalTime();
             }

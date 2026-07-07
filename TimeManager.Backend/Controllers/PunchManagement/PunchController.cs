@@ -47,8 +47,14 @@ namespace TimeManager.Backend.Controllers.PunchManagement
 
             if (punchEntry == null)
             {
+                logger.LogInformation("No punch entry were found with clock out null");
+
+                logger.LogInformation("Trying to clock in the employee");
+
+                logger.LogInformation("Checking if they are within clock in buffer time");
                 if (IsClockInAllowed(jobProfile.shiftStartTime, jobProfile.earlyBufferMin))
                 {
+                    logger.LogInformation("Clock in was successful");
                     ctx.PunchEntry.Add(new PunchEntry
                     {
                         ClockIn = DateTime.UtcNow,
@@ -58,15 +64,13 @@ namespace TimeManager.Backend.Controllers.PunchManagement
                 }
                 else
                 {
+                    logger.LogWarning("Clock in rejected due to trying to clock in too early");
                     return BadRequest(new { message = "You cannot clock in at this time" });
                 }
             } else
             {
+                logger.LogInformation("Clock out was successful");
                 punchEntry.ClockOut = DateTime.UtcNow;
-                //ctx.Entry(punchEntry).CurrentValues.SetValues(new
-                //{
-                //    ClockOut = DateTime.UtcNow
-                //});
                 msg = "Succefully clocked out!!";
                 isClockedOut = true;
             }

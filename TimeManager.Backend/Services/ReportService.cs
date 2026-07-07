@@ -15,18 +15,25 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<ReportGeneratedViewModel>> GenerateReportByUnitId(int id, int payPeriodId = 0);
     }
 
-    public class ReportService(HrmsDbContext hrmsDbContext, PayPeriodUtility payPeriodUtility) : IReportService
+    public class ReportService(HrmsDbContext hrmsDbContext, PayPeriodUtility payPeriodUtility, ILogger<JobProfile> logger) : IReportService
     {
         public async Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id, int payPeriodId = 0)
         {
             JobProfile? jp = await hrmsDbContext.JobProfile.Include(jp => jp.Employee).Include(jp => jp.ProfileTemplate).ThenInclude(pt => pt.Unit).AsSplitQuery().FirstOrDefaultAsync(j => j.Id == id);
 
-            if (jp == null) return null;
+            if (jp == null)
+            {
+                logger.LogWarning($"Job profile with id: {id} not found");
+                return null;
+            }
 
             PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetPreviousPayPeriod();
 
-            if (pp == null) return null;
-
+            if (pp == null)
+            {
+                logger.LogWarning($"Pay period with id {payPeriodId} or previous pay period not found");
+                return null;
+            }
             List<PunchEntry> punches = await hrmsDbContext.PunchEntry.Where(pe =>
                 pe.JobProfileId == id && pe.ClockIn >= pp.StartDate && pe.ClockIn < pp.EndDate
                 && pe.ClockOut > pp.StartDate && pe.ClockOut <= pp.EndDate && pe.ClockOut != null
@@ -55,16 +62,16 @@ namespace TimeManager.Backend.Services
                 bool isWeekTwo = (punches[i].ClockIn - pp.StartDate).Days >= 7;
                 var targetWeek = isWeekTwo ? report.WeekTwo : report.WeekOne;
 
-                if (targetWeek.TryGetValue(DayOfWeek, out ViewModels.DayReport? value))
+                if (targetWeek.TryGetValue(DayOfWeek, out DayReport? value))
                 {
-                    targetWeek[DayOfWeek] = new ViewModels.DayReport {
+                    targetWeek[DayOfWeek] = new DayReport {
                         Hours = value.Hours + totalHrs,
                         Type = "REG",
                     };
                 }
                 else
                 {
-                    targetWeek.Add(DayOfWeek, new ViewModels.DayReport
+                    targetWeek.Add(DayOfWeek, new DayReport
                     {
                         Hours = totalHrs,
                         Type = "REG",
@@ -80,11 +87,19 @@ namespace TimeManager.Backend.Services
         public async Task<IEnumerable<ReportGeneratedViewModel>> GenerateReportByUnitId(int id, int payPeriodId = 0)
         {
             Unit? unit = await hrmsDbContext.Unit.FindAsync(id);
-            if (unit == null) return [];
+            if (unit == null)
+            {
+                logger.LogWarning($"Unit with id: {id} not found");
+                return [];
+            }
 
             PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetPreviousPayPeriod();
 
-            if (pp == null) return [];
+            if (pp == null)
+            {
+                logger.LogWarning($"Pay period with id: {payPeriodId} or previous pay period not found");
+                return [];
+            }
 
             List<ReportGeneratedViewModel> reports = [];
 

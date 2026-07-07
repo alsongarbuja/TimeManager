@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TimeManager.Backend.Common;
 using TimeManager.Backend.Services;
+using TimeManager.Backend.Utility;
 using TimeManager.Backend.ViewModels;
 using U = TimeManager.Backend.Models.AuthManagement.User;
 
@@ -12,7 +13,7 @@ namespace TimeManager.Backend.Controllers
     public class AuthController(
         SignInManager<U> signInManager,
         UserManager<U> userManager,
-        //IDepartmentService departmentService,
+        ILogger<U> logger,
         IEmployeeService employeeService
         ) : Controller
     {
@@ -73,6 +74,8 @@ namespace TimeManager.Backend.Controllers
         {
             if (!ModelState.IsValid)
             {
+                logger.LogWarning("Login failed: Model validation failed");
+                ModelValidationLog.LogModelStateValidationFailedLogs(logger, ModelState);
                 return View(model);
             }
 

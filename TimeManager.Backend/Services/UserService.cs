@@ -26,15 +26,21 @@ namespace TimeManager.Backend.Services
         IHttpContextAccessor httpContextAccessor,
         UserManager<User> userManager,
         IRoleService roleService,
-        IConfiguration configuration
+        IConfiguration configuration,
+        ILogger<User> logger
         ) : IUserService
     {
         public async Task<int?> DeleteUserByIdAsync(int id)
         {
             var user = await userManager.FindByIdAsync(id.ToString());
-            if (user == null) return null;
+            if (user == null)
+            {
+                logger.LogWarning($"User with id: {id} not found");
+                return null;
+            }
             var DeleteResult = await userManager.DeleteAsync(user);
             if (!DeleteResult.Succeeded) {
+                logger.LogError(DeleteResult.Errors.First().Description);
                 return null;
             }
             return id;
@@ -43,7 +49,11 @@ namespace TimeManager.Backend.Services
         public async Task<(User? User, Role? Role)> GetUserByIdAsync(int id)
         {
             var user = await userManager.FindByIdAsync(id.ToString());
-            if (user == null) return (null, null);
+            if (user == null)
+            {
+                logger.LogWarning($"User with id: {id} not found");
+                return (null, null);
+            }
 
             var roles = await userManager.GetRolesAsync(user);
             var role = await roleService.GetRoleByNameAsync(roles[0]);
@@ -56,8 +66,7 @@ namespace TimeManager.Backend.Services
             var currUser = await userManager.GetUserAsync(httpContextAccessor.HttpContext!.User);
             var currUserRole = await userManager.GetRolesAsync(currUser!);
 
-            var superAdminRole = configuration["Auth:SuperAdminRole"] ?? throw new InvalidOperationException("Super admin role must be configured in the env");
-            var isSuperUser = currUserRole.Contains(superAdminRole);
+            var isSuperUser = currUserRole.Contains(AppConstants.SUPER_ADMIN_ROLE);
 
             IEnumerable<SelectListItem> users = [];
 
@@ -128,13 +137,21 @@ namespace TimeManager.Backend.Services
         public async Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm)
         {
             var u = await userManager.FindByIdAsync(id.ToString());
-            if (u == null) return null;
+            if (u == null)
+            {
+                logger.LogWarning($"User with id: {id} not found");
+                return null;
+            }
 
             u.Email = rvm.Email;
             u.UserName = rvm.Email.Split("@")[0];
 
             var updatedUser = await userManager.UpdateAsync(u);
-            if (!updatedUser.Succeeded) return null;
+            if (!updatedUser.Succeeded)
+            {
+                logger.LogError(updatedUser.Errors.First().Description);
+                return null;
+            }
 
             var role = await roleService.GetRoleByIdAsync(rvm.Role);
             var currentRoles = await userManager.GetRolesAsync(u);
@@ -148,7 +165,11 @@ namespace TimeManager.Backend.Services
                 await userManager.RemovePasswordAsync(u);
                 var passwordUpdated = await userManager.AddPasswordAsync(u, rvm.Password);
 
-                if (!passwordUpdated.Succeeded) return null; 
+                if (!passwordUpdated.Succeeded)
+                {
+                    logger.LogError(passwordUpdated.Errors.First().Description);
+                    return null;
+                }
             }
             
             return u;

@@ -16,6 +16,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
+// Custom logging for fixed location system wide log recordings.
+string logFolder = Path.Combine(AppContext.BaseDirectory, "logs");
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddFile(Path.Combine(logFolder, "app-{Date}.txt"));
+
 builder.Services.AddIdentity<User, Role>(options =>
 {
     options.Password.RequireDigit = true;

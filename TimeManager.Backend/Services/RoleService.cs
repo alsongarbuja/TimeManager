@@ -20,7 +20,7 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(int selectedId = 0);
     }
 
-    public class RoleService(HrmsDbContext hrmsDbContext) : IRoleService
+    public class RoleService(HrmsDbContext hrmsDbContext, ILogger<Role> logger) : IRoleService
     {
         public async Task CreateRoleAsync(RoleDto roleDto)
         {
@@ -74,7 +74,11 @@ namespace TimeManager.Backend.Services
         public async Task<Role?> UpdateRoleAsync(int id, RoleDto roleDto)
         {
             var r = await hrmsDbContext.Roles.FindAsync(id);
-            if (r == null) return null;
+            if (r == null)
+            {
+                logger.LogWarning($"Role with id: {id} not found");
+                return null;
+            }
 
             hrmsDbContext.Entry(r).CurrentValues.SetValues(roleDto);
             await hrmsDbContext.SaveChangesAsync();

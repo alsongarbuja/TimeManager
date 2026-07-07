@@ -19,7 +19,7 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId);
     }
 
-    public class UnitService(HrmsDbContext context) : IUnitService
+    public class UnitService(HrmsDbContext context, ILogger<Unit> logger) : IUnitService
     {
         public async Task CreateUnitAsync(UnitDto unitDto)
         {
@@ -91,7 +91,11 @@ namespace TimeManager.Backend.Services
         public async Task<Unit?> UpdateUnitAsync(int id, UnitDto unitDto)
         {
             var unit = await context.Unit.FindAsync(id);
-            if (unit == null) return null;
+            if (unit == null)
+            {
+                logger.LogWarning($"Unit with id: {id} not found");
+                return null;
+            }
 
             context.Entry(unit).CurrentValues.SetValues(unitDto);
             await context.SaveChangesAsync();

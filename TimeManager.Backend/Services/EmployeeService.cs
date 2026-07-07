@@ -28,17 +28,29 @@ namespace TimeManager.Backend.Services
     {
         public async Task<int> CreateEmployeeAsync(EmployeeDto employeeDto)
         {
-            Employee employee = new()
+            bool exists = await hrmsDbContext.Employee.AnyAsync(e => e.UniqueId == employeeDto.UniqueId);
+
+            if (exists) {
+                throw new ArgumentException("The unqiue Id is already registered to an employee");
+            }
+
+            try
             {
-                FirstName = employeeDto.FirstName,
-                LastName = employeeDto.LastName,
-                UniqueId = employeeDto.UniqueId,
-                UserId = employeeDto.UserId,
-                DepartmentId = employeeDto.DepartmentId,
-            };
-            hrmsDbContext.Employee.Add(employee);
-            await hrmsDbContext.SaveChangesAsync();
-            return employee.Id;
+                Employee employee = new()
+                {
+                    FirstName = employeeDto.FirstName,
+                    LastName = employeeDto.LastName,
+                    UniqueId = employeeDto.UniqueId,
+                    UserId = employeeDto.UserId,
+                    DepartmentId = employeeDto.DepartmentId,
+                };
+                hrmsDbContext.Employee.Add(employee);
+                await hrmsDbContext.SaveChangesAsync();
+                return employee.Id;
+            } catch (Exception ex)
+            {
+                throw new Exception("Database operation failed", ex);
+            }
         }
 
         public async Task<int?> DeleteEmployeeByIdAsync(int id)

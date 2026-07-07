@@ -16,7 +16,7 @@ namespace TimeManager.Backend.Services
         Task<Unit?> UpdateUnitAsync(int id, UnitDto departmentDto);
         Task<int?> DeleteUnitByIdAsync(int id);
 
-        Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId);
+        Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId, int selectedId = 0);
     }
 
     public class UnitService(HrmsDbContext context, ILogger<Unit> logger) : IUnitService
@@ -46,7 +46,7 @@ namespace TimeManager.Backend.Services
             return await context.Unit.Include(u => u.Department).Where(u => u.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId)
+        public async Task<IEnumerable<SelectListItem>> GetUnitReportOptionsAsync(int? departmentId, int selectedId = 0)
         {
             IEnumerable<SelectListItem> units = [];
             if (departmentId == null)
@@ -55,6 +55,7 @@ namespace TimeManager.Backend.Services
                 {
                     Value = u.Id.ToString(),
                     Text = $"{u.Name} - {u.Department.Name}",
+                    Selected = u.Id == selectedId,
                 }).ToListAsync();
             } else
             {
@@ -64,6 +65,7 @@ namespace TimeManager.Backend.Services
                 {
                     Value = u.Id.ToString(),
                     Text = $"{u.Name}",
+                    Selected = u.Id == selectedId,
                 }).ToListAsync();
             }
             return units;

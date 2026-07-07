@@ -65,7 +65,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
                 else
                 {
                     logger.LogWarning("Clock in rejected due to trying to clock in too early");
-                    return BadRequest(new { message = "You cannot clock in at this time" });
+                    return BadRequest(new { message = $"You cannot clock in at this time. Your shift starts on {jobProfile.shiftStartTime} and you can clock in starting {jobProfile.earlyBufferMin} min before" });
                 }
             } else
             {

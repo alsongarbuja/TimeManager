@@ -33,17 +33,30 @@ namespace TimeManager.Backend.Controllers.Employee
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EmployeeData employeeData)
         {
-            int? departmentId = HttpContext.Session.GetDepartmentId();
-            int id = await employeeService.CreateEmployeeAsync(new EmployeeDto
+            try
             {
-                Email = employeeData.EmployeeView.Email,
-                UniqueId = employeeData.EmployeeView.UniqueId,
-                FirstName = employeeData.EmployeeView.FirstName,
-                LastName = employeeData.EmployeeView.LastName,
-                UserId = employeeData.UserId,
-                DepartmentId = departmentId ?? employeeData.DepartmentId,
-            });
-            return RedirectToAction(nameof(Index));
+                int? departmentId = HttpContext.Session.GetDepartmentId();
+                int id = await employeeService.CreateEmployeeAsync(new EmployeeDto
+                {
+                    Email = employeeData.EmployeeView.Email,
+                    UniqueId = employeeData.EmployeeView.UniqueId,
+                    FirstName = employeeData.EmployeeView.FirstName,
+                    LastName = employeeData.EmployeeView.LastName,
+                    UserId = employeeData.UserId,
+                    DepartmentId = departmentId ?? employeeData.DepartmentId,
+                });
+                return RedirectToAction(nameof(Index));
+            } catch (ArgumentException ex)
+            {
+                ModelState.AddModelError("EmployeeView.UniqueId", ex.Message);
+
+                return View(new EmployeeData
+                {
+                    EmployeeView = employeeData.EmployeeView,
+                    Departments = (await departmentService.GetDepartmentOptionsAsync(employeeData.UserId)),
+                    Users = (await userService.GetUserOptionsAsync(employeeData.UserId))
+                });
+            }
         }
 
         [HttpGet]

@@ -33,19 +33,30 @@ else
 { *@
     <div class="punch-container">
         <div class="punch-card">
-            <div class="scanner-zone">
-                <div class="card-silhouette">
-                    <div class="barcode-lines"></div>
-                    <div class="laser-line"></div>
+            @if(isSubmitting)
+            {
+                <div class="loading-spinner-container">
+                    <div class="progress-ring"></div>
+                    <div class="pulse-dot"></div>
                 </div>
-            </div>
+            } else
+            {
+                <div class="scanner-zone">
+                    <div class="card-silhouette">
+                        <div class="barcode-lines"></div>
+                        <div class="laser-line"></div>
+                    </div>
+                </div>
+            }
 
             <h1 class="title">Scan ID Card</h1>
 
             <EditForm Model="@cioModel" FormName="ClockInOutForm" OnValidSubmit="HandleClockInOut">
                 <input @ref="myIdeo" class="textfield-minimal" autofocus type="text"
                        name="UniqueId" @bind-value="cioModel.UniqueId"
-                       placeholder="Waiting for scan..." autocomplete="off" />
+                   placeholder="@(isSubmitting ? "Processing punch..." : "Waiting for scan...")"
+                   autocomplete="off"
+                   disabled="@isSubmitting"            />
             </EditForm>
 
             <p class="helper-text">or type your ID and press <kbd>Enter</kbd></p>
@@ -88,6 +99,7 @@ else
     private bool isInitializing = true;
     private bool initFailed = false;
     private bool isAvailable = true;
+    private bool isSubmitting = false;
 
     private bool showModal = false;
     private string apiMessage = "";
@@ -111,7 +123,10 @@ else
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         // if (!isInitializing && !initFailed)
-        await myIdeo.FocusAsync();
+        if (!isSubmitting)
+        {        
+            await myIdeo.FocusAsync();
+        }
     }
 
     // private async Task InitializeKiosk()
@@ -129,58 +144,66 @@ else
 
     private async Task HandleClockInOut()
     {
-        if (isAvailable && !string.IsNullOrEmpty(cioModel.UniqueId))
-        {   
-            try
+        if (!isAvailable || isSubmitting || string.IsNullOrEmpty(cioModel.UniqueId))
+        {
+            return;
+        }
+
+        try
+        {
+            isSubmitting = true;
+            errorMessage = "";
+            StateHasChanged();
+
+            // if (!KioskSession.IsInitialized)
+            // {
+            //     await InitializeKiosk();
+            //     if (initFailed) return;
+            // }
+
+            var res = await Http.PostAsJsonAsync("api/punch", new
             {
-                errorMessage = "";
+                UniqueId = cioModel.UniqueId,
+                DepartmentId = 1,
+            });
 
-                // if (!KioskSession.IsInitialized)
-                // {
-                //     await InitializeKiosk();
-                //     if (initFailed) return;
-                // }
+            // if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            // {
+            //     KioskSession.Invalidate();
+            //     await InitializeKiosk();
+            //     if (initFailed) return;
 
-                var res = await Http.PostAsJsonAsync("api/punch", new
+            //     res = await Http.PostAsJsonAsync("api/punch", new { UniqueId = cioModel.UniqueId });
+            // }
+
+            var result = await res.Content.ReadFromJsonAsync<ApiErrorResponse>();
+            if (result is not null)
+            {
+                if (!res.IsSuccessStatusCode)
                 {
-                    UniqueId = cioModel.UniqueId,
-                    DepartmentId = 1,
-                });
-
-                // if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                // {
-                //     KioskSession.Invalidate();
-                //     await InitializeKiosk();
-                //     if (initFailed) return;
-
-                //     res = await Http.PostAsJsonAsync("api/punch", new { UniqueId = cioModel.UniqueId });
-                // }
-
-                var result = await res.Content.ReadFromJsonAsync<ApiErrorResponse>();
-                if (result is not null)
-                {
-                    if (!res.IsSuccessStatusCode)
-                    {
-                        errorMessage = result.Message;
-                    }
-                    else
-                    {
-                        modalBg = result.IsClockedOut ? "success-modal-out" : "success-modal-in";
-                        apiMessage = result.Message ?? "Operation Successful";
-                        operationTime = result.Time ?? DateTime.Now.ToString("hh:mm tt");
-                        greetingMessage = result.Greeting ?? "Have a great day!";
-
-                        await TriggerSuccessModal();
-                    }
+                    errorMessage = result.Message;
                 }
+                else
+                {
+                    modalBg = result.IsClockedOut ? "success-modal-out" : "success-modal-in";
+                    apiMessage = result.Message ?? "Operation Successful";
+                    operationTime = result.Time ?? DateTime.Now.ToString("hh:mm tt");
+                    greetingMessage = result.Greeting ?? "Have a great day!";
 
-                cioModel.UniqueId = "";
+                    await TriggerSuccessModal();
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                errorMessage = "An unexpected error occurred. Please try again.";
-            }
+
+            cioModel.UniqueId = "";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = "An unexpected error occurred. Please try again.";
+        } finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
         }
     }
 

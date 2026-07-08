@@ -47,43 +47,40 @@ namespace TimeManager.Backend.Services
             (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
             int totalRecords = 0;
 
-            var query = context.JobProfile.AsNoTracking().AsQueryable();
-
             IEnumerable<JobProfileViewModel> jobprofiles = [];
-            
+
             if (departmentId == null)
             {
                 logger.LogInformation("No department id found so sending all job profiles");
-                totalRecords = await query.CountAsync();
-                jobprofiles = await query
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(jp =>
-                new JobProfileViewModel {
-                    Id = jp.Id,
-                    EmployeeId = jp.EmployeeId,
-                    EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index}) / {jp.ProfileTemplate.Role.Name}",
-                }).ToListAsync();
-            } else
+                (jobprofiles, totalRecords) = await context.JobProfile.FindWithPaginationAsync(
+                     jp =>
+                    new JobProfileViewModel
+                    {
+                        Id = jp.Id,
+                        EmployeeId = jp.EmployeeId,
+                        EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
+                        ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index}) / {jp.ProfileTemplate.Role.Name}",
+                    },
+                    ((pageNumber - 1) * pageSize),
+                    pageSize
+                  );
+            }
+            else
             {
                 logger.LogInformation($"Sending job profile connected to the deparment id: {departmentId}");
-                totalRecords = await query
-                    .Where(jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId)
-                    .CountAsync();
-
-                jobprofiles = await query
-                    .Where(jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(jp =>
-                new JobProfileViewModel
-                {
-                    Id = jp.Id,
-                    EmployeeId = jp.EmployeeId,
-                    EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                    ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index})/ {jp.ProfileTemplate.Role.Name}",
-                }).ToListAsync();
+                (jobprofiles, totalRecords) = await context.JobProfile.FindWithPaginationAsync(
+                     jp =>
+                    new JobProfileViewModel
+                    {
+                        Id = jp.Id,
+                        EmployeeId = jp.EmployeeId,
+                        EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
+                        ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index}) / {jp.ProfileTemplate.Role.Name}",
+                    },
+                    ((pageNumber - 1) * pageSize),
+                    pageSize,
+                    jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId
+                  );
             }
 
             return new PagedResponse<JobProfileViewModel>(jobprofiles, pageNumber, pageSize, totalRecords);

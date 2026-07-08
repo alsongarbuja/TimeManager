@@ -64,34 +64,29 @@ namespace TimeManager.Backend.Services
         {
             (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
 
-            var query = hrmsDbContext.ProfileTemplate.AsNoTracking().AsQueryable();
             int totalRecords = 0;
 
             IEnumerable<ProfileTemplateViewModel> profileTemplates = [];
             
             if (departmentId == null)
             {
-                totalRecords = await query.CountAsync();
-                profileTemplates = await query
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(pt => new ProfileTemplateViewModel
-                {
-                    Id = pt.Id,
-                    Unit = $"{pt.Unit.Name} - {pt.Unit.Index}",
-                    Role = pt.Role.Name ?? "Default",
-                    EmployeeType = pt.EmployeeType.Name,
-                    ShiftStartTime = pt.ShiftStartTime,
-                    EarlyClockInBufferMin = pt.EarlyClockInBufferMin,
-                }).ToListAsync();
+                (profileTemplates, totalRecords) = await hrmsDbContext.ProfileTemplate.FindWithPaginationAsync(
+                 pt => new ProfileTemplateViewModel
+                 {
+                     Id = pt.Id,
+                     Unit = $"{pt.Unit.Name} - {pt.Unit.Index}",
+                     Role = pt.Role.Name ?? "Default",
+                     EmployeeType = pt.EmployeeType.Name,
+                     ShiftStartTime = pt.ShiftStartTime,
+                     EarlyClockInBufferMin = pt.EarlyClockInBufferMin,
+                 },
+                 ((pageNumber - 1) * pageSize),
+                 pageSize
+                    );
             } else
             {
-                totalRecords = await query.Where(pt => pt.Unit.DepartmentId == departmentId).CountAsync();
-                profileTemplates = await query
-                    .Where(pt => pt.Unit.DepartmentId == departmentId)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(pt => new ProfileTemplateViewModel
+                (profileTemplates, totalRecords) = await hrmsDbContext.ProfileTemplate.FindWithPaginationAsync(
+                    pt => new ProfileTemplateViewModel 
                     {
                         Id = pt.Id,
                         Unit = $"{pt.Unit.Name} - {pt.Unit.Index}",
@@ -99,7 +94,11 @@ namespace TimeManager.Backend.Services
                         EmployeeType = pt.EmployeeType.Name,
                         ShiftStartTime = pt.ShiftStartTime,
                         EarlyClockInBufferMin = pt.EarlyClockInBufferMin,
-                    }).ToListAsync();
+                    },
+                    ((pageNumber - 1) * pageSize),
+                    pageSize,
+                    pt => pt.Unit.DepartmentId == departmentId
+                    );
             }
 
             return new PagedResponse<ProfileTemplateViewModel>(profileTemplates, pageNumber, pageSize, totalRecords);

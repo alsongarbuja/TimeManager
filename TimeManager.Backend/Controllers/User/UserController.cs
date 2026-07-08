@@ -110,6 +110,7 @@ namespace TimeManager.Backend.Controllers.User
         public async Task<IActionResult> Delete(int id)
         {
             await userService.DeleteUserByIdAsync(id);
+            TempData["success"] = "User deleted successfully";
             return RedirectToAction(nameof(Index));
         }
     }

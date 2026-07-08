@@ -84,22 +84,22 @@ namespace TimeManager.Backend.Services
         {
             (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
 
-            var query = context.PunchEntry.AsNoTracking().AsQueryable();
-            int totalRecords = await query.CountAsync();
-
-            var punches = await query
-                .OrderByDescending(pe => pe.Id)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(pe => new PunchViewModel
+            (var punches, int totalRecords) = await context.PunchEntry.FindWithPaginationAsync(
+                pe => new PunchViewModel
                 {
                     Id = pe.Id,
                     ClockInTime = pe.ClockIn,
                     ClockOutTime = pe.ClockOut,
                     EmployeeId = pe.JobProfile.Id,
                     Name = $"{pe.JobProfile.Employee.FirstName} {pe.JobProfile.Employee.LastName}"
-                })
-                .ToListAsync();
+                }, 
+                ((pageNumber - 1) * pageSize), 
+                pageSize,
+                null,
+                pe => pe.ClockIn,
+                true
+                );
+
             return new PagedResponse<PunchViewModel>(punches, pageNumber, pageSize, totalRecords);
         }
 

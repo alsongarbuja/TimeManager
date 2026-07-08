@@ -85,25 +85,27 @@ namespace TimeManager.Backend.Services
 
         public async Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(int? departmentId, PaginationFilter filter)
         {
-            var query = hrmsDbContext.Employee.AsNoTracking().AsQueryable();
-            int totalRecords = 0;
-
             (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
-
+            
+            int totalRecords = 0;
             IEnumerable<EmployeeViewModel> employees = [];
+
             if (departmentId == null)
             {
                 logger.LogInformation("No department Id found sending back all users");
-                totalRecords = await query.CountAsync();
-                employees = await query.Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize).Select(e => new EmployeeViewModel { 
-                    Id = e.Id,
-                    FirstName = e.FirstName, 
-                    LastName = e.LastName,
-                    Email = e.User.Email ?? string.Empty,
-                    UniqueId = e.UniqueId,
-                    DepartmentName = e.Department.Name,
-                }).ToListAsync();
+                (employees, totalRecords) = await hrmsDbContext.Employee.FindWithPaginationAsync(
+                    e => new EmployeeViewModel
+                    {
+                        Id = e.Id,
+                        FirstName = e.FirstName,
+                        LastName = e.LastName,
+                        Email = e.User.Email ?? string.Empty,
+                        UniqueId = e.UniqueId,
+                        DepartmentName = e.Department.Name,
+                    },
+                    ((pageNumber - 1) * pageSize),
+                    pageSize
+                 );
             } else
             {
                 logger.LogInformation("Sending only the department connected users");
@@ -116,21 +118,20 @@ namespace TimeManager.Backend.Services
                     .Select(x => x.UserId)
                     .ToHashSetAsync();
 
-                totalRecords = await query.Where(e => e.DepartmentId == departmentId && !excludedUserIds.Contains(e.UserId)).CountAsync();
-
-                employees = await query
-                    .Where(e => e.DepartmentId == departmentId && !excludedUserIds.Contains(e.UserId))
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(e => new EmployeeViewModel
-                        {
-                            Id = e.Id,
-                            FirstName = e.FirstName,
-                            LastName = e.LastName,
-                            Email = e.User.Email ?? string.Empty,
-                            UniqueId = e.UniqueId,
-                            DepartmentName = e.Department.Name,
-                        }).ToListAsync();
+                (employees, totalRecords) = await hrmsDbContext.Employee.FindWithPaginationAsync(
+                    e => new EmployeeViewModel
+                    {
+                        Id = e.Id,
+                        FirstName = e.FirstName,
+                        LastName = e.LastName,
+                        Email = e.User.Email ?? string.Empty,
+                        UniqueId = e.UniqueId,
+                        DepartmentName = e.Department.Name,
+                    },
+                    ((pageNumber - 1) * pageSize),
+                    pageSize,
+                    e => e.DepartmentId == departmentId && !excludedUserIds.Contains(e.UserId)
+                );
             }
             return new PagedResponse<EmployeeViewModel>(employees, pageNumber, pageSize, totalRecords);
         }

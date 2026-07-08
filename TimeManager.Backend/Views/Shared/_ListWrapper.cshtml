@@ -68,17 +68,24 @@
                     >
                         <i class="ri-arrow-left-s-line"></i>
                     </a>
+
                     @for(int i = 1; i <= totalPages; i++)
-                    {            
-                        <a
-                            asp-controller="@controller"
-                            asp-action="Index"
-                            asp-route-pageNumber="@i"
-                            asp-route-pageSize="@pageSize"
-                            class="btn btn-pag-number @(i == currentPage ? "btn-pag-number-selected":"")"
-                        >
-                            @i
+                    {          
+                        @if (new[] { 1, totalPages, currentPage, currentPage-1, currentPage+1 }.Contains(i))
+                        {
+                            <a
+                                asp-controller="@controller"
+                                asp-action="Index"
+                                asp-route-pageNumber="@i"
+                                asp-route-pageSize="@pageSize"
+                                class="btn btn-pag-number @(i == currentPage ? "btn-pag-number-selected":"")"
+                            >
+                                @i
                             </a>
+                        } else if (i % 2 == 0)
+                        {
+                            <span>.</span>
+                        }
                     }
                     <a
                         asp-controller="@controller"

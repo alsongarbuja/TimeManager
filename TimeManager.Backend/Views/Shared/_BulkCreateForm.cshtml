@@ -1,0 +1,15 @@
+﻿@model TimeManager.Backend.ViewModels.BulkCreateModel
+
+<div class="modal-content">
+    <button class="btn-modal btn-modal-close"><i class="ri-close-circle-line"></i></button>
+
+    <h3>Add users in bulk</h3>
+
+    <form asp-controller="User" asp-action="BulkCreate" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <custom-input asp-for="ExcelFile" />
+
+        <button type="submit" class="btn btn-primary w-full">Submit</button>
+    </form>
+</div>

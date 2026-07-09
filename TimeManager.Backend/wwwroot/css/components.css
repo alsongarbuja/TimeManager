@@ -181,3 +181,44 @@ input::-ms-reveal {
         opacity: 1;
     }
 }
+
+.modal-overlay {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: 100vw;
+    height: 100dvh;
+    background: #0000002a;
+    backdrop-filter: blur(2px);
+}
+
+.modal-overlay-visible {
+    display: flex;
+}
+
+.modal-wrapper {
+    background: white;
+    position: relative;
+    padding: 1em;
+    border-radius: .5em;
+}
+
+.modal-content > form {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.btn-modal-close {
+    position: absolute;
+    top: .1em;
+    right: .1em;
+    background: transparent;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+}

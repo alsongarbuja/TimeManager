@@ -13,11 +13,21 @@
     ViewData["ModuleDesc"] = "Manage the users in the system";
     ViewData["Controller"] = "User";
 
+    bool isBulkCreateOpen = false;
+
     ViewData["HasPagination"] = true;
     ViewData["TotalPages"] = Model.TotalPages;
     ViewData["CurrentPage"] = Model.PageNumber;
     ViewData["TotalRecords"] = Model.TotalRecords;
     ViewData["PageSize"] = Model.PageSize;
+}
+
+@section CustomCreate {
+    <button class="btn-create btn-modal" onclick="@isBulkCreateOpen=true">Bulk create</button>
+}
+
+@section modalcontent {
+    <partial name="_BulkCreateForm" model="new BulkCreateModel()" />
 }
 
 @if (Model.Data.Count() <= 0)

@@ -28,14 +28,23 @@
                 </p>
             </div>
 
-            @if (hasCreate)
-            {
-                <a asp-controller="@controller" asp-action="Create" class="btn-create">
-                    Create
-                </a>
-            }
+            <div>
+                @RenderSection("CustomCreate", false)
 
-            @RenderSection("CustomCreate", false)
+                @if (IsSectionDefined("modalcontent"))
+                {
+                    @section modalcontent {
+                        @RenderSection("modalcontent", required: false)
+                    }
+                }
+                
+                @if (hasCreate)
+                {
+                    <a asp-controller="@controller" asp-action="Create" class="btn-create">
+                        Create
+                    </a>
+                }
+            </div>
         </div>
 
         @if (hasPagination)

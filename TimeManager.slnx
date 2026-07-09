@@ -2,6 +2,4 @@
   <Project Path="PunchSystem/PunchSystem.Client/PunchSystem.Client.csproj" Id="f35fc09e-2e55-4e11-8d07-d9956ba619c9" />
   <Project Path="PunchSystem/PunchSystem/PunchSystem.csproj" Id="ec4253e6-a742-40e2-bd2b-23e962957a98" />
   <Project Path="TimeManager.Backend/TimeManager.Backend.csproj" />
-  <Project Path="TimeManager.Frontend/TimeManager.Frontend.Client/TimeManager.Frontend.Client.csproj" />
-  <Project Path="TimeManager.Frontend/TimeManager.Frontend/TimeManager.Frontend.csproj" />
 </Solution>

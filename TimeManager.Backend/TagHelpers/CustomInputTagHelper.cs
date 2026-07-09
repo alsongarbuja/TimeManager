@@ -49,6 +49,9 @@ namespace TimeManager.Backend.TagHelpers
             else if (For.ModelExplorer.ModelType == typeof(DateTimeOffset) || For.ModelExplorer.ModelType == typeof(DateTimeOffset?) || For.ModelExplorer.ModelType == typeof(DateTime) || For.ModelExplorer.ModelType == typeof(DateTime?))
             {
                 type = "datetime-local";
+            } else if (For.ModelExplorer.ModelType == typeof(IFormFile))
+            {
+                type = "file";
             }
 
             var formattedValue = propertyValue;
@@ -99,6 +102,8 @@ namespace TimeManager.Backend.TagHelpers
                             $"</button>" +
                         $"</div>";
             }
+
+            //if (type == "file")
 
 
             var errorSpan = hasErrors

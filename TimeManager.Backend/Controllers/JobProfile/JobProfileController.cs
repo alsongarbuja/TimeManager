@@ -34,7 +34,11 @@ namespace TimeManager.Backend.Controllers.JobProfile
         public async Task<IActionResult> Create(JobProfileViewModel pvm)
         {
             await jobProfileService.CreateJobProfileAsync(pvm);
-            return RedirectToAction(nameof(Index));
+            return View(new JobProfileViewModel
+            {
+                Employees = pvm.Employees,
+                ProfileTemplates = pvm.ProfileTemplates,
+            });
         }
 
         [HttpGet]
@@ -49,8 +53,8 @@ namespace TimeManager.Backend.Controllers.JobProfile
                 ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync(pt.ProfileTemplateId)),
                 EmployeeId = pt.EmployeeId,
                 ProfileTemplateId = pt.ProfileTemplateId,
-                JoinDate = pt.JoinDate,
-                EndDate = pt.EndDate,
+                //JoinDate = pt.JoinDate,
+                //EndDate = pt.EndDate,
             };
             return View(pvm);
         }
@@ -62,6 +66,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
             var pt = await jobProfileService.UpdateJobProfileASync(id, pvm);
             if (pt == null)
             {
+                TempData["error"] = "Unexpected error occured. No job profile found";
                 return View(new JobProfileViewModel
                 {
                     Id = id,
@@ -69,8 +74,8 @@ namespace TimeManager.Backend.Controllers.JobProfile
                     ProfileTemplates = (await employeeService.GetEmployeeOptionAsync(pvm.ProfileTemplateId)),
                     EmployeeId = pvm.EmployeeId,
                     ProfileTemplateId = pvm.ProfileTemplateId,
-                    JoinDate = pvm.JoinDate,
-                    EndDate = pvm.EndDate,
+                    //JoinDate = pvm.JoinDate,
+                    //EndDate = pvm.EndDate,
                 });
             }
             TempData["success"] = "Job profile successfully updated";
@@ -81,8 +86,8 @@ namespace TimeManager.Backend.Controllers.JobProfile
                 ProfileTemplates = (await employeeService.GetEmployeeOptionAsync(pt.ProfileTemplateId)),
                 EmployeeId = pt.EmployeeId,
                 ProfileTemplateId = pt.ProfileTemplateId,
-                JoinDate = pt.JoinDate,
-                EndDate = pt.EndDate,
+                //JoinDate = pt.JoinDate,
+                //EndDate = pt.EndDate,
             });
         }
 
@@ -93,7 +98,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
             try
             {
                 await jobProfileService.DeleteJobProfileAsync(id);
-                TempData["success"] = "Successfully deleted the data";
+                TempData["success"] = "Successfully deleted the job profile";
             } catch (KeyNotFoundException ex)
             {
                 TempData["error"] = ex.Message;

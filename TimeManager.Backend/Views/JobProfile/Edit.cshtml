@@ -13,8 +13,8 @@
 
     <custom-select asp-for="EmployeeId" asp-items="@Model.Employees" />
     <custom-select asp-for="ProfileTemplateId" asp-items="@Model.ProfileTemplates" />
-    <custom-input asp-for="JoinDate" />
-    <custom-input asp-for="EndDate" />
+    @* <custom-input asp-for="JoinDate" />
+    <custom-input asp-for="EndDate" /> *@
     
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

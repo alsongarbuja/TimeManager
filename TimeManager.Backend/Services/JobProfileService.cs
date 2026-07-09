@@ -25,7 +25,7 @@ namespace TimeManager.Backend.Services
     {
         public async Task CreateJobProfileAsync(JobProfileViewModel jpvm)
         {
-            context.JobProfile.Add(new JobProfile { EmployeeId = jpvm.EmployeeId, ProfileTemplateId = jpvm.ProfileTemplateId, JoinDate = jpvm.JoinDate, EndDate = jpvm.EndDate });
+            context.JobProfile.Add(new JobProfile { EmployeeId = jpvm.EmployeeId, ProfileTemplateId = jpvm.ProfileTemplateId });
             await context.SaveChangesAsync();
         }
 

@@ -22,8 +22,7 @@ namespace TimeManager.Backend.Models.Employee_Management
         [Required(ErrorMessage = "User Id is required")]
         public int UserId { get; set; }
 
-        [Required(ErrorMessage = "Department Id is required")]
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
 
         [ForeignKey("UserId")]
         public virtual User User { get; set; } = null!;

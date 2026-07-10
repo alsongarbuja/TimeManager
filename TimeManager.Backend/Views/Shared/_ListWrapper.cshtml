@@ -28,14 +28,23 @@
                 </p>
             </div>
 
-            @if (hasCreate)
-            {
-                <a asp-controller="@controller" asp-action="Create" class="btn-create">
-                    Create
-                </a>
-            }
+            <div>
+                @RenderSection("CustomCreate", false)
 
-            @RenderSection("CustomCreate", false)
+                @if (IsSectionDefined("modalcontent"))
+                {
+                    @section modalcontent {
+                        @RenderSection("modalcontent", required: false)
+                    }
+                }
+                
+                @if (hasCreate)
+                {
+                    <a asp-controller="@controller" asp-action="Create" class="btn-create">
+                        Create
+                    </a>
+                }
+            </div>
         </div>
 
         @if (hasPagination)
@@ -46,7 +55,7 @@
                         <input hidden name="pageNumber" value="1" />
 
                         <div class="d-flex align-items-center">
-                            <label for="pageSize" class="me-2 mb-0 text-nowrap">Limit:</label>
+                            <label for="pageSize" class="me-2 mb-0 text-nowrap">Rows Per Page:</label>
                             <select id="pageSize" name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
                                 <!═ Dynamically mark the current selection as 'selected' ═>
                                     <option value="5" selected="@(pageSize == 5)">5</option>
@@ -68,17 +77,24 @@
                     >
                         <i class="ri-arrow-left-s-line"></i>
                     </a>
+
                     @for(int i = 1; i <= totalPages; i++)
-                    {            
-                        <a
-                            asp-controller="@controller"
-                            asp-action="Index"
-                            asp-route-pageNumber="@i"
-                            asp-route-pageSize="@pageSize"
-                            class="btn btn-pag-number @(i == currentPage ? "btn-pag-number-selected":"")"
-                        >
-                            @i
+                    {          
+                        @if (new[] { 1, totalPages, currentPage, currentPage-1, currentPage+1 }.Contains(i))
+                        {
+                            <a
+                                asp-controller="@controller"
+                                asp-action="Index"
+                                asp-route-pageNumber="@i"
+                                asp-route-pageSize="@pageSize"
+                                class="btn btn-pag-number @(i == currentPage ? "btn-pag-number-selected":"")"
+                            >
+                                @i
                             </a>
+                        } else if (i % 2 == 0)
+                        {
+                            <span>.</span>
+                        }
                     }
                     <a
                         asp-controller="@controller"

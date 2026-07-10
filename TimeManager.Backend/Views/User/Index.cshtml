@@ -20,6 +20,19 @@
     ViewData["PageSize"] = Model.PageSize;
 }
 
+@section CustomCreate {
+    <button class="btn-create btn-modal">Bulk create</button>
+}
+
+@section modalcontent {
+    <partial name="_BulkCreateForm"
+             model='new BulkCreateModel() {
+                Controller = "User",
+                 ExampleFileName = "timemanager_user_bulk_import_example.xlsx"
+             }' 
+      />
+}
+
 @if (Model.Data.Count() <= 0)
 {
     <tr>

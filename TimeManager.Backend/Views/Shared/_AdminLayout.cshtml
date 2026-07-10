@@ -39,10 +39,16 @@
         </div>
     </main>
 
+    <div class="modal-overlay">
+        <div class="modal-wrapper">
+            @await RenderSectionAsync("modalcontent", required: false)
+        </div>
+    </div>
     @await Html.PartialAsync("_Notifications")
 
     <script src="~/js/sidebartoggle.js"></script>
     <script src="~/js/notification.js"></script>
+    <script src="~/js/modal.js"></script>
 
     @* @await RenderSectionAsync("Scripts", required: false) *@
 </body>

@@ -25,8 +25,6 @@ namespace TimeManager.Backend.ViewModels
         public string Email { get; set; } = string.Empty;
 
         public string UserName { get; set; } = string.Empty;
-
-        public string DepartmentName { get; set; } = string.Empty;
     }
 
     public class EmployeeData
@@ -37,7 +35,7 @@ namespace TimeManager.Backend.ViewModels
         public int UserId { get; set; }
 
         [Display(Name = "Department")]
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
 
         public IEnumerable<SelectListItem> Departments { get; set; } = [];
         public IEnumerable<SelectListItem> Users { get; set; } = [];

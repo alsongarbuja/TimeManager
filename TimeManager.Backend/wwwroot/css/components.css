@@ -181,3 +181,66 @@ input::-ms-reveal {
         opacity: 1;
     }
 }
+
+.modal-overlay {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: 100vw;
+    height: 100dvh;
+    background: #0000002a;
+    backdrop-filter: blur(2px);
+}
+
+.modal-overlay-visible {
+    display: flex;
+}
+
+.modal-wrapper {
+    background: white;
+    position: relative;
+    padding: 1em;
+    border-radius: .5em;
+}
+
+.modal-content a {
+    display: block;
+    margin-block-end: .5em;
+    text-decoration: none;
+    text-align: right;
+}
+
+.modal-content > form {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.btn-modal {
+   background: transparent !important;
+   color: black !important;
+   border: 1px solid black !important;
+   cursor: pointer;
+}
+
+.btn-modal:hover {
+    background: #0000002d !important;
+}
+
+.btn-modal-close {
+    position: absolute;
+    top: .1em;
+    right: .1em;
+    background: transparent;
+    border: none !important;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.btn-modal-close:hover {
+    background: transparent !important;
+}

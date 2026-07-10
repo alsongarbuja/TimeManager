@@ -1,18 +1,31 @@
 ﻿@model TimeManager.Backend.Models.Components.ActionTdViewModel
 
-@{
-}
-
 <td class="table-actions">
     @if(Model.HasDelete)
     {
         <form method="post" asp-controller="@Model.Controller" asp-action="Delete" asp-route-id="@Model.Id" onsubmit="return confirm('Delete this resource?')">
             @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-action-delete">
+            <button class="btn btn-action-delete">
                 <i class="ri-delete-bin-7-line"></i>
             </button>
         </form>
+        
+        @* @section modalcontent {
+            <div class="modal-content">
+                <form method="post" asp-controller="@Model.Controller" asp-action="Delete" asp-route-id="@Model.Id">
+                    @Html.AntiForgeryToken()
+                    <p>Do you want to delete this resource?</p>
+
+                    <button type="button" class="btn btn-action-edit btn-modal-close">No, Cancel</button>
+            
+                    <button type="submit" class="btn btn-action-delete">
+                        Yes, Delete
+                    </button>
+                </form>
+            </div>
+        } *@
     }
+
 
     @if(Model.HasEdit)
     {

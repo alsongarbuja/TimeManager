@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.Models.Requests;
 using TimeManager.Backend.Models.Responses;
@@ -26,7 +27,7 @@ namespace TimeManager.Backend.Services
         IHttpContextAccessor httpContextAccessor,
         UserManager<User> userManager,
         IRoleService roleService,
-        IConfiguration configuration,
+        //IConfiguration configuration,
         ILogger<User> logger
         ) : IUserService
     {
@@ -107,30 +108,22 @@ namespace TimeManager.Backend.Services
         {
             (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
 
-            var query = hrmsDbContext.Users.AsNoTracking().AsQueryable();
-            int totalRecords = await query.Where(u => !hrmsDbContext.UserRoles.
+            (List<UserViewModel> users, int totalRecords) = await hrmsDbContext.Users.FindWithPaginationAsync(
+                u => new UserViewModel
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                },
+                ((pageNumber - 1) * pageSize),
+                pageSize,
+                u => !hrmsDbContext.UserRoles.
                     Join(hrmsDbContext.Roles,
                         ur => ur.RoleId,
                         r => r.Id,
                         (ur, r) => new { ur.UserId, r.Name })
-                    .Any(ur => ur.UserId == u.Id && ur.Name == AppConstants.SUPER_ADMIN_ROLE)).CountAsync();
-
-            IEnumerable<UserViewModel> users = [];
-            users = await query
-                .Where(u => !hrmsDbContext.UserRoles.
-                    Join(hrmsDbContext.Roles, 
-                        ur => ur.RoleId, 
-                        r => r.Id, 
-                        (ur, r) => new { ur.UserId, r.Name })
-                    .Any(ur => ur.UserId == u.Id && ur.Name == AppConstants.SUPER_ADMIN_ROLE))
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(u => new UserViewModel
-                        {
-                            Id = u.Id,
-                            UserName = u.UserName,
-                            Email = u.Email,
-                        }).ToListAsync();
+                    .Any(ur => ur.UserId == u.Id && ur.Name == AppConstants.SUPER_ADMIN_ROLE)
+                );
             return new PagedResponse<UserViewModel>(users, pageNumber, pageSize, totalRecords);
         }
 

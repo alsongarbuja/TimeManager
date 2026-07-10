@@ -1,0 +1,17 @@
+﻿@model TimeManager.Backend.ViewModels.BulkCreateModel
+
+<div class="modal-content">
+    <button class="btn-modal btn-modal-close"><i class="ri-close-circle-line"></i></button>
+
+    <h3>Add @Model.Controller.ToLowerInvariant()s in bulk</h3>
+
+    <a href="~/assets/@Model.ExampleFileName" download>Download example file <i class="ri-download-line"></i></a>
+
+    <form asp-controller="@Model.Controller" asp-action="BulkCreate" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <custom-input asp-for="ExcelFile" />
+
+        <button type="submit" class="btn btn-primary w-full">Submit</button>
+    </form>
+</div>

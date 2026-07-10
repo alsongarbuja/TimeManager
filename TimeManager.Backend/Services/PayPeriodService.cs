@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
@@ -46,19 +45,24 @@ namespace TimeManager.Backend.Services
 
         public async Task<PagedResponse<PayPeriodViewModel>> GetPayPeriodsAsync(PaginationFilter filter)
         {
-            var query = context.PayPeriod.AsNoTracking().AsQueryable();
-            int totalRecords = await query.CountAsync();
-
             (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
-
             var currentPayPeriod = await payPeriodUtility.GetCurrentPayPeriod();
 
-            if (currentPayPeriod == null) return new PagedResponse<PayPeriodViewModel>([], pageNumber, pageSize, totalRecords);
+            if (currentPayPeriod == null) return new PagedResponse<PayPeriodViewModel>([], pageNumber, pageSize, 0);
 
-            var payperiods = await query.Where(pp => currentPayPeriod.StartDate <= pp.StartDate).Skip((pageNumber - 1) * pageSize).Take(pageSize).Select(p => new PayPeriodViewModel { 
-                StartDate = p.StartDate.ToString("MMM d yyyy"),
-                EndDate = p.EndDate.ToLocalTime().ToString("MMM d yyyy")
-            }).ToListAsync();
+            (var payperiods, int totalRecords) = await context.PayPeriod.FindWithPaginationAsync(
+                p => new PayPeriodViewModel
+                {
+                    StartDate = p.StartDate.ToString("MMM d yyyy"),
+                    EndDate = p.EndDate.ToLocalTime().ToString("MMM d yyyy")
+                },
+                ((pageNumber - 1) * pageSize),
+                pageSize,
+                null,
+                p => p.StartDate,
+                true
+                );
+
             return new PagedResponse<PayPeriodViewModel>(payperiods, pageNumber, pageSize, totalRecords);
         }
 

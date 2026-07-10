@@ -16,6 +16,13 @@ namespace TimeManager.Backend.ViewModels
         [Display(Name = "Employee")]
         public int EmployeeId { get; set; }
 
+        //[Required(ErrorMessage = "Join Date is required")]
+        //[Display(Name = "Join Date")]
+        //public DateTime JoinDate { get; set; }
+
+        //[Display(Name = "End Date")]
+        //public DateTime? EndDate { get; set; }
+
         public string ProfileTemplateString { get; set; } = string.Empty;
         public string EmployeeString { get; set; } = string.Empty;
 

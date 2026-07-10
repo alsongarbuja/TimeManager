@@ -1,6 +1,6 @@
 ﻿@using TimeManager.Backend.Models.Components
-@using TimeManager.Backend.Common
 @using TimeManager.Backend.Models.Responses
+@using TimeManager.Backend.Common
 @using TimeManager.Backend.ViewModels
 @model PagedResponse<EmployeeViewModel>
 
@@ -8,7 +8,7 @@
     Layout = "_ListWrapper";
     ViewData["Title"] = "Employee";
 
-    List<string> Headers = User.IsInRole(AppConstants.SUPER_ADMIN_ROLE) ? ["SO Id", "Name", "Email", "Department"] : ["SO Id", "Name", "Email"];
+    List<string> Headers = ["SO Id", "Name", "Email"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Employee";
     ViewData["ModuleDesc"] = "Manage the employee data in the system";
@@ -20,6 +20,23 @@
     ViewData["TotalRecords"] = Model.TotalRecords;
     ViewData["PageSize"] = Model.PageSize;
 }
+
+@if (User.IsInRole(AppConstants.ADMIN_ROLE))
+{
+    @section CustomCreate {
+        <button class="btn-create btn-modal">Bulk create</button>
+    }
+
+    @section modalcontent {
+        <partial name="_BulkCreateForm" 
+            model='new BulkCreateModel() { 
+                Controller = "Employee", 
+                     ExampleFileName = "timemanager_employee_bulk_import_example.xlsx"
+            }' 
+          />
+    }
+}
+
 
 @if (Model.Data.Count() <= 0)
 {
@@ -38,10 +55,6 @@ else
             <td class="table-cell">@d.UniqueId</td>
             <td class="table-cell">@d.FirstName @d.LastName</td>
             <td class="table-cell">@d.Email</td>
-            @if (User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
-            {
-                <td class="table-cell">@d.DepartmentName</td>
-            }
             @await Html.PartialAsync("ActionTd", new ActionTdViewModel
 {
         Controller = "Employee",

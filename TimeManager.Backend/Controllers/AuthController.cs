@@ -106,7 +106,7 @@ namespace TimeManager.Backend.Controllers
                         TempData["error"] = "Employee data was not found for the User";
                         return View(model);
                     }
-                    HttpContext.Session.SetInt32("DepartmentId", employee.DepartmentId);
+                    HttpContext.Session.SetInt32("DepartmentId", employee.DepartmentId ?? 0);
                     return LocalRedirect(returnUrl ?? "/app/dashboard");
                 }
 

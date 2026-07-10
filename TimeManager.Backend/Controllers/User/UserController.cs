@@ -91,20 +91,7 @@ namespace TimeManager.Backend.Controllers.User
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> BulkCreate(IFormFile excelFile)
         {
-            if (excelFile == null || excelFile.Length == 0)
-            {
-                TempData["error"] = "Please select an excel file";
-                return RedirectToAction(nameof(Index));
-            }
-
-            var extension = Path.GetExtension(excelFile.FileName).ToLowerInvariant();
-            if (extension != ".xlsx" && extension != ".xls")
-            {
-                TempData["error"]= "Only Excel file (.xlsx, .xls) are supported";
-                return RedirectToAction(nameof(Index));
-            }
-
-            (List<Dictionary<string, string>> d, string? error) = excelService.ParseExcelFileToList(excelFile);
+            (List<Dictionary<string, string>> d, string? error) = excelService.ParseExcelFileToList(excelFile, ["Email", "Role", "UserName"]);
 
             if (!string.IsNullOrEmpty(error))
             {
@@ -112,11 +99,11 @@ namespace TimeManager.Backend.Controllers.User
                 return RedirectToAction(nameof(Index));
             }
 
-            if (!d[0].ContainsKey("Email") || !d[0].ContainsKey("Role"))
-            {
-                TempData["error"] = "The excel file doesn't contains required columns";
-                return RedirectToAction(nameof(Index));
-            }
+            var validRows = d.Where(item =>
+                    !string.IsNullOrEmpty(item["Email"]) &&
+                    !string.IsNullOrEmpty(item["Role"]) &&
+                    !string.IsNullOrEmpty(item["UserName"]) 
+                ).ToList();
 
             var rolesCache = (await roleService.GetRolesAsync())
                 .ToDictionary(r => r.Id.ToString(), r => r.Name, StringComparer.OrdinalIgnoreCase);
@@ -139,27 +126,21 @@ namespace TimeManager.Backend.Controllers.User
                 try
                 {
                     const int chunkSize = 100;
-                    for (int i = 0; i < d.Count; i += chunkSize)
+                    for (int i = 0; i < validRows.Count; i += chunkSize)
                     {
-                        var chunk = d.OrderBy(e => e["Role"]).Skip(i).Take(chunkSize);
+                        var chunk = validRows.OrderBy(e => e["Role"]).Skip(i).Take(chunkSize);
 
                         foreach (var item in chunk)
                         {
-                            if (string.IsNullOrEmpty(item["Email"]) || string.IsNullOrEmpty(item["Role"]))
+                            if (existingEmails.Contains(item["Email"]))
                             {
                                 continue;
                             }
 
-                            if (existingEmails.Contains(item["Email"]+"@semo.edu"))
-                            {
-                                continue;
-                            }
-
-                            var email = item["Email"]+"@semo.edu";
                             var user = new U
                             {
-                                UserName = item["Email"],
-                                Email = email,
+                                UserName = item["UserName"],
+                                Email = item["Email"],
                                 EmailConfirmed = true,
                                 PasswordHash = defaultPasswordHash
                             };

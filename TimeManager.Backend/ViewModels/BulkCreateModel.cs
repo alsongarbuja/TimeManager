@@ -7,5 +7,7 @@ namespace TimeManager.Backend.ViewModels
         [Required(ErrorMessage = "File is required")]
         [Display(Name = "File")]
         public IFormFile ExcelFile { get; set; }
+
+        public required string Controller { get; set; }
     }
 }

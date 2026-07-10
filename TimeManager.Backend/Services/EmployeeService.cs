@@ -24,7 +24,10 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id);
     }
 
-    public class EmployeeService(HrmsDbContext hrmsDbContext, ILogger<Employee> logger) : IEmployeeService
+    public class EmployeeService(
+        HrmsDbContext hrmsDbContext, 
+        ILogger<Employee> logger
+        ) : IEmployeeService
     {
         public async Task<int> CreateEmployeeAsync(EmployeeDto employeeDto)
         {
@@ -101,7 +104,6 @@ namespace TimeManager.Backend.Services
                         LastName = e.LastName,
                         Email = e.User.Email ?? string.Empty,
                         UniqueId = e.UniqueId,
-                        DepartmentName = e.Department.Name,
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize
@@ -117,6 +119,9 @@ namespace TimeManager.Backend.Services
                     .Where(x => x.Name == AppConstants.SUPER_ADMIN_ROLE || x.Name == AppConstants.ADMIN_ROLE)
                     .Select(x => x.UserId)
                     .ToHashSetAsync();
+                var excludedOtherDepartmentUserIds = await hrmsDbContext.JobProfile.Where(
+                        jp => jp.ProfileTemplate.Unit.DepartmentId != departmentId
+                    ).Select(jp => jp.Employee.UserId).ToHashSetAsync();
 
                 (employees, totalRecords) = await hrmsDbContext.Employee.FindWithPaginationAsync(
                     e => new EmployeeViewModel
@@ -126,11 +131,10 @@ namespace TimeManager.Backend.Services
                         LastName = e.LastName,
                         Email = e.User.Email ?? string.Empty,
                         UniqueId = e.UniqueId,
-                        DepartmentName = e.Department.Name,
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
-                    e => e.DepartmentId == departmentId && !excludedUserIds.Contains(e.UserId)
+                    e => !excludedUserIds.Contains(e.UserId) && !excludedOtherDepartmentUserIds.Contains(e.UserId)
                 );
             }
             return new PagedResponse<EmployeeViewModel>(employees, pageNumber, pageSize, totalRecords);
@@ -190,7 +194,6 @@ namespace TimeManager.Backend.Services
         [Required(ErrorMessage = "User id is required")]
         public int UserId { get; set; }
 
-        [Required(ErrorMessage = "Department Id is required")]
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
     }
 }

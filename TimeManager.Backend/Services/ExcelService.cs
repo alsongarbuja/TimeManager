@@ -4,14 +4,27 @@ namespace TimeManager.Backend.Services
 {
     public interface IExcelService
     {
-        public (List<Dictionary<string, string>>, string? error) ParseExcelFileToList(IFormFile excelFile);
+        public (List<Dictionary<string, string>>, string? error) ParseExcelFileToList(IFormFile excelFile, List<string> requriedHeaders);
     }
 
     public class ExcelService : IExcelService
     {
-        public (List<Dictionary<string, string>>, string? error) ParseExcelFileToList(IFormFile excelFile)
+        public (List<Dictionary<string, string>>, string? error) ParseExcelFileToList(IFormFile excelFile, List<string> requiredHeaders)
         {
             string? error;
+
+            if (excelFile == null || excelFile.Length == 0)
+            {
+                error = "Please select an excel file";
+                return ([], error);
+            }
+
+            var extension = Path.GetExtension(excelFile.FileName).ToLowerInvariant();
+            if (extension != ".xlsx" && extension != ".xls")
+            {
+                error = "Only Excel file (.xlsx, .xls) are supported";
+                return ([], error);
+            }
 
             var importedDatas = new List<Dictionary<string, string>>();
 
@@ -27,11 +40,30 @@ namespace TimeManager.Backend.Services
                         return ([], error);
                     }
 
-                    var lastRow = worksheet.LastRowUsed().RowNumber();
+                    var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? 0;
+                    if (lastRow < 1)
+                    {
+                        error = "The Excel file is empty";
+                        return ([], error);
+                    }
 
                     var headerRow = worksheet.Row(1);
-                    int colNum = 1;
+                    var actualHeaders = headerRow.CellsUsed()
+                        .Select(cell => cell.GetValue<string>().Trim())
+                        .ToList();
 
+                    if (requiredHeaders != null && requiredHeaders.Count > 0)
+                    {
+                        var missingHeaders = requiredHeaders.Where(req => !actualHeaders.Contains(req, StringComparer.OrdinalIgnoreCase)).ToList();
+
+                        if (missingHeaders.Count > 0)
+                        {
+                            error = $"Missing required columns in the excel file. Please check the example file";
+                            return ([], error);
+                        }
+                    }
+
+                    int colNum = 1;
                     for (int rowNum = 2; rowNum <= lastRow; rowNum++)
                     {
                         var row = worksheet.Row(rowNum);
@@ -49,8 +81,6 @@ namespace TimeManager.Backend.Services
                     }
                 }
             }
-
-            Console.WriteLine(importedDatas);
 
             return (importedDatas, null);
         }

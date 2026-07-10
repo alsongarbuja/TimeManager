@@ -34,10 +34,11 @@ namespace TimeManager.Backend.Controllers.JobProfile
         public async Task<IActionResult> Create(JobProfileViewModel pvm)
         {
             await jobProfileService.CreateJobProfileAsync(pvm);
+            TempData["success"] = "Job Profile successfully created";
             return View(new JobProfileViewModel
             {
-                Employees = pvm.Employees,
-                ProfileTemplates = pvm.ProfileTemplates,
+                Employees = (await employeeService.GetEmployeeOptionAsync()),
+                ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync())
             });
         }
 

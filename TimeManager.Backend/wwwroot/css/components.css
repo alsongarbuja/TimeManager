@@ -213,12 +213,27 @@ input::-ms-reveal {
     gap: 1em;
 }
 
+.btn-modal {
+   background: transparent !important;
+   color: black !important;
+   border: 1px solid black !important;
+   cursor: pointer;
+}
+
+.btn-modal:hover {
+    background: #0000002d !important;
+}
+
 .btn-modal-close {
     position: absolute;
     top: .1em;
     right: .1em;
     background: transparent;
-    border: none;
+    border: none !important;
     font-size: 1.5em;
     cursor: pointer;
+}
+
+.btn-modal-close:hover {
+    background: transparent !important;
 }

@@ -27,7 +27,8 @@
 @section modalcontent {
     <partial name="_BulkCreateForm"
              model='new BulkCreateModel() {
-                Controller = "User"
+                Controller = "User",
+                 ExampleFileName = "timemanager_user_bulk_import_example.xlsx"
              }' 
       />
 }

@@ -28,7 +28,12 @@
     }
 
     @section modalcontent {
-        <partial name="_BulkCreateForm" model='new BulkCreateModel() { Controller = "Employee" }' />
+        <partial name="_BulkCreateForm" 
+            model='new BulkCreateModel() { 
+                Controller = "Employee", 
+                     ExampleFileName = "timemanager_employee_bulk_import_example.xlsx"
+            }' 
+          />
     }
 }
 

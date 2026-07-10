@@ -207,6 +207,13 @@ input::-ms-reveal {
     border-radius: .5em;
 }
 
+.modal-content a {
+    display: block;
+    margin-block-end: .5em;
+    text-decoration: none;
+    text-align: right;
+}
+
 .modal-content > form {
     display: flex;
     flex-direction: column;

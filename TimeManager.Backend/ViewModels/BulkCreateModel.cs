@@ -9,5 +9,6 @@ namespace TimeManager.Backend.ViewModels
         public IFormFile ExcelFile { get; set; }
 
         public required string Controller { get; set; }
+        public required string ExampleFileName { get; set; }
     }
 }

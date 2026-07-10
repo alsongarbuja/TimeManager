@@ -5,6 +5,8 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Dashboard";
+
+    var days = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 }
 
 @section scripts {
@@ -53,8 +55,35 @@
             </div>
         </div>
     </div>
+
+    <h3>Current Bi-Weekly Punches</h3>
     
-    <div class=""></div>
+    <div class="rg-table-card">
+        <div class="rg-table-scroll">
+            <table class="rg-table">
+                <thead>
+                    <tr>
+                        <th class="rg-th rg-th-week">Week</th>
+                        @foreach (var day in days)
+                        {
+                            <th class="rg-th @(day is "Saturday" or "Sunday" ? "rg-th-weekend" : "")">@day</th>
+                        }
+                        <th class="rg-th rg-th-total">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @await Html.PartialAsync("_WeekRow", (Model.WeekOne, "Week 1", days))
+                    @await Html.PartialAsync("_WeekRow", (Model.WeekTwo, "Week 2", days))
+                </tbody>
+                <tfoot>
+                    <tr class="rg-foot-row">
+                        <td colspan="@(days.Length + 1)" class="rg-foot-spacer"></td>
+                        <td class="rg-foot-total">@Model.TotalHours.ToString("F2")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 }
 
 @if (User.IsInRole(AppConstants.LEAD_ROLE) || User.IsInRole(AppConstants.EMPLOYEE_ROLE))

@@ -33,12 +33,5 @@ namespace TimeManager.Backend.Services
             var employee = await hrmsDbContext.Employee.Include(e => e.Department).FirstOrDefaultAsync(e => e.UserId == userId) ?? throw new KeyNotFoundException("Current Employee not found for the user id");
             return employee;
         }
-
-        public async Task<int> GetCurrentEmployeeDepartmentIdAsync(int? dpId)
-        {
-            if (dpId != null) return (int)dpId;
-            var employee = await GetCurrentEmployeeAsync();
-            return employee.DepartmentId;
-        }
     }
 }

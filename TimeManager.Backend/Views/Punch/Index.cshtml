@@ -7,6 +7,7 @@
     ViewData["Title"] = "Punch entries";
 
     List<string> Headers = ["Name", "Clock in", "Clock Out"];
+    List<string> OrderingKeys = ["Name"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Punches";
     ViewData["ModuleDesc"] = "Manage the punches in the system";
@@ -14,10 +15,9 @@
     ViewData["HasCreate"] = false;
 
     ViewData["HasPagination"] = true;
+    ViewData["OrderingKeys"] = OrderingKeys;
     ViewData["TotalPages"] = Model.Data.TotalPages;
-    ViewData["CurrentPage"] = Model.Data.PageNumber;
     ViewData["TotalRecords"] = Model.Data.TotalRecords;
-    ViewData["PageSize"] = Model.Data.PageSize;
 
     IEnumerable<PunchViewModel> punches = Model.Data.Data;
 }

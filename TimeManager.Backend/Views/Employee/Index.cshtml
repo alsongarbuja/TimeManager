@@ -9,16 +9,16 @@
     ViewData["Title"] = "Employee";
 
     List<string> Headers = ["SO Id", "Name", "Email"];
+    List<string> OrderingKeys = ["SO Id", "Name", "Email"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Employee";
     ViewData["ModuleDesc"] = "Manage the employee data in the system";
     ViewData["Controller"] = "Employee";
 
     ViewData["HasPagination"] = true;
+    ViewData["OrderingKeys"] = OrderingKeys;
     ViewData["TotalPages"] = Model.TotalPages;
-    ViewData["CurrentPage"] = Model.PageNumber;
     ViewData["TotalRecords"] = Model.TotalRecords;
-    ViewData["PageSize"] = Model.PageSize;
 }
 
 @if (User.IsInRole(AppConstants.ADMIN_ROLE))

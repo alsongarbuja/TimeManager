@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
@@ -106,7 +107,14 @@ namespace TimeManager.Backend.Services
 
         public async Task<PagedResponse<UserViewModel>> GetUsersAsync(PaginationFilter filter)
         {
-            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDesceding) = PaginationValidation.ValidateFilterValues(filter);
+
+            Expression<Func<User, object>>? orderByExpression = orderBy?.ToLower() switch
+            {
+                "name" => u => u.UserName,
+                "email" => u => u.Email,
+                _ => null
+            };
 
             (List<UserViewModel> users, int totalRecords) = await hrmsDbContext.Users.FindWithPaginationAsync(
                 u => new UserViewModel
@@ -122,9 +130,11 @@ namespace TimeManager.Backend.Services
                         ur => ur.RoleId,
                         r => r.Id,
                         (ur, r) => new { ur.UserId, r.Name })
-                    .Any(ur => ur.UserId == u.Id && ur.Name == AppConstants.SUPER_ADMIN_ROLE)
+                    .Any(ur => ur.UserId == u.Id && ur.Name == AppConstants.SUPER_ADMIN_ROLE),
+                orderByExpression,
+                isOrderDesceding
                 );
-            return new PagedResponse<UserViewModel>(users, pageNumber, pageSize, totalRecords);
+            return new PagedResponse<UserViewModel>(users, pageNumber, pageSize, totalRecords, orderBy, isOrderDesceding);
         }
 
         public async Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm)

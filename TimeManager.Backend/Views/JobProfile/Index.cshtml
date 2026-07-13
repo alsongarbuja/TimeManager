@@ -8,16 +8,16 @@
     ViewData["Title"] = "Job Profile";
 
     List<string> Headers = ["Employee", "Profile Template"];
+    List<string> OrderingKeys = ["Employee"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Job Profile";
     ViewData["ModuleDesc"] = "Manage job profiles in the department";
     ViewData["Controller"] = "JobProfile";
 
     ViewData["HasPagination"] = true;
+    ViewData["OrderingKeys"] = OrderingKeys;
     ViewData["TotalPages"] = Model.TotalPages;
-    ViewData["CurrentPage"] = Model.PageNumber;
     ViewData["TotalRecords"] = Model.TotalRecords;
-    ViewData["PageSize"] = Model.PageSize;
 }
 
 @section CustomCreate {

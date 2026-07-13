@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
@@ -44,8 +45,13 @@ namespace TimeManager.Backend.Services
 
         public async Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId, PaginationFilter filter)
         {
-            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
             int totalRecords = 0;
+            Expression<Func<JobProfile, object>>? orderExpression = orderBy?.ToLower() switch
+            {
+                "employee" => jp => jp.Employee.FirstName,
+                _ => null
+            };
 
             IEnumerable<JobProfileViewModel> jobprofiles = [];
 
@@ -62,7 +68,10 @@ namespace TimeManager.Backend.Services
                         ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index}) / {jp.ProfileTemplate.Role.Name}",
                     },
                     ((pageNumber - 1) * pageSize),
-                    pageSize
+                    pageSize,
+                    null,
+                    orderExpression,
+                    isOrderDescending
                   );
             }
             else
@@ -83,7 +92,7 @@ namespace TimeManager.Backend.Services
                   );
             }
 
-            return new PagedResponse<JobProfileViewModel>(jobprofiles, pageNumber, pageSize, totalRecords);
+            return new PagedResponse<JobProfileViewModel>(jobprofiles, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId)

@@ -206,13 +206,41 @@
 }
 
 .table-header-cell {
-    padding: 1rem 1.5rem;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #4b5563;
+    height: 3.5rem;
+}
+
+.table-header-cell-inner {
+    padding-inline-start: 1.5rem; 
+}
+
+.table-header-orderable-cell {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    height: 100%;
+}
+
+.table-header-orderable-cell:hover {
+    background-color: #6b728033;
+}
+
+.table-header-orderable-cell .table-header-order-icon {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.table-header-order-icon i {
+    height: 1rem;
 }
 
 .table-body > tr + tr {

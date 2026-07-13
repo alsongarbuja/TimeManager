@@ -7,11 +7,18 @@
 
     // Pagination Related ViewData
     bool hasPagination = ViewData["HasPagination"] as bool? ?? false;
-
     int totalPages = ViewData["TotalPages"] as int? ?? 1;
-    int currentPage = ViewData["CurrentPage"] as int? ?? 1;
     int totalRecords = ViewData["TotalRecords"] as int? ?? 1;
-    int pageSize = ViewData["PageSize"] as int? ?? 10;
+    var orderingKeys = ViewData["OrderingKeys"] as List<string> ?? [];
+
+    int currentPage = int.TryParse(Context.Request.Query["pageNumber"], out var cp) ? cp : 1;
+    int pageSize = int.TryParse(Context.Request.Query["pageSize"], out var ps) ? ps : 10;
+
+    string? currentOrderBy = Context.Request.Query["orderBy"];
+    bool currentIsDescending = Context.Request.Query["isOrderDescending"] == "True";
+
+    string? nextOrderBy = null;
+    string? nextIsDescending = "False";
 }
 
 <div class="page-container">
@@ -57,7 +64,6 @@
                         <div class="d-flex align-items-center">
                             <label for="pageSize" class="me-2 mb-0 text-nowrap">Rows Per Page:</label>
                             <select id="pageSize" name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
-                                <!═ Dynamically mark the current selection as 'selected' ═>
                                     <option value="5" selected="@(pageSize == 5)">5</option>
                                     <option value="10" selected="@(pageSize == 10)">10</option>
                                     <option value="25" selected="@(pageSize == 25)">25</option>
@@ -87,6 +93,8 @@
                                 asp-action="Index"
                                 asp-route-pageNumber="@i"
                                 asp-route-pageSize="@pageSize"
+                                asp-route-orderBy="@currentOrderBy"
+                                asp-route-isOrderDescending="@currentIsDescending"
                                 class="btn btn-pag-number @(i == currentPage ? "btn-pag-number-selected":"")"
                             >
                                 @i
@@ -117,8 +125,58 @@
                         <tr>
                             @foreach (var header in headers!)
                             {
+                                if (currentOrderBy == header)
+                                {
+                                    if (!currentIsDescending)
+                                    {
+                                        nextOrderBy = header;
+                                        nextIsDescending = "True";
+                                    } else
+                                    {
+                                        nextOrderBy = null;
+                                        nextIsDescending = "False";
+                                    }
+                                } else
+                                {
+                                    nextOrderBy = header;
+                                    nextIsDescending = "False";
+                                }
+
                                 <th class="table-header-cell">
-                                    @header
+                                    @if (hasPagination && orderingKeys.Contains(header))
+                                    {  
+                                        <a
+                                            asp-controller="@controller"
+                                            asp-action="Index"
+                                            asp-route-pageNumber="@currentPage"
+                                            asp-route-pageSize="@pageSize"
+                                            asp-route-orderBy="@nextOrderBy"
+                                            asp-route-isOrderDescending="@nextIsDescending"
+                                            class="table-header-orderable-cell table-header-cell-inner"
+                                        >
+                                            @header
+
+                                            @if (!string.IsNullOrEmpty(currentOrderBy) && currentOrderBy == header)
+                                            {
+                                                <span class="table-header-order-icon">
+                                                        @if (currentIsDescending)
+                                                    {
+                                                            <i class="ri-arrow-up-s-line"></i>
+                                                            <i class="ri-arrow-down-s-fill"></i>
+                                                    } else
+                                                    {
+                                                            <i class="ri-arrow-up-s-fill"></i>
+                                                            <i class="ri-arrow-down-s-line"></i>
+                                                    }
+                                                </span>
+                                            }
+                                        </a>
+                                    } else
+                                    {
+                                        <span class="table-header-cell-inner">
+                                            @header
+                                        </span>
+                                    }
                                 </th>
                             }
                             @if (hasAction != "false")

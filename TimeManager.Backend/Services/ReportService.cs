@@ -27,7 +27,7 @@ namespace TimeManager.Backend.Services
                 return null;
             }
 
-            PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetPreviousPayPeriod();
+            PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetCurrentPayPeriod();
 
             if (pp == null)
             {
@@ -93,7 +93,7 @@ namespace TimeManager.Backend.Services
                 return [];
             }
 
-            PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetPreviousPayPeriod();
+            PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetCurrentPayPeriod();
 
             if (pp == null)
             {

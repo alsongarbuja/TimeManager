@@ -8,16 +8,16 @@
     ViewData["Title"] = "Profile Template";
 
     List<string> Headers = ["Unit", "Role", "Shift Start Time", "Early Clock in buffer"];
+    List<string> OrderingKeys = ["Unit", "Role"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Profile Template";
     ViewData["ModuleDesc"] = "Manage the profile templates in the department";
     ViewData["Controller"] = "ProfileTemplate";
 
     ViewData["HasPagination"] = true;
+    ViewData["OrderingKeys"] = OrderingKeys;
     ViewData["TotalPages"] = Model.TotalPages;
-    ViewData["CurrentPage"] = Model.PageNumber;
     ViewData["TotalRecords"] = Model.TotalRecords;
-    ViewData["PageSize"] = Model.PageSize;
 }
 
 @if (Model.Data.Count() <= 0)

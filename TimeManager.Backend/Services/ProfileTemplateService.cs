@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
@@ -62,11 +63,17 @@ namespace TimeManager.Backend.Services
 
         public async Task<PagedResponse<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId, PaginationFilter filter)
         {
-            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
 
             int totalRecords = 0;
 
             IEnumerable<ProfileTemplateViewModel> profileTemplates = [];
+            Expression<Func<ProfileTemplate, object>>? orderExpression = orderBy?.ToLower() switch
+            {
+                "unit" => pt => pt.Unit.Name,
+                "role" => pt => pt.Role.Name,
+                _ => null,
+            };
             
             if (departmentId == null)
             {
@@ -81,7 +88,10 @@ namespace TimeManager.Backend.Services
                      EarlyClockInBufferMin = pt.EarlyClockInBufferMin,
                  },
                  ((pageNumber - 1) * pageSize),
-                 pageSize
+                 pageSize,
+                 null,
+                 orderExpression,
+                 isOrderDescending
                     );
             } else
             {
@@ -101,7 +111,7 @@ namespace TimeManager.Backend.Services
                     );
             }
 
-            return new PagedResponse<ProfileTemplateViewModel>(profileTemplates, pageNumber, pageSize, totalRecords);
+            return new PagedResponse<ProfileTemplateViewModel>(profileTemplates, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }
 
         public async Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm)

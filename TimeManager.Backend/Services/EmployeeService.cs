@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
@@ -88,7 +89,14 @@ namespace TimeManager.Backend.Services
 
         public async Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(int? departmentId, PaginationFilter filter)
         {
-            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
+            Expression<Func<Employee, object>>? orderExpression = orderBy?.ToLower() switch
+            {
+                "so id" => e => e.UniqueId,
+                "name" => e => e.FirstName,
+                "email" => e => e.User.Email,
+                _ => null
+            };
             
             int totalRecords = 0;
             IEnumerable<EmployeeViewModel> employees = [];
@@ -106,7 +114,10 @@ namespace TimeManager.Backend.Services
                         UniqueId = e.UniqueId,
                     },
                     ((pageNumber - 1) * pageSize),
-                    pageSize
+                    pageSize,
+                    null,
+                    orderExpression,
+                    isOrderDescending
                  );
             } else
             {
@@ -137,7 +148,7 @@ namespace TimeManager.Backend.Services
                     e => !excludedUserIds.Contains(e.UserId) && !excludedOtherDepartmentUserIds.Contains(e.UserId)
                 );
             }
-            return new PagedResponse<EmployeeViewModel>(employees, pageNumber, pageSize, totalRecords);
+            return new PagedResponse<EmployeeViewModel>(employees, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }
 
         public async Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id)

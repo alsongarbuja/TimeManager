@@ -45,10 +45,10 @@ namespace TimeManager.Backend.Services
 
         public async Task<PagedResponse<PayPeriodViewModel>> GetPayPeriodsAsync(PaginationFilter filter)
         {
-            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
             var currentPayPeriod = await payPeriodUtility.GetCurrentPayPeriod();
 
-            if (currentPayPeriod == null) return new PagedResponse<PayPeriodViewModel>([], pageNumber, pageSize, 0);
+            if (currentPayPeriod == null) return new PagedResponse<PayPeriodViewModel>([], pageNumber, pageSize, 0, orderBy, isOrderDescending);
 
             (var payperiods, int totalRecords) = await context.PayPeriod.FindWithPaginationAsync(
                 p => new PayPeriodViewModel
@@ -63,7 +63,7 @@ namespace TimeManager.Backend.Services
                 true
                 );
 
-            return new PagedResponse<PayPeriodViewModel>(payperiods, pageNumber, pageSize, totalRecords);
+            return new PagedResponse<PayPeriodViewModel>(payperiods, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }
 
         public async Task AutoGeneratePayPeriod()

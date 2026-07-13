@@ -7,18 +7,18 @@
     ViewData["Title"] = "Pay Period";
 
     List<string> Headers = ["Start Date", "End Date"];
+    List<string> OrderingKeys = [];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Pay Period";
     ViewData["ModuleDesc"] = "Manage the pay periods in the system";
     ViewData["HasAction"] = "false";
     ViewData["Controller"] = "PayPeriod";
     ViewData["HasCreate"] = false;
-    ViewData["HasPagination"] = true;
 
+    ViewData["HasPagination"] = true;
+    ViewData["OrderingKeys"] = OrderingKeys;
     ViewData["TotalPages"] = Model.TotalPages;
-    ViewData["CurrentPage"] = Model.PageNumber;
     ViewData["TotalRecords"] = Model.TotalRecords;
-    ViewData["PageSize"] = Model.PageSize;
 }
 
 @if (Model.Data.Count() <= 0)

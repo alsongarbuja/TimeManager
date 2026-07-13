@@ -7,17 +7,16 @@
     Layout = "_ListWrapper";
     ViewData["Title"] = "User";
 
-    List<string> Headers = ["Name", "Email", ];
+    List<string> Headers = ["Name", "Email",];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "User";
     ViewData["ModuleDesc"] = "Manage the users in the system";
     ViewData["Controller"] = "User";
 
     ViewData["HasPagination"] = true;
+    ViewData["OrderingKeys"] = Headers;
     ViewData["TotalPages"] = Model.TotalPages;
-    ViewData["CurrentPage"] = Model.PageNumber;
     ViewData["TotalRecords"] = Model.TotalRecords;
-    ViewData["PageSize"] = Model.PageSize;
 }
 
 @section CustomCreate {

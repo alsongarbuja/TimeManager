@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
@@ -82,7 +83,12 @@ namespace TimeManager.Backend.Services
 
         public async Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationFilter filter)
         {
-            (int pageNumber, int pageSize) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
+            Expression<Func<PunchEntry, object>>? orderExpression = orderBy?.ToLower() switch
+            {
+                "name" => pe => pe.JobProfile.Employee.FirstName,
+                _ => pe => pe.ClockIn,
+            };
 
             (var punches, int totalRecords) = await context.PunchEntry.FindWithPaginationAsync(
                 pe => new PunchViewModel
@@ -96,11 +102,11 @@ namespace TimeManager.Backend.Services
                 ((pageNumber - 1) * pageSize), 
                 pageSize,
                 null,
-                pe => pe.ClockIn,
-                true
+                orderExpression,
+                isOrderDescending
                 );
 
-            return new PagedResponse<PunchViewModel>(punches, pageNumber, pageSize, totalRecords);
+            return new PagedResponse<PunchViewModel>(punches, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }
 
         public async Task<PunchEntry?> UpdatePunchAsync(int id, PunchDto punchEntryDto)

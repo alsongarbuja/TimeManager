@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Employee_Management;
-using TimeManager.Backend.Models.Organization_Management;
 using TimeManager.Backend.Models.Punch_Management;
 using TimeManager.Backend.ViewModels;
 
@@ -19,7 +17,7 @@ namespace TimeManager.Backend.Services
     {
         public async Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id, int payPeriodId = 0)
         {
-            JobProfile? jp = await hrmsDbContext.JobProfile.Include(jp => jp.Employee).Include(jp => jp.ProfileTemplate).ThenInclude(pt => pt.Unit).AsSplitQuery().FirstOrDefaultAsync(j => j.Id == id);
+            JobProfile? jp = await hrmsDbContext.JobProfile.AsNoTracking().Include(jp => jp.Employee).Include(jp => jp.ProfileTemplate).ThenInclude(pt => pt.Unit).AsSplitQuery().FirstOrDefaultAsync(j => j.Id == id);
 
             if (jp == null)
             {
@@ -34,60 +32,18 @@ namespace TimeManager.Backend.Services
                 logger.LogWarning($"Pay period with id {payPeriodId} or previous pay period not found");
                 return null;
             }
-            List<PunchEntry> punches = await hrmsDbContext.PunchEntry.Where(pe =>
+            List<PunchEntry> punches = await hrmsDbContext.PunchEntry.AsNoTracking().Where(pe =>
                 pe.JobProfileId == id && pe.ClockIn >= pp.StartDate && pe.ClockIn < pp.EndDate
                 && pe.ClockOut > pp.StartDate && pe.ClockOut <= pp.EndDate && pe.ClockOut != null
             ).ToListAsync();
 
-            ReportGeneratedViewModel report = new()
-            {
-                Name = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                JobProfileId = id,
-                TotalHours = 0.0,
-                TotalHolidayHours = 0.0,
-                TotalWorkedHours = 0.0,
-                WeekOne = [],
-                WeekTwo = [],
-                UnitName = jp.ProfileTemplate.Unit.Name,
-            };
-
-            for (int i = 0; i < punches.Count; i++)
-            {
-                string DayOfWeek = punches[i].ClockIn.DayOfWeek.ToString();
-                double totalHrs = Math.Round(punches[i].ClockOut!.Value.Subtract(punches[i].ClockIn).TotalHours, 2);
-
-                report.TotalHours = Math.Round(report.TotalHours + totalHrs, 2);
-                report.TotalWorkedHours = Math.Round(report.TotalWorkedHours + totalHrs, 2);
-
-                bool isWeekTwo = (punches[i].ClockIn - pp.StartDate).Days >= 7;
-                var targetWeek = isWeekTwo ? report.WeekTwo : report.WeekOne;
-
-                if (targetWeek.TryGetValue(DayOfWeek, out DayReport? value))
-                {
-                    targetWeek[DayOfWeek] = new DayReport {
-                        Hours = value.Hours + totalHrs,
-                        Type = "REG",
-                    };
-                }
-                else
-                {
-                    targetWeek.Add(DayOfWeek, new DayReport
-                    {
-                        Hours = totalHrs,
-                        Type = "REG",
-                    });
-                }
-            }
-
-            string jsonString = JsonSerializer.Serialize(report, options: new(){ WriteIndented = true });
-
-            return report;
+            return BuildReport(jp, punches, pp);
         }
 
         public async Task<IEnumerable<ReportGeneratedViewModel>> GenerateReportByUnitId(int id, int payPeriodId = 0)
         {
-            Unit? unit = await hrmsDbContext.Unit.FindAsync(id);
-            if (unit == null)
+            var unit = await hrmsDbContext.Unit.AsNoTracking().AnyAsync(u => u.Id == id);
+            if (!unit)
             {
                 logger.LogWarning($"Unit with id: {id} not found");
                 return [];
@@ -103,16 +59,91 @@ namespace TimeManager.Backend.Services
 
             List<ReportGeneratedViewModel> reports = [];
 
-            List<JobProfile> jps = await hrmsDbContext.JobProfile.Where(jp => jp.ProfileTemplate.UnitId == id).ToListAsync();
+            List<JobProfile> jps = await hrmsDbContext.JobProfile
+                .AsNoTracking()
+                .Include(jp => jp.Employee)
+                .Include(jp => jp.ProfileTemplate)
+                .ThenInclude(pt => pt.Unit)
+                .Where(jp => jp.ProfileTemplate.UnitId == id)
+                .AsSplitQuery()
+                .ToListAsync();
 
-            for (int i = 0; i < jps.Count; i++)
+            if (!jps.Any())
             {
-                var r = await this.GenerateReportByJobProfileId(jps[i].Id, pp.Id);
-                if (r == null) continue;
-                reports.Add(r);
+                return reports;
             }
 
+            var jpIds = jps.Select(j => j.Id).ToList();
+            var punches = await hrmsDbContext.PunchEntry
+                .AsNoTracking()
+                .Where(pe =>
+                    jpIds.Contains(pe.JobProfileId) &&
+                    pe.ClockIn >= pp.StartDate &&
+                    pe.ClockIn < pp.EndDate &&
+                    pe.ClockOut != null)
+                .OrderBy(pe => pe.ClockIn)
+                .ToListAsync();
+
+            var punchesByProfile = punches
+                .GroupBy(p => p.JobProfileId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.ToList()
+                );
+
+            foreach (var jp in jps)
+            {
+                punchesByProfile.TryGetValue(jp.Id, out var profile);
+
+                reports.Add(BuildReport(jp, profile ?? [], pp));
+            }
+           
             return reports;
+        }
+
+        private static ReportGeneratedViewModel BuildReport(JobProfile jobProfile, IEnumerable<PunchEntry> punchEntries, PayPeriod payPeriod)
+        {
+            var report = new ReportGeneratedViewModel
+            {
+                Name = $"{jobProfile.Employee.FirstName} {jobProfile.Employee.LastName}",
+                JobProfileId = jobProfile.Id,
+                TotalHours = 0,
+                TotalWorkedHours = 0,
+                TotalHolidayHours = 0,
+                WeekOne = [],
+                WeekTwo = [],
+                UnitName = jobProfile.ProfileTemplate.Unit.Name
+            };
+
+            foreach(var punch in punchEntries)
+            {
+                if (punch.ClockOut == null)
+                    continue;
+
+                var dayOfWeek = punch.ClockIn.DayOfWeek.ToString();
+                var hours = Math.Round((punch.ClockOut.Value - punch.ClockIn).TotalHours, 2);
+
+                report.TotalHours = Math.Round(report.TotalHours + hours, 2);
+                report.TotalWorkedHours = Math.Round(report.TotalWorkedHours + hours, 2);
+
+                bool isWeekTwo = (punch.ClockIn - payPeriod.StartDate).Days > 7;
+
+                var targetWeek = isWeekTwo ? report.WeekTwo : report.WeekOne;
+
+                if (targetWeek.TryGetValue(dayOfWeek, out var existingDayInWeek))
+                {
+                    existingDayInWeek.Hours += hours;
+                } else
+                {
+                    targetWeek[dayOfWeek] = new DayReport
+                    {
+                        Hours = hours,
+                        Type = "REG",
+                    };
+                }
+            }
+
+            return report;
         }
     }
 }

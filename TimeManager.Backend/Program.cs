@@ -1,4 +1,3 @@
-using ClosedXML.Parser;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +21,7 @@ string logFolder = Path.Combine(AppContext.BaseDirectory, "logs");
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-builder.Logging.AddFile(Path.Combine(logFolder, "app-{Date}.txt"));
+builder.Logging.AddFile(Path.Combine(logFolder, "app-{Date}.txt"), retainedFileCountLimit: 7);
 
 builder.Services.AddIdentity<User, Role>(options =>
 {

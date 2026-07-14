@@ -10,7 +10,7 @@ namespace TimeManager.Backend.Services
     public interface IReportService
     {
         Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id, int payPeriodId = 0);
-        Task<IEnumerable<ReportGeneratedViewModel>> GenerateReportByUnitId(int id, int payPeriodId = 0);
+        Task<(PayPeriod? pp, IEnumerable<ReportGeneratedViewModel>)> GenerateReportByUnitId(int id, int payPeriodId = 0);
     }
 
     public class ReportService(HrmsDbContext hrmsDbContext, PayPeriodUtility payPeriodUtility, ILogger<JobProfile> logger) : IReportService
@@ -40,13 +40,13 @@ namespace TimeManager.Backend.Services
             return BuildReport(jp, punches, pp);
         }
 
-        public async Task<IEnumerable<ReportGeneratedViewModel>> GenerateReportByUnitId(int id, int payPeriodId = 0)
+        public async Task<(PayPeriod? pp, IEnumerable<ReportGeneratedViewModel>)> GenerateReportByUnitId(int id, int payPeriodId = 0)
         {
             var unit = await hrmsDbContext.Unit.AsNoTracking().AnyAsync(u => u.Id == id);
             if (!unit)
             {
                 logger.LogWarning($"Unit with id: {id} not found");
-                return [];
+                return (null, new List<ReportGeneratedViewModel>());
             }
 
             PayPeriod? pp = payPeriodId != 0 ? await payPeriodUtility.GetPayPeriodByIdAsync(payPeriodId) : await payPeriodUtility.GetCurrentPayPeriod();
@@ -54,7 +54,7 @@ namespace TimeManager.Backend.Services
             if (pp == null)
             {
                 logger.LogWarning($"Pay period with id: {payPeriodId} or previous pay period not found");
-                return [];
+                return (null, new List<ReportGeneratedViewModel>());
             }
 
             List<ReportGeneratedViewModel> reports = [];
@@ -70,7 +70,7 @@ namespace TimeManager.Backend.Services
 
             if (!jps.Any())
             {
-                return reports;
+                return (pp, reports);
             }
 
             var jpIds = jps.Select(j => j.Id).ToList();
@@ -98,7 +98,7 @@ namespace TimeManager.Backend.Services
                 reports.Add(BuildReport(jp, profile ?? [], pp));
             }
            
-            return reports;
+            return (pp, reports);
         }
 
         private static ReportGeneratedViewModel BuildReport(JobProfile jobProfile, IEnumerable<PunchEntry> punchEntries, PayPeriod payPeriod)
@@ -112,7 +112,8 @@ namespace TimeManager.Backend.Services
                 TotalHolidayHours = 0,
                 WeekOne = [],
                 WeekTwo = [],
-                UnitName = jobProfile.ProfileTemplate.Unit.Name
+                UnitName = jobProfile.ProfileTemplate.Unit.Name,
+                UnitIndex = jobProfile.ProfileTemplate.Unit.Index.ToString(),
             };
 
             foreach(var punch in punchEntries)

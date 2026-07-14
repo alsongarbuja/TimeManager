@@ -28,6 +28,7 @@ namespace TimeManager.Backend.ViewModels
         public int JobProfileId { get; set; }
 
         public string UnitName { get; set; } = string.Empty;
+        public string UnitIndex { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Total Hours required")]
         public double TotalHours { get; set; } = 0.0;

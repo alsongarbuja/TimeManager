@@ -1,4 +1,4 @@
-﻿@model TimeManager.Backend.Models.Components.ButtonViewModel
+﻿@model TimeManager.Backend.ViewModels.PartialViews.ButtonViewModel
 
 @{
 }
@@ -21,6 +21,10 @@
     }
     else
     {
+        if (!string.IsNullOrEmpty(Model.IconClass))
+        {
+            <i class="@Model.IconClass"></i>
+        }
         @Model.Text
     }
 </button>

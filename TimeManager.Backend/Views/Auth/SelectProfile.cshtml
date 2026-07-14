@@ -5,11 +5,6 @@
     ViewData["Title"] = "Select Profile";
 }
 
-@section styles {
-    <link href="/css/login.css" rel="stylesheet" />
-    <link href="/css/select-profile.css" rel="stylesheet" />
-}
-
 @section scripts {
     <script defer>
         document.querySelectorAll('.profile-option input[type="radio"]').forEach(radio => {
@@ -21,17 +16,116 @@
     </script>
 }
 
-<div class="login-container">
-    <div class="form-wrapper">
-        <h2 class="form-title text-center">Select a profile</h2>
-        <p class="form-subtitle text-center">
+<style>
+    .profile-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .profile-option {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: border-color 150ms, background-color 150ms;
+        background-color: #ffffff;
+    }
+
+    .profile-option:hover {
+        border-color: #9ca3af;
+        background-color: #f9fafb;
+    }
+
+    .profile-option:has(input:checked) {
+        border-color: #111827;
+        background-color: #f9fafb;
+    }
+
+    .profile-option input[type="radio"] {
+        appearance: none;
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+    }
+
+    .radio-indicator {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid #d1d5db;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 150ms;
+    }
+
+    .profile-option:has(input:checked) .radio-indicator {
+        border-color: #111827;
+    }
+
+    .radio-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #111827;
+        opacity: 0;
+        transition: opacity 150ms;
+    }
+
+    .profile-option:has(input:checked) .radio-dot {
+        opacity: 1;
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .profile-dept {
+        font-size: 0.8125rem;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+
+    .profile-hint {
+        font-size: 0.8125rem;
+        color: #9ca3af;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .container {
+        height: 100dvh;
+        width: 100vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<div class="container">
+    <div class="wrapper">
+        <h2 class="wrapper-title text-center">Select a profile</h2>
+        <p class="wrapper-subtitle text-center">
             You have multiple profiles. Choose one to continue.
         </p>
     </div>
 
     <div class="mt-8 form-wrapper">
         <div class="form-card">
-            <form asp-controller="Auth" asp-action="SelectProfile" method="post">
+            <form asp-controller="Auth" asp-action="SelectProfile" method="post" class="space-y-6">
                 @Html.AntiForgeryToken()
 
                 <div asp-validation-summary="ModelOnly" class="error-alert" role="alert"></div>
@@ -56,10 +150,15 @@
                     }
                 </div>
 
-                <button type="submit" class="btn-submit" id="continueBtn">
-                    Continue to dashboard
-                </button>
+                @await Html.PartialAsync("Button", new TimeManager.Backend.ViewModels.PartialViews.ButtonViewModel
+                {
+                    Id = "continueBtn",
+                    Classes = "w-100",
+                    Type = "submit",
+                    Text = "Select & Continue to dashboard"
+                })
 
+                
                 <p class="profile-hint">
                     You can switch profiles later from your account settings.
                 </p>

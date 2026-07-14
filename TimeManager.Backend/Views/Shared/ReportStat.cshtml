@@ -1,0 +1,16 @@
+﻿@model TimeManager.Backend.ViewModels.PartialViews.ReportStatModel;
+
+<div class="report-page-stats">
+    <div class="report-page-stat-card">
+        <span class="report-page-stat-label">Total Hours</span>
+        <span class="report-page-stat-value">@Model.TotalHours.ToString("F2")</span>
+    </div>
+    <div class="report-page-stat-card">
+        <span class="report-page-stat-label">Worked Hours</span>
+        <span class="report-page-stat-value">@Model.TotalWorkedHours.ToString("F2")</span>
+    </div>
+    <div class="report-page-stat-card">
+        <span class="report-page-stat-label">Holiday Hours</span>
+        <span class="report-page-stat-value">@Model.TotalHolidayHours.ToString("F2")</span>
+    </div>
+</div>

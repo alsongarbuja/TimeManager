@@ -1,56 +1,39 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = "_MainLayout";
+}
 
-<html>
 <head>
-    <meta name="viewport" content="width=device-width" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap"
-          rel="stylesheet">
-
-    <link href="/css/app.css" rel="stylesheet" />
-    <link href="/css/utility.css" rel="stylesheet" />
-    <link href="/css/layout.css" rel="stylesheet" />
-    <link href="/css/components.css" rel="stylesheet" />
-    <link href="/css/wrapper.css" rel="stylesheet" />
-    <link href="/css/report.css" rel="stylesheet" />
-    <link href="/css/dashboard.css" rel="stylesheet" />
-
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@@4.2.0/fonts/remixicon.css" rel="stylesheet" />
-
-    <title>@ViewBag.Title</title>
-
+    @RenderSection("styles", required: false)
     @RenderSection("scripts", required: false)
 </head>
-<body>
-    <main class="main layout-main">
-        @await Html.PartialAsync("_Sidenav")
-        <div class="layout-section">
-            <header class="header">
-                <button class="menu-btn" onclick="sidebarToggle()"><i class="ri-menu-line"></i></button>
-                <form asp-controller="Auth" asp-action="Logout" method="post">
-                    <button type="submit" class="btn btn-action-delete">Logout</button>
-                </form>
-            </header>
-            <section class="main-section" id="main-content" tabindex="-1" role="main">
-                @RenderBody()
-            </section>
-        </div>
-    </main>
-
-    <div class="modal-overlay">
-        <div class="modal-wrapper">
-            @await RenderSectionAsync("modalcontent", required: false)
-        </div>
+<main class="layout-main">
+    @await Html.PartialAsync("Sidenav")
+    <div class="layout-section">
+        <header class="header">
+            <button class="menu-btn" onclick="sidebarToggle()"><i class="ri-menu-line"></i></button>
+            <form asp-controller="Auth" asp-action="Logout" method="post">
+                @await Html.PartialAsync("Button", new TimeManager.Backend.ViewModels.PartialViews.ButtonViewModel
+                {
+                    Id = "",
+                    Classes = "btn-logout",
+                    Text = "Logout",
+                    Type = "submit"
+                })
+            </form>
+        </header>
+        <section class="main-section" id="main-content" tabindex="-1" role="main">
+            @RenderBody()
+        </section>
     </div>
-    @await Html.PartialAsync("_Notifications")
+</main>
 
-    <script src="~/js/sidebartoggle.js"></script>
-    <script src="~/js/notification.js"></script>
-    <script src="~/js/modal.js"></script>
+<div class="modal-overlay">
+    <div class="modal-wrapper">
+        @await RenderSectionAsync("modalcontent", required: false)
+    </div>
+</div>
+@await Html.PartialAsync("NotificationToast")
 
-    @* @await RenderSectionAsync("Scripts", required: false) *@
-</body>
-</html>
-
+<script src="~/js/sidebartoggle.js"></script>
+<script src="~/js/notification.js"></script>
+<script src="~/js/modal.js"></script>

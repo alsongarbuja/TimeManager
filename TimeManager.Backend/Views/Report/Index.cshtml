@@ -11,6 +11,26 @@
             : "America/Chicago");
 }
 
+<style>
+    .form-wrapper {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .form-wrapper:hover {
+        border-color: #d1d5db;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    }
+</style>
+
 <div class="page-container">
     <div class="page-content-wrapper">
 
@@ -26,41 +46,50 @@
             </div>
         </div>
 
-            <form asp-controller="Report" method="post" asp-action="GenerateReportByJPId">
-                @Html.AntiForgeryToken()
-                    <custom-select 
-                        asp-for="PayPeriodId"
-                        asp-items="@Model.PayPeriods"
-                        placeholder="-- Select Pay Period"
-                    />
-
-                    <custom-select 
-                        asp-for="UserId"
-                        asp-items="@Model.Users"
-                        placeholder="-- Select User --"
-                        required="true"
-                    />
-
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="bi bi-file-earmark-bar-graph"></i> Generate Report By Employee Profile
-                    </button>
-            </form>
-
-        <form asp-controller="Report" method="post" asp-action="GenerateReportByUnitId">
+        <form asp-controller="Report" method="post" asp-action="GenerateReportByUnitId" class="form-wrapper">
             @Html.AntiForgeryToken()
-                <custom-select asp-for="PayPeriodId"
-                               asp-items="@Model.PayPeriods"
-                               placeholder="-- Select Pay Period" />
+            <custom-select asp-for="PayPeriodId"
+                           asp-items="@Model.PayPeriods"
+                           placeholder="-- Select Pay Period" />
 
-                <custom-select asp-for="UnitId"
-                               asp-items="@Model.Units"
-                               placeholder="-- Select Unit --"
-                               required="true"
-                               />
+            <custom-select asp-for="UnitId"
+                           asp-items="@Model.Units"
+                           placeholder="-- Select Unit --"
+                           required="true" />
 
-                <button type="submit" class="btn btn-primary px-4">
-                    <i class="bi bi-file-earmark-bar-graph"></i> Generate Report By Unit
-                </button>
+            @await Html.PartialAsync("Button", new TimeManager.Backend.ViewModels.PartialViews.ButtonViewModel
+            {
+                Type = "submit",
+                Id = "btn-submit",
+                Classes = "btn btn-primary",
+                Text = "Generate Report By Unit",
+                IconClass = "ri ri-file-line"
+            })
+        </form>
+
+        <form asp-controller="Report" method="post" asp-action="GenerateReportByJPId" class="form-wrapper">
+            @Html.AntiForgeryToken()
+            <custom-select 
+                asp-for="PayPeriodId"
+                asp-items="@Model.PayPeriods"
+                placeholder="-- Select Pay Period"
+            />
+
+            <custom-select 
+                asp-for="UserId"
+                asp-items="@Model.Users"
+                placeholder="-- Select User --"
+                required="true"
+            />
+
+            @await Html.PartialAsync("Button", new TimeManager.Backend.ViewModels.PartialViews.ButtonViewModel
+            {
+                Type = "submit",
+                Id = "btn-submit",
+                Classes = "btn btn-primary",
+                Text = "Generate Report By Employee Profile",
+                IconClass = "ri ri-file-line"
+            })
         </form>
     </div>
 </div>

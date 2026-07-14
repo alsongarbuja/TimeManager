@@ -28,25 +28,25 @@
     }
 </style>
 
-<div class="rg-page">
+<div class="report-page-page">
 
-    <div class="rg-header">
-        <div class="rg-header-text">
+    <div class="report-page-header">
+        <div class="report-page-header-text">
             @if (Model.Reports.Count > 0)
             {
-                <p class="rg-eyebrow">@Model.Reports[0]?.UnitName (@Model.Reports[0]?.UnitIndex) Overview</p>
+                <p class="report-page-subtitle">@Model.Reports[0]?.UnitName (@Model.Reports[0]?.UnitIndex) Overview</p>
             }
-            <h1 class="rg-title">Reports by Unit</h1>
+            <h1 class="report-page-title">Reports by Unit</h1>
         </div>
         <form asp-controller="Report" asp-action="ExportToExcel" method="post" id="exportForm">
             @Html.AntiForgeryToken()
             <input type="hidden" name="UnitId" value="@Model.UnitId" />
             <input type="hidden" name="PayPeriodId" value="@Model.PayPeriodId" />
-            <Button type="submit" class="rg-back" id="exportBtn">
+            <Button type="submit" class="report-page-back" id="exportBtn">
                 <i class="ri-download-line" id="exportBtnIcon"></i> <span id="exportBtnLabel">Download Excel</span>
             </Button>
         </form>
-        <a asp-controller="Report" asp-action="Index" class="rg-back">← Back to Reports</a>
+        <a asp-controller="Report" asp-action="Index" class="report-page-back">← Back to Reports</a>
     </div>
 
     @if (Model.Reports.Any())
@@ -70,13 +70,11 @@
             <button class="rbu-expand-all" type="button" onclick="toggleAll(this)">Expand all</button>
         </div>
 
-        <!-- Accordion list -->
         <div class="rbu-accordion" id="accordionRoot">
             @foreach (var report in Model.Reports)
             {
                 <div class="rbu-item" id="user-@report.JobProfileId">
 
-                    <!-- Accordion header -->
                     <button class="rbu-trigger" type="button" onclick="toggleItem(this)" aria-expanded="false">
                         <div class="rbu-trigger-left">
                             <span></span>
@@ -88,53 +86,30 @@
                         </div>
                     </button>
 
-                    <!-- Accordion body -->
                     <div class="rbu-body">
                         <div class="rbu-body-inner">
 
-                            <!-- Mini stat row -->
-                            <div class="rg-stats rbu-stats">
-                                <div class="rg-stat-card">
-                                    <span class="rg-stat-label">Total Hours</span>
-                                    <span class="rg-stat-value">@report.TotalHours.ToString("F2")</span>
-                                </div>
-                                <div class="rg-stat-card">
-                                    <span class="rg-stat-label">Worked Hours</span>
-                                    <span class="rg-stat-value">@report.TotalWorkedHours.ToString("F2")</span>
-                                </div>
-                                <div class="rg-stat-card">
-                                    <span class="rg-stat-label">Holiday Hours</span>
-                                    <span class="rg-stat-value">@report.TotalHolidayHours.ToString("F2")</span>
-                                </div>
-                            </div>
+                            @await Html.PartialAsync("ReportStat", new TimeManager.Backend.ViewModels.PartialViews.ReportStatModel
+                            {
+                                TotalHours = report.TotalHours,
+                                TotalWorkedHours = report.TotalWorkedHours,
+                                TotalHolidayHours = report.TotalHolidayHours,
+                            })
 
-                            <!-- Week table -->
-                            <div class="rg-table-card rbu-table-card">
-                                <div class="rg-table-scroll">
-                                    <table class="rg-table">
-                                        <thead>
-                                            <tr>
-                                                <th class="rg-th rg-th-week">Week</th>
-                                                @foreach (var day in days)
-                                                {
-                                                    <th class="rg-th @(day is "Saturday" or "Sunday" ? "rg-th-weekend" : "")">@day</th>
-                                                }
-                                                <th class="rg-th rg-th-total">Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @await Html.PartialAsync("_WeekRow", (report.WeekOne, "Week 1", days))
-                                            @await Html.PartialAsync("_WeekRow", (report.WeekTwo, "Week 2", days))
-                                        </tbody>
-                                        <tfoot>
-                                            <tr class="rg-foot-row">
-                                                <td colspan="@(days.Length + 1)" class="rg-foot-spacer"></td>
-                                                <td class="rg-foot-total">@report.TotalHours.ToString("F2")</td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
+                            @await Html.PartialAsync("ReportTable", new TimeManager.Backend.ViewModels.PartialViews.ReportTablePartialViewModel
+                            {
+                                TotalHours = @report.TotalHours,
+                                WeekOne = new TimeManager.Backend.ViewModels.PartialViews.ReportTableWeekRow
+                                {
+                                    Week = report.WeekOne,
+                                    Label = "Week 1"
+                                },
+                                WeekTwo = new TimeManager.Backend.ViewModels.PartialViews.ReportTableWeekRow
+                                {
+                                    Week = report.WeekTwo,
+                                    Label = "Week 2"
+                                },
+                            })
 
                         </div>
                     </div>

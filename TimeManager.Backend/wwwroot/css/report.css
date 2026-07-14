@@ -1,71 +1,12 @@
-﻿.page-content-wrapper > form {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px; 
-    padding: 2rem;
-    margin-bottom: 2rem; 
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.page-content-wrapper > form:hover {
-    border-color: #d1d5db;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-}
-
-.page-content-wrapper > form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-}
-
-@media (min-width: 768px) {
-    .page-content-wrapper > form {
-        flex-direction: row;
-        align-items: flex-end; 
-    }
-
-    .page-content-wrapper > form custom-select {
-        flex: 1;
-        min-width: 200px;
-    }
-
-    .page-content-wrapper > form button {
-        flex: 0 0 auto;
-        height: 42px;
-    }
-}
-
-.page-content-wrapper > form button.btn-primary {
-    background-color: #0f172a;
-    border-color: #0f172a;
-    font-weight: 500;
-    border-radius: 6px;
-    padding: 0.6rem 1.5rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: background-color 0.15s ease;
-}
-
-.page-content-wrapper > form button.btn-primary:hover {
-    background-color: #1e293b;
-    border-color: #1e293b;
-}
-
-.page-content-wrapper > form button.btn-primary i {
-    font-size: 1.1rem;
-}
-
-.rg-page {
-    font-family: 'Inter', system-ui, sans-serif;
+﻿/* ==== Report Result Pages Common ====== */
+.report-page {
     max-width: 1100px;
     margin: 0 auto;
     padding: 2rem 1.5rem 4rem;
     color: #111827;
 }
 
-.rg-header {
+.report-page-header {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -74,7 +15,15 @@
     flex-wrap: wrap;
 }
 
-.rg-eyebrow {
+.report-page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: #111827;
+}
+
+.report-page-subtitle {
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.1em;
@@ -83,15 +32,7 @@
     margin: 0 0 0.35rem;
 }
 
-.rg-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin: 0;
-    color: #111827;
-}
-
-.rg-back {
+.report-page-back {
     font-size: 0.8125rem;
     font-weight: 500;
     color: #6B7280;
@@ -104,201 +45,18 @@
     white-space: nowrap;
 }
 
-    .rg-back:hover {
-        border-color: #4F67E4;
-        color: #4F67E4;
-    }
-
-.rg-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.rg-stat-card {
-    background: #fff;
-    border: 1px solid #E5E7EB;
-    border-left: 3px solid #4F67E4;
-    border-radius: 8px;
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-}
-
-.rg-stat-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6B7280;
-}
-
-.rg-stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    font-variant-numeric: tabular-nums;
-    color: #111827;
-    line-height: 1;
-}
-
-.rg-table-card {
-    background: #fff;
-    border: 1px solid #E5E7EB;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.rg-table-scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.rg-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.875rem;
-}
-
-.rg-th {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: #6B7280;
-    background: #F8F9FB;
-    border-bottom: 1px solid #E5E7EB;
-    white-space: nowrap;
-}
-
-.rg-th-week {
-    min-width: 80px;
-}
-
-.rg-th-weekend {
-    background: #F3F4F6;
-    color: #9CA3AF;
-}
-
-.rg-th-total {
-    text-align: right;
+.report-page-back:hover {
+    border-color: #4F67E4;
     color: #4F67E4;
-    min-width: 80px;
 }
 
-.rg-table tbody tr {
-    border-bottom: 1px solid #F3F4F6;
-    transition: background 0.1s;
-}
+/* ==== Report result pages common end ====== */
 
-    .rg-table tbody tr:last-child {
-        border-bottom: none;
-    }
 
-    .rg-table tbody tr:hover {
-        background: #F8F9FB;
-    }
 
-.rg-foot-row {
-    border-top: 2px solid #E5E7EB;
-}
 
-.rg-foot-spacer {
-    padding: 0.875rem 1rem;
-}
+/* ======= Report Result By Unit page ======== */
 
-.rg-foot-total {
-    padding: 0.875rem 1rem;
-    text-align: right;
-    font-size: 1rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: #4F67E4;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-}
-
-.week-label {
-    padding: 0.875rem 1rem;
-    font-weight: 600;
-    font-size: 0.8125rem;
-    white-space: nowrap;
-    color: #374151;
-}
-
-.rg-table td {
-    padding: 0.75rem 1rem;
-    vertical-align: middle;
-}
-
-.hours-value {
-    display: block;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    font-size: 0.875rem;
-    color: #111827;
-    line-height: 1.2;
-}
-
-.hours-type {
-    display: inline-block;
-    margin-top: 3px;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 2px 6px;
-    border-radius: 4px;
-    line-height: 1.4;
-}
-
-    .hours-type.reg {
-        background: #ECFDF5;
-        color: #065F46;
-    }
-
-    .hours-type.hol {
-        background: #FFFBEB;
-        color: #92400E;
-    }
-
-    .hours-type.ot {
-        background: #FEF2F2;
-        color: #991B1B;
-    }
-
-.no-entry {
-    color: #D1D5DB;
-    text-align: center;
-    font-size: 1rem;
-}
-
-.total-cell {
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-    color: #374151;
-    white-space: nowrap;
-}
-
-@media (max-width: 640px) {
-    .rg-stats {
-        grid-template-columns: 1fr;
-    }
-
-    .rg-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-}
-
-/* ── ResultByUnit page ───────────────────────────────────────────── */
-
-/* Controls bar */
 .rbu-controls {
     display: flex;
     align-items: flex-end;
@@ -340,11 +98,11 @@
     min-width: 220px;
 }
 
-    .rbu-select:focus {
-        outline: none;
-        border-color: #4F67E4;
-        box-shadow: 0 0 0 3px rgba(79, 103, 228, 0.12);
-    }
+.rbu-select:focus {
+    outline: none;
+    border-color: #4F67E4;
+    box-shadow: 0 0 0 3px rgba(79, 103, 228, 0.12);
+}
 
 .rbu-select-chevron {
     position: absolute;
@@ -368,12 +126,11 @@
     white-space: nowrap;
 }
 
-    .rbu-expand-all:hover {
-        border-color: #4F67E4;
-        color: #4F67E4;
-    }
+.rbu-expand-all:hover {
+    border-color: #4F67E4;
+    color: #4F67E4;
+}
 
-/* Accordion */
 .rbu-accordion {
     display: flex;
     flex-direction: column;
@@ -388,11 +145,10 @@
     transition: border-color 0.15s;
 }
 
-    .rbu-item.rbu-open {
-        border-color: #C7D0F8;
-    }
+.rbu-item.rbu-open {
+    border-color: #C7D0F8;
+}
 
-/* Accordion trigger */
 .rbu-trigger {
     width: 100%;
     display: flex;
@@ -408,9 +164,9 @@
     transition: background 0.1s;
 }
 
-    .rbu-trigger:hover {
-        background: #F8F9FB;
-    }
+.rbu-trigger:hover {
+    background: #F8F9FB;
+}
 
 .rbu-trigger-left {
     display: flex;
@@ -462,7 +218,6 @@
     transform: rotate(90deg);
 }
 
-/* Accordion body */
 .rbu-body {
     display: grid;
     grid-template-rows: 0fr;
@@ -483,21 +238,18 @@
     padding: 0 1.25rem 1.25rem;
 }
 
-/* Stat cards inside accordion — slightly smaller */
 .rbu-stats {
     margin-bottom: 1rem;
 }
 
-    .rbu-stats .rg-stat-value {
-        font-size: 1.5rem;
-    }
+.rbu-stats .rg-stat-value {
+    font-size: 1.5rem;
+}
 
-/* Table inside accordion — no outer border-radius (already inside card) */
 .rbu-table-card {
     border-radius: 8px;
 }
 
-/* Empty state */
 .rbu-empty {
     background: #fff;
     border: 1px dashed #E5E7EB;
@@ -512,7 +264,6 @@
     margin: 0;
 }
 
-/* Responsive */
 @media (max-width: 640px) {
     .rbu-controls {
         flex-direction: column;
@@ -532,3 +283,5 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ======= Report Result By Unit page End ======== */

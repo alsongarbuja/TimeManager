@@ -1,7 +1,9 @@
-﻿.btn {
+﻿/* === Button Partial View === */
+
+.btn {
     border: none;
     border-radius: 0.25em;
-    padding: .5em 1em;  
+    padding: 1em;  
     display: flex;
     align-items: center; 
     gap: 4px; 
@@ -17,8 +19,13 @@
     cursor: not-allowed;
 }
 
+/* === Button Partial View End === */
 
-/* Custom Input Styling */
+
+
+
+/* === Custom Input Tag Helper === */
+
 .form-group {
     width: 100%;
 }
@@ -251,3 +258,233 @@ input::-ms-reveal {
 .btn-modal-close:hover {
     background: transparent !important;
 }
+
+
+/* ==== ActionTd Partial View ==== */
+
+.table-actions {
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 1em;
+}
+
+.btn-action-delete {
+    background-color: orangered;
+    width: 2rem;
+    height: 2rem;
+}
+
+.btn-action-edit {
+    background-color: steelblue;
+    width: 2rem;
+    height: 2rem;
+}
+
+/* ==== ActionTd Partial View End ==== */
+
+
+
+/* ===== ReportStat Partial View ======= */
+
+.report-page-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.report-page-stat-card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-left: 3px solid #4F67E4;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.report-page-stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6B7280;
+}
+
+.report-page-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    color: #111827;
+    line-height: 1;
+}
+
+@media (max-width: 640px) {
+    .report-page-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .report-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+/* ===== ReportStat Partial View End ====== */
+
+
+
+/* ===== ReportTable Partial View ====== */
+
+.report-page-table-card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.report-page-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.report-page-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.report-page-th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #6B7280;
+    background: #F8F9FB;
+    border-bottom: 1px solid #E5E7EB;
+    white-space: nowrap;
+}
+
+.report-page-th-week {
+    min-width: 80px;
+}
+
+.report-page-th-weekend {
+    background: #F3F4F6;
+    color: #9CA3AF;
+}
+
+.report-page-th-total {
+    text-align: right;
+    color: #4F67E4;
+    min-width: 80px;
+}
+
+.report-page-table tbody tr {
+    border-bottom: 1px solid #F3F4F6;
+    transition: background 0.1s;
+}
+
+.report-page-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.report-page-table tbody tr:hover {
+    background: #F8F9FB;
+}
+
+.report-page-foot-row {
+    border-top: 2px solid #E5E7EB;
+}
+
+.report-page-foot-spacer {
+    padding: 0.875rem 1rem;
+}
+
+.report-page-foot-total {
+    padding: 0.875rem 1rem;
+    text-align: right;
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #4F67E4;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+
+/* ==== WeekRow Partial View ==== */
+
+.week-label {
+    padding: 0.875rem 1rem;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    color: #374151;
+}
+
+.report-page-table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+.hours-value {
+    display: block;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.875rem;
+    color: #111827;
+    line-height: 1.2;
+}
+
+.hours-type {
+    display: inline-block;
+    margin-top: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1.4;
+}
+
+.hours-type.reg {
+    background: #ECFDF5;
+    color: #065F46;
+}
+
+.hours-type.hol {
+    background: #FFFBEB;
+    color: #92400E;
+}
+
+.hours-type.ot {
+    background: #FEF2F2;
+    color: #991B1B;
+}
+
+.no-entry {
+    color: #D1D5DB;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.total-cell {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: #374151;
+    white-space: nowrap;
+}
+
+/* ===== WeekRow Partial View End ===== */
+
+
+/* ========= ReportTable Partial View End =========== */

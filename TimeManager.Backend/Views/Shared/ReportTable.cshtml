@@ -1,0 +1,32 @@
+﻿@model TimeManager.Backend.ViewModels.PartialViews.ReportTablePartialViewModel;
+
+@{
+    var days = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+}
+
+<div class="report-page-table-card">
+    <div class="report-page-table-scroll">
+        <table class="report-page-table">
+            <thead>
+                <tr>
+                    <th class="report-page-th report-page-th-week">Week</th>
+                    @foreach (var day in days)
+                    {
+                        <th class="report-page-th @(day is "Saturday" or "Sunday" ? "rg-th-weekend" : "")">@day</th>
+                    }
+                    <th class="report-page-th report-page-th-total">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @await Html.PartialAsync("WeekRow", (Model.WeekOne.Week, Model.WeekOne.Label, days))
+                @await Html.PartialAsync("WeekRow", (Model.WeekTwo.Week, Model.WeekTwo.Label, days))
+            </tbody>
+            <tfoot>
+                <tr class="report-page-foot-row">
+                    <td colspan="@(days.Length + 1)" class="report-page-foot-spacer"></td>
+                    <td class="report-page-foot-total">@Model.TotalHours.ToString("F2")</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

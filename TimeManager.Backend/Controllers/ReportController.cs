@@ -17,6 +17,8 @@ namespace TimeManager.Backend.Controllers
         ILogger<PP> logger
     ) : Controller
     {
+        private static readonly string[] Days = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+
         public async Task<IActionResult> Index()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
@@ -44,7 +46,7 @@ namespace TimeManager.Backend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GenerateReportByUnitId(ReportViewModel rvm)
         {
-            var d = await reportService.GenerateReportByUnitId(rvm.UnitId ?? 0, rvm.PayPeriodId ?? 0);
+            (var pp, var d) = await reportService.GenerateReportByUnitId(rvm.UnitId ?? 0, rvm.PayPeriodId ?? 0);
             return View("ResultByUnit", new ReportGeneratedUnitViewModel
             {
                 Reports = [.. d],
@@ -57,8 +59,7 @@ namespace TimeManager.Backend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ExportToExcel(ReportViewModel rvm)
         {
-            var data = await reportService.GenerateReportByUnitId(rvm.UnitId ?? 0, rvm.PayPeriodId ?? 0);
-            PP? pp = rvm.PayPeriodId != null ? await payPeriodService.GetPayPeriodByIdAsync(rvm.PayPeriodId ?? 0) : await payPeriodUtility.GetCurrentPayPeriod();
+            (PP? pp, var data) = await reportService.GenerateReportByUnitId(rvm.UnitId ?? 0, rvm.PayPeriodId ?? 0);
 
             if (pp == null)
             {
@@ -67,12 +68,11 @@ namespace TimeManager.Backend.Controllers
             }
 
             List<string> dates = [];
-            var days = new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"  };
 
             DateTimeOffset currentDate = pp.StartDate;
             while (currentDate <= pp.EndDate)
             {
-                dates.Add(currentDate.ToString("ddd dd"));
+                dates.Add(currentDate.ToString("ddd dd", System.Globalization.CultureInfo.InvariantCulture));
                 currentDate = currentDate.AddDays(1);
             }
 
@@ -95,7 +95,7 @@ namespace TimeManager.Backend.Controllers
                 // Styling the headers
                 logger.LogInformation("Styling header columns");
 
-                var headerRange = worksheet.Range("A1:P1");
+                var headerRange = worksheet.Range(1, 1, 1, col);
                 headerRange.Style.Font.Bold = true;
                 headerRange.Style.Font.FontColor = XLColor.White;
                 headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#2F4F4F");
@@ -109,35 +109,27 @@ namespace TimeManager.Backend.Controllers
 
                     worksheet.Cell(currentRow, 1).Value = d.Name;
                     int currentRowCol = 2;
-                    foreach (var day in days)
+                    foreach (var day in Days)
                     {
                         if (d.WeekOne.TryGetValue(day, out var entry))
                         {
-                            logger.LogInformation($"Adding hours with type for {day} in week one");
-
                             worksheet.Cell(currentRow, currentRowCol).Value = $"{entry.Hours:F2} ({entry.Type})";
                         }
                         else
                         {
-                            logger.LogInformation("Adding - for no entry found");
-
                             worksheet.Cell(currentRow, currentRowCol).Value = "-";
                         }
                         currentRowCol += 1;
                     }
 
-                    foreach (var day in days)
+                    foreach (var day in Days)
                     {
                         if (d.WeekTwo.TryGetValue(day, out var entry))
                         {
-                            logger.LogInformation($"Adding hours with type for {day} in week two");
-
                             worksheet.Cell(currentRow, currentRowCol).Value = $"{entry.Hours:F2} ({entry.Type})";
                         }
                         else
                         {
-                            logger.LogInformation("Adding - for no entry found");
-
                             worksheet.Cell(currentRow, currentRowCol).Value = "-";
                         }
                         currentRowCol += 1;
@@ -148,7 +140,9 @@ namespace TimeManager.Backend.Controllers
                 }
 
 
-                worksheet.Columns().AdjustToContents();
+                worksheet.Column(1).Width = 20;
+                for (int c = 2; c < col; c++) worksheet.Column(c).Width = 14;
+                worksheet.Column(col).Width = 20;
 
                 using (var stream = new MemoryStream())
                 {
@@ -157,9 +151,10 @@ namespace TimeManager.Backend.Controllers
                     workbook.SaveAs(stream);
                     var content = stream.ToArray();
 
-                    string fileName = $"Report_{DateTime.Now.ToLocalTime():yyyyMMdd_HHmmss}.xlsx";
+                    string fileName = $"Report_{data.ElementAt(0).UnitIndex}_{pp.StartDate:MMM dd}_{pp.EndDate:MMM dd}.xlsx";
                     string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
+                    TempData["success"] = "Successfully generated report excel";
                     return File(content, contentType, fileName);
                 }
             }

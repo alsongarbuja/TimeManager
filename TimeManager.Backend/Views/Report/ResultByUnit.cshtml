@@ -9,22 +9,41 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+<style>
+    .rg-spin {
+        display: inline-block;
+        animation: rg-spin-anim 0.8s linear infinite;
+    }
+
+    @@keyframes rg-spin-anim {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .rg-back--loading,
+    .rg-back:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+</style>
+
 <div class="rg-page">
 
     <div class="rg-header">
         <div class="rg-header-text">
             @if (Model.Reports.Count > 0)
             {
-                <p class="rg-eyebrow">@Model.Reports[0]?.UnitName Overview</p>
+                <p class="rg-eyebrow">@Model.Reports[0]?.UnitName (@Model.Reports[0]?.UnitIndex) Overview</p>
             }
             <h1 class="rg-title">Reports by Unit</h1>
         </div>
-        <form asp-controller="Report" asp-action="ExportToExcel" method="post">
+        <form asp-controller="Report" asp-action="ExportToExcel" method="post" id="exportForm">
             @Html.AntiForgeryToken()
             <input type="hidden" name="UnitId" value="@Model.UnitId" />
             <input type="hidden" name="PayPeriodId" value="@Model.PayPeriodId" />
-            <Button type="submit" class="rg-back">
-                <i class="ri-download-line"></i> Download Excel
+            <Button type="submit" class="rg-back" id="exportBtn">
+                <i class="ri-download-line" id="exportBtnIcon"></i> <span id="exportBtnLabel">Download Excel</span>
             </Button>
         </form>
         <a asp-controller="Report" asp-action="Index" class="rg-back">← Back to Reports</a>
@@ -132,32 +151,6 @@
 
 </div>
 
-<script>
-    function toggleItem(trigger) {
-        const item = trigger.closest('.rbu-item');
-        const isOpen = item.classList.contains('rbu-open');
-        item.classList.toggle('rbu-open', !isOpen);
-        trigger.setAttribute('aria-expanded', String(!isOpen));
-    }
-
-    function jumpToUser(id) {
-        if (!id) return;
-        // Open the target item
-        const item = document.getElementById(id);
-        if (!item) return;
-        item.classList.add('rbu-open');
-        item.querySelector('.rbu-trigger').setAttribute('aria-expanded', 'true');
-        // Smooth scroll with a brief delay to let the body open
-        setTimeout(() => item.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-    }
-
-    function toggleAll(btn) {
-        const items = document.querySelectorAll('.rbu-item');
-        const anyOpen = [...items].some(i => i.classList.contains('rbu-open'));
-        items.forEach(item => {
-            item.classList.toggle('rbu-open', !anyOpen);
-            item.querySelector('.rbu-trigger').setAttribute('aria-expanded', String(!anyOpen));
-        });
-        btn.textContent = anyOpen ? 'Expand all' : 'Collapse all';
-    }
-</script>
+@section scripts {
+    <script src="~/js/report.js" defer></script>
+}

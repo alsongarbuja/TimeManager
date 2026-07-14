@@ -54,7 +54,7 @@ namespace TimeManager.Backend.Services
                 units = await context.Unit.Select(u => new SelectListItem
                 {
                     Value = u.Id.ToString(),
-                    Text = $"{u.Name} - {u.Department.Name}",
+                    Text = $"{u.Name} ({u.Index}) - {u.Department.Name}",
                     Selected = u.Id == selectedId,
                 }).ToListAsync();
             } else
@@ -64,7 +64,7 @@ namespace TimeManager.Backend.Services
                     .Select(u => new SelectListItem
                 {
                     Value = u.Id.ToString(),
-                    Text = $"{u.Name}",
+                    Text = $"{u.Name} ({u.Index})",
                     Selected = u.Id == selectedId,
                 }).ToListAsync();
             }

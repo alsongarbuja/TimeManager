@@ -13,7 +13,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IPunchServices
     {
-        Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationFilter filter);
+        Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationQuery pagFilter, FilterCondition filter);
         Task<PunchEntry?> GetPunchByIdAsync(int id);
         Task<PunchEntry?> UpdatePunchAsync(int id, PunchDto punchEntryDto);
         Task<int?> DeletePunchByIdAsync(int id);
@@ -81,14 +81,17 @@ namespace TimeManager.Backend.Services
              return await context.PunchEntry.Include(p => p.JobProfile).ThenInclude(jp => jp.Employee).Where(p => p.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationFilter filter)
+        public async Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationQuery pagFilter, FilterCondition filter)
         {
-            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(pagFilter);
             Expression<Func<PunchEntry, object>>? orderExpression = orderBy?.ToLower() switch
             {
                 "name" => pe => pe.JobProfile.Employee.FirstName,
                 _ => pe => pe.ClockIn,
             };
+
+            var builder = new ExpressionBuilder<PunchEntry>();
+            var whereExpression = builder.BuildPredicate(filter);
 
             (var punches, int totalRecords) = await context.PunchEntry.FindWithPaginationAsync(
                 pe => new PunchViewModel
@@ -101,7 +104,7 @@ namespace TimeManager.Backend.Services
                 }, 
                 ((pageNumber - 1) * pageSize), 
                 pageSize,
-                null,
+                whereExpression,
                 orderExpression,
                 isOrderDescending
                 );

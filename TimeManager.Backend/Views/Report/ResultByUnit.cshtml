@@ -91,6 +91,8 @@
                     <div class="rbu-body">
                         <div class="rbu-body-inner">
 
+                            <a class="rbu-details-link" target="_blank" href="/app/punch?pageNumber=1&pageSize=50&isOrderDescending=True&propertyName=JobProfileId&operator=Equals&value=@report.JobProfileId">See Punches</a>
+
                             @await Html.PartialAsync("ReportStat", new TimeManager.Backend.ViewModels.PartialViews.ReportStatModel
                             {
                                 TotalHours = report.TotalHours,

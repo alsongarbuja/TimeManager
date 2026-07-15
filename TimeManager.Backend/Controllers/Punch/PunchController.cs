@@ -6,6 +6,7 @@ using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Requests;
 using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
+using TimeManager.Backend.Utility;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Punch
@@ -13,10 +14,10 @@ namespace TimeManager.Backend.Controllers.Punch
     [Authorize(Policy = "AdminPolicy")]
     public class PunchController(IPunchServices punchServices, IJobProfileService jobProfileService) : Controller
     {
-        public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> Index([FromQuery] PaginationQuery pagFilter, [FromQuery] FilterCondition filter)
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            PagedResponse<PunchViewModel> data = await punchServices.GetPunchesAsync(departmentId, filter);
+            PagedResponse<PunchViewModel> data = await punchServices.GetPunchesAsync(departmentId, pagFilter, filter);
             IEnumerable<SelectListItem> employees = await jobProfileService.GetUserOptionsAsync(departmentId);
             return View(new PunchViewOverall
             {

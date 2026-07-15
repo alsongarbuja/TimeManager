@@ -17,6 +17,10 @@
     string? currentOrderBy = Context.Request.Query["orderBy"];
     bool currentIsDescending = Context.Request.Query["isOrderDescending"] == "True";
 
+    string? propertyName = Context.Request.Query["propertyName"];
+    string? operatorType = Context.Request.Query["operator"];
+    string? value = Context.Request.Query["value"];
+
     string? nextOrderBy = null;
     string? nextIsDescending = "False";
 }
@@ -61,6 +65,9 @@
                     <form method="get" id="pageSizeForm" asp-action="Index" asp-controller="@controller">
                         <input hidden name="pageNumber" value="1" />
 
+                        <input hidden name="orderBy" value="@currentOrderBy" />
+                        <input hidden name="isOrderDescending" value="@currentIsDescending" />
+
                         <div class="d-flex align-items-center">
                             <label for="pageSize" class="me-2 mb-0 text-nowrap">Rows Per Page:</label>
                             <select id="pageSize" name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
@@ -78,6 +85,11 @@
                         asp-action="Index"
                         asp-route-pageNumber="@(currentPage - 1)"
                         asp-route-pageSize="@pageSize"
+                        asp-route-orderBy="@currentOrderBy"
+                        asp-route-isOrderDescending="@currentIsDescending"
+                        asp-route-propertyName="@propertyName"
+                       asp-route-operator="@operatorType"
+                       asp-route-value="@value"
                        tabindex="@(currentPage == 1 ? "-1" : "0")"
                         class="btn btn-pag-arrow @(currentPage == 1 ? "btn-pag-arrow-disable" : "")"
                     >
@@ -95,6 +107,9 @@
                                 asp-route-pageSize="@pageSize"
                                 asp-route-orderBy="@currentOrderBy"
                                 asp-route-isOrderDescending="@currentIsDescending"
+                               asp-route-propertyName="@propertyName"
+                               asp-route-operator="@operatorType"
+                               asp-route-value="@value"
                                 class="btn btn-pag-number @(i == currentPage ? "btn-pag-number-selected":"")"
                             >
                                 @i
@@ -109,6 +124,11 @@
                         asp-action="Index"
                         asp-route-pageNumber="@(currentPage + 1)"
                         asp-route-pageSize="@pageSize"
+                       asp-route-orderBy="@currentOrderBy"
+                       asp-route-isOrderDescending="@currentIsDescending"
+                       asp-route-propertyName="@propertyName"
+                       asp-route-operator="@operatorType"
+                       asp-route-value="@value"
                        tabindex="@(currentPage >= totalPages ? "-1" : "0")"
                         class="btn btn-pag-arrow @(currentPage >= totalPages ? "btn-pag-arrow-disable" : "")">
                         <i class="ri-arrow-right-s-line"></i>
@@ -152,6 +172,9 @@
                                             asp-route-pageSize="@pageSize"
                                             asp-route-orderBy="@nextOrderBy"
                                             asp-route-isOrderDescending="@nextIsDescending"
+                                           asp-route-propertyName="@propertyName"
+                                           asp-route-operator="@operatorType"
+                                           asp-route-value="@value"
                                             class="table-header-orderable-cell table-header-cell-inner"
                                         >
                                             @header

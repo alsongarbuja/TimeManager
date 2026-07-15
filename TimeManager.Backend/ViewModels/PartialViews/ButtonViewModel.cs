@@ -1,4 +1,4 @@
-﻿namespace TimeManager.Backend.Models.Components
+﻿namespace TimeManager.Backend.ViewModels.PartialViews
 {
     public class ButtonViewModel
     {
@@ -8,6 +8,7 @@
         public bool Loading { get; set; } = false;
         public bool Disabled { get; set; } = false;
         public string Text { get; set; } = string.Empty;
+        public string? IconClass { get; set; } = string.Empty;
 
     }
 }

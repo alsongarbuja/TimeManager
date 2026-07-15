@@ -43,6 +43,11 @@ else
 
 @section CustomCreate {
     <form asp-action="Generate" asp-controller="PayPeriod" method="post">
-        <button type="submit" class="btn-create">Generate Pay periods</button>
+    @await Html.PartialAsync("Button", new TimeManager.Backend.ViewModels.PartialViews.ButtonViewModel
+    {
+        Classes = "btn-create",
+        Type = "submit",
+        Text = "Generate Pay Periods"
+    })
     </form>
 }

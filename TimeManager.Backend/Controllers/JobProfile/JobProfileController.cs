@@ -8,7 +8,6 @@ using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using DocumentFormat.OpenXml.Office.CustomUI;
 
 namespace TimeManager.Backend.Controllers.JobProfile
 {
@@ -181,8 +180,9 @@ namespace TimeManager.Backend.Controllers.JobProfile
                 ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync(pt.ProfileTemplateId)),
                 EmployeeId = pt.EmployeeId,
                 ProfileTemplateId = pt.ProfileTemplateId,
-                //JoinDate = pt.JoinDate,
-                //EndDate = pt.EndDate,
+                JoinDate = pt.JoinDate,
+                EndDate = pt.EndDate,
+                EarlyBuffer = pt.EarlyBuffer,
             };
             return View(pvm);
         }
@@ -202,8 +202,9 @@ namespace TimeManager.Backend.Controllers.JobProfile
                     ProfileTemplates = (await employeeService.GetEmployeeOptionAsync(pvm.ProfileTemplateId)),
                     EmployeeId = pvm.EmployeeId,
                     ProfileTemplateId = pvm.ProfileTemplateId,
-                    //JoinDate = pvm.JoinDate,
-                    //EndDate = pvm.EndDate,
+                    JoinDate = pvm.JoinDate,
+                    EndDate = pvm.EndDate,
+                    EarlyBuffer = pvm.EarlyBuffer,
                 });
             }
             TempData["success"] = "Job profile successfully updated";
@@ -214,8 +215,9 @@ namespace TimeManager.Backend.Controllers.JobProfile
                 ProfileTemplates = (await employeeService.GetEmployeeOptionAsync(pt.ProfileTemplateId)),
                 EmployeeId = pt.EmployeeId,
                 ProfileTemplateId = pt.ProfileTemplateId,
-                //JoinDate = pt.JoinDate,
-                //EndDate = pt.EndDate,
+                JoinDate = pt.JoinDate,
+                EndDate = pt.EndDate,
+                EarlyBuffer = pt.EarlyBuffer,
             });
         }
 

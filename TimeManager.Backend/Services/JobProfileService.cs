@@ -26,7 +26,13 @@ namespace TimeManager.Backend.Services
     {
         public async Task CreateJobProfileAsync(JobProfileViewModel jpvm)
         {
-            context.JobProfile.Add(new JobProfile { EmployeeId = jpvm.EmployeeId, ProfileTemplateId = jpvm.ProfileTemplateId });
+            context.JobProfile.Add(new JobProfile { 
+                EmployeeId = jpvm.EmployeeId, 
+                ProfileTemplateId = jpvm.ProfileTemplateId, 
+                EarlyBuffer = jpvm.EarlyBuffer, 
+                JoinDate = jpvm.JoinDate.ToUniversalTime(), 
+                EndDate = jpvm.EndDate?.ToUniversalTime() 
+            });
             await context.SaveChangesAsync();
         }
 
@@ -66,6 +72,8 @@ namespace TimeManager.Backend.Services
                         EmployeeId = jp.EmployeeId,
                         EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
                         ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index}) / {jp.ProfileTemplate.Role.Name}",
+                        EarlyBuffer = jp.EarlyBuffer,
+                        ShiftStartTime = jp.ProfileTemplate.ShiftStartTime,
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
@@ -85,6 +93,8 @@ namespace TimeManager.Backend.Services
                         EmployeeId = jp.EmployeeId,
                         EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
                         ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index}) / {jp.ProfileTemplate.Role.Name}",
+                        EarlyBuffer = jp.EarlyBuffer,
+                        ShiftStartTime = jp.ProfileTemplate.ShiftStartTime,
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
@@ -129,7 +139,13 @@ namespace TimeManager.Backend.Services
 
                 return null;
             }
-            context.Entry(jp).CurrentValues.SetValues(jpvm);
+
+            jp.EarlyBuffer = jpvm.EarlyBuffer;
+            jp.JoinDate = jpvm.JoinDate.ToUniversalTime();
+            jp.EndDate = jpvm.EndDate?.ToUniversalTime();
+            jp.ProfileTemplateId = jpvm.ProfileTemplateId;
+            jp.EmployeeId = jpvm.EmployeeId;
+
             await context.SaveChangesAsync();
             return jp;
         }

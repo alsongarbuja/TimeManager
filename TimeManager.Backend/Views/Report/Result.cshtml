@@ -3,62 +3,40 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Report Result";
-
-    var days = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 }
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+@section styles {
+    <link href="/css/report.css" rel="stylesheet" />
+}
 
-<div class="rg-page">
-
-    <div class="rg-header">
-        <div class="rg-header-text">
-            <h1 class="rg-title">@Model.Name</h1>
-            <p class="rg-eyebrow">@Model.UnitName</p>
+<div class="report-page">
+    <div class="report-page-header">
+        <div class="report-page-header-text">
+            <h1 class="report-page-title">@Model.Name</h1>
+            <p class="report-page-subtitle">@Model.UnitName</p>
         </div>
-        <a asp-controller="Report" asp-action="Index" class="rg-back">← Back to Reports</a>
+        <a asp-controller="Report" asp-action="Index" class="report-page-back">← Back to Reports</a>
     </div>
 
-    <div class="rg-stats">
-        <div class="rg-stat-card">
-            <span class="rg-stat-label">Total Hours</span>
-            <span class="rg-stat-value">@Model.TotalHours.ToString("F2")</span>
-        </div>
-        <div class="rg-stat-card">
-            <span class="rg-stat-label">Worked Hours</span>
-            <span class="rg-stat-value">@Model.TotalWorkedHours.ToString("F2")</span>
-        </div>
-        <div class="rg-stat-card">
-            <span class="rg-stat-label">Holiday Hours</span>
-            <span class="rg-stat-value">@Model.TotalHolidayHours.ToString("F2")</span>
-        </div>
-    </div>
+    @await Html.PartialAsync("ReportStat", new TimeManager.Backend.ViewModels.PartialViews.ReportStatModel
+    {
+        TotalHours = Model.TotalHours,
+        TotalWorkedHours = Model.TotalWorkedHours,
+        TotalHolidayHours = Model.TotalHolidayHours,
+    })
 
-    <div class="rg-table-card">
-        <div class="rg-table-scroll">
-            <table class="rg-table">
-                <thead>
-                    <tr>
-                        <th class="rg-th rg-th-week">Week</th>
-                        @foreach (var day in days)
-                        {
-                            <th class="rg-th @(day is "Saturday" or "Sunday" ? "rg-th-weekend" : "")">@day</th>
-                        }
-                        <th class="rg-th rg-th-total">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @await Html.PartialAsync("_WeekRow", (Model.WeekOne, "Week 1", days))
-                    @await Html.PartialAsync("_WeekRow", (Model.WeekTwo, "Week 2", days))
-                </tbody>
-                <tfoot>
-                    <tr class="rg-foot-row">
-                        <td colspan="@(days.Length + 1)" class="rg-foot-spacer"></td>
-                        <td class="rg-foot-total">@Model.TotalHours.ToString("F2")</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-    </div>
-
+    @await Html.PartialAsync("ReportTable", new TimeManager.Backend.ViewModels.PartialViews.ReportTablePartialViewModel
+    {
+        TotalHours = Model.TotalHours,
+        WeekOne = new TimeManager.Backend.ViewModels.PartialViews.ReportTableWeekRow
+        {
+            Week = Model.WeekOne,
+            Label = "Week 1"
+        },
+        WeekTwo = new TimeManager.Backend.ViewModels.PartialViews.ReportTableWeekRow
+        {
+            Week = Model.WeekTwo,
+            Label = "Week 2"
+        },
+    })
 </div>

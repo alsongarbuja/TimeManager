@@ -12,14 +12,20 @@
         Text = "Dashboard",
         Url = "dashboard",
         IconClass = "ri-layout-grid-line",
-        Roles = AppConstants.AllRoles(),
+        Roles = AppConstants.EmployeeRoles(), // TODO: change to all roles later
         },
         new LinkProps {
         Text = "Report",
         Url = "report",
         IconClass = "ri-file-chart-line",
         Roles = AppConstants.AdminRoles(),
-        }
+        },
+        new LinkProps {
+        Text = "Settings",
+        Url = "setting",
+        IconClass = "ri-settings-2-line",
+        Roles = AppConstants.AllRoles(),
+        },
         ],
         },
 

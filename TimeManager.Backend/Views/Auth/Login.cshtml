@@ -8,13 +8,74 @@
     // LoginModel loginDto = new();
 }
 
-@section styles {
-    <link href="/css/login.css" rel="stylesheet" />
-}
-
 @section scripts {
     <script src="/js/passwordtoggle.js" defer></script>
 }
+
+<style>
+    .login-container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        background-color: #e5e7eb;
+    }
+
+    .form-title {
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        color: #111827;
+    }
+
+    .form-subtitle {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: #4b5563;
+    }
+
+    .form-wrapper {
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+        max-width: 28rem;
+    }
+
+    .form-wrapper.mt-8 {
+        margin-top: 2rem;
+    }
+
+    .form-card {
+        background-color: #ffffff;
+        padding: 2rem;
+        border: 1px solid #f3f4f6;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-login {
+        padding-block: .75em;
+    }
+
+    .error-alert {
+        background-color: #fef2f2;
+        border-left: 4px solid #f87171;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: #b91c1c;
+    }
+
+    .error-alert > ul {
+        list-style: none;
+        padding: 0;
+    }
+
+</style>
 
 <div class="login-container">
     <div class="form-wrapper">
@@ -36,7 +97,13 @@
 
                 @* <custom-input asp-for="RememberMe" /> *@
 
-                <button id="login-submit" type="submit" class="btn btn-primary btn-login w-100">Log in</button>
+                @await Html.PartialAsync("Button", new TimeManager.Backend.ViewModels.PartialViews.ButtonViewModel
+                {
+                    Id = "login-submit",
+                    Type = "submit",
+                    Classes = "btn-login w-100",
+                    Text = "Log in"
+                })
             </form>
             </<div>
         </div>

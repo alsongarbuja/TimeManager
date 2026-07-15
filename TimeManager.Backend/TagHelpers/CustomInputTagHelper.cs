@@ -20,6 +20,9 @@ namespace TimeManager.Backend.TagHelpers
         [HtmlAttributeName("required")]
         public bool? Required { get; set; }
 
+        [HtmlAttributeName("helperText")]
+        public string? HelperText { get; set; }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             var propertyName = For.Name;
@@ -105,6 +108,9 @@ namespace TimeManager.Backend.TagHelpers
 
             //if (type == "file")
 
+            var helperSpan = !string.IsNullOrEmpty(HelperText)
+                ? $"<span class='form-input-helper-text'>{HelperText}</span>"
+                : string.Empty;
 
             var errorSpan = hasErrors
                    ? $"<span class='form-error'>{errorMessage}</span>"
@@ -116,6 +122,7 @@ namespace TimeManager.Backend.TagHelpers
                 $"<div class='form-group {Classes}'>" +
                     $"<label class='form-label'>{labelText}{required}</label>" +
                     $"<div class='form-input-wrapper'>{input}</div>" +
+                    $"{helperSpan}" +
                     $"{errorSpan}" +
                 $"</div>"
             );

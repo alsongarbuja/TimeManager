@@ -1,4 +1,4 @@
-﻿namespace TimeManager.Backend.Models.Components
+﻿namespace TimeManager.Backend.ViewModels.PartialViews
 {
     public class ActionTdViewModel
     {

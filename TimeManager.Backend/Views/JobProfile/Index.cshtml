@@ -1,4 +1,4 @@
-﻿@using TimeManager.Backend.Models.Components
+﻿@using TimeManager.Backend.ViewModels.PartialViews
 @using TimeManager.Backend.Models.Responses
 @using TimeManager.Backend.ViewModels
 @model PagedResponse<JobProfileViewModel>
@@ -7,7 +7,7 @@
     Layout = "_ListWrapper";
     ViewData["Title"] = "Job Profile";
 
-    List<string> Headers = ["Employee", "Profile Template"];
+    List<string> Headers = ["Employee", "Profile Template", "Shift Time", "Early Buffer"];
     List<string> OrderingKeys = ["Employee"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Job Profile";
@@ -48,6 +48,8 @@ else
         <tr class="table-row">
             <td class="table-cell">@d.EmployeeString</td>
             <td class="table-cell">@d.ProfileTemplateString</td>
+            <td class="table-cell">@d.ShiftStartTime</td>
+            <td class="table-cell">@d.EarlyBuffer</td>
             @await Html.PartialAsync("ActionTd", new ActionTdViewModel
             {
                 Controller = "JobProfile",

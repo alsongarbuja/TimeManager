@@ -21,7 +21,7 @@ namespace TimeManager.Backend.Controllers.Employee
         IExcelService excelService
         ) : Controller
     {
-        public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> Index([FromQuery] PaginationQuery filter)
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
             PagedResponse<EmployeeViewModel> employees = await employeeService.GetEmployeesAsync(departmentId, filter);

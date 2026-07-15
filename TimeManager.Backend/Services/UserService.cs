@@ -15,7 +15,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IUserService
     {
-        Task<PagedResponse<UserViewModel>> GetUsersAsync(PaginationFilter filter);
+        Task<PagedResponse<UserViewModel>> GetUsersAsync(PaginationQuery filter);
         Task<(User? User, Role? Role)> GetUserByIdAsync(int id);
         //Task CreateUserAsync(UserViewModel uvm);
         Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm);
@@ -105,9 +105,9 @@ namespace TimeManager.Backend.Services
             return users;
         }
 
-        public async Task<PagedResponse<UserViewModel>> GetUsersAsync(PaginationFilter filter)
+        public async Task<PagedResponse<UserViewModel>> GetUsersAsync(PaginationQuery filter)
         {
-            (int pageNumber, int pageSize, string? orderBy, bool isOrderDesceding) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDesceding) = PaginationValidation.ConvertToValidPaginationQueries(filter);
 
             Expression<Func<User, object>>? orderByExpression = orderBy?.ToLower() switch
             {

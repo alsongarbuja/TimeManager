@@ -15,7 +15,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IEmployeeService
     {
-        Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(int? departmentId, PaginationFilter filter);
+        Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(int? departmentId, PaginationQuery filter);
         Task<Employee> GetEmployeeByIdAsync(int id);
         Task<int> CreateEmployeeAsync(EmployeeDto employeeDto);
         Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto);
@@ -87,9 +87,9 @@ namespace TimeManager.Backend.Services
             return employees;
         }
 
-        public async Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(int? departmentId, PaginationFilter filter)
+        public async Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(int? departmentId, PaginationQuery filter)
         {
-            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(filter);
             Expression<Func<Employee, object>>? orderExpression = orderBy?.ToLower() switch
             {
                 "so id" => e => e.UniqueId,

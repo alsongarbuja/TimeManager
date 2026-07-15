@@ -16,7 +16,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         IPayFrequencyService payFrequencyService
         ) : Controller
     {
-        public async Task<IActionResult> Index(PaginationFilter filter)
+        public async Task<IActionResult> Index(PaginationQuery filter)
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
             var profileTemplates = await profileTemplateService.GetProfileTemplatesAsync(departmentId, filter);

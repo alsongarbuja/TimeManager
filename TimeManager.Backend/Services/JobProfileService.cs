@@ -14,7 +14,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IJobProfileService
     {
-        Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId, PaginationFilter filter);
+        Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId, PaginationQuery filter);
         Task<JobProfile> GetJobProfileByIdAsync(int id);
         Task CreateJobProfileAsync(JobProfileViewModel jpvm);
         Task<JobProfile?> UpdateJobProfileASync(int id, JobProfileViewModel jpvm);
@@ -49,9 +49,9 @@ namespace TimeManager.Backend.Services
             return await context.JobProfile.FindOrThrowAsync(id);
         }
 
-        public async Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId, PaginationFilter filter)
+        public async Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId, PaginationQuery filter)
         {
-            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(filter);
             int totalRecords = 0;
             Expression<Func<JobProfile, object>>? orderExpression = orderBy?.ToLower() switch
             {

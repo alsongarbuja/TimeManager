@@ -4,12 +4,12 @@ namespace TimeManager.Backend.Utility
 {
     public class PaginationValidation
     {
-        public static (int, int, string?, bool) ValidateFilterValues(PaginationFilter filter) {
-            int pageNumber = filter.PageNumber < 1 ? 1 : filter.PageNumber;
-            int pageSize = filter.PageSize < 1 ? 10 : filter.PageSize;
+        public static (int, int, string?, bool) ConvertToValidPaginationQueries(PaginationQuery queries) {
+            int pageNumber = queries.PageNumber < 1 ? 1 : queries.PageNumber;
+            int pageSize = queries.PageSize < 1 ? 10 : queries.PageSize;
 
-            string? orderBy = filter.OrderBy ?? null;
-            bool isOrderDescending = filter.IsOrderDescending;
+            string? orderBy = queries.OrderBy ?? null;
+            bool isOrderDescending = queries.IsOrderDescending;
 
             return (pageNumber, pageSize, orderBy, isOrderDescending);
         }

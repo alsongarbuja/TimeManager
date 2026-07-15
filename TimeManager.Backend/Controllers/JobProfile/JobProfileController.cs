@@ -21,7 +21,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
         ILogger<JP> logger
         ) : Controller
     {
-        public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> Index([FromQuery] PaginationQuery filter)
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
             PagedResponse<JobProfileViewModel> jp = await jobProfileService.GetJobProfilesAsync(departmentId, filter);

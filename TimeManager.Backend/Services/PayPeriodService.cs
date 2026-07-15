@@ -14,7 +14,7 @@ namespace TimeManager.Backend.Services
     public interface IPayPeriodService
     {
         Task<PayPeriod> GetPayPeriodByIdAsync(int id);
-        Task<PagedResponse<PayPeriodViewModel>> GetPayPeriodsAsync(PaginationFilter filter);
+        Task<PagedResponse<PayPeriodViewModel>> GetPayPeriodsAsync(PaginationQuery filter);
         Task<IEnumerable<SelectListItem>> GetPayPeriodOptionsAsync();
         Task AutoGeneratePayPeriod();
     }
@@ -43,9 +43,9 @@ namespace TimeManager.Backend.Services
             return payPeriods;
         }
 
-        public async Task<PagedResponse<PayPeriodViewModel>> GetPayPeriodsAsync(PaginationFilter filter)
+        public async Task<PagedResponse<PayPeriodViewModel>> GetPayPeriodsAsync(PaginationQuery filter)
         {
-            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(filter);
             var currentPayPeriod = await payPeriodUtility.GetCurrentPayPeriod();
 
             if (currentPayPeriod == null) return new PagedResponse<PayPeriodViewModel>([], pageNumber, pageSize, 0, orderBy, isOrderDescending);

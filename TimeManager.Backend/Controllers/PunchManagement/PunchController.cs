@@ -31,16 +31,16 @@ namespace TimeManager.Backend.Controllers.PunchManagement
             //        earlyBufferMin = jp.ProfileTemplate.EarlyClockInBufferMin,
             //        shiftStartTime = jp.ProfileTemplate.ShiftStartTime,
             //    }).FirstOrDefaultAsync();
-            var jobProfile = await GetJobProfileQuery(ctx, punchEntryDto.UniqueId, punchEntryDto.DepartmentId);
+            var jp = await GetJobProfileQuery(ctx, punchEntryDto.UniqueId, punchEntryDto.DepartmentId);
 
-            if (jobProfile == null)
+            if (jp == null)
             {
                 logger.LogWarning("No Job profile found for the given Id");
                 return NotFound(new { message = "No job profile found for the given Id" });
             }
 
             PunchEntry? punchEntry = await ctx.PunchEntry.Where(
-                    pe => pe.JobProfileId == jobProfile.Id && pe.ClockOut == null
+                    pe => pe.JobProfileId == jp.Id && pe.ClockOut == null
                 ).FirstOrDefaultAsync();
 
             var msg = "";
@@ -53,20 +53,21 @@ namespace TimeManager.Backend.Controllers.PunchManagement
                 logger.LogInformation("Trying to clock in the employee");
 
                 logger.LogInformation("Checking if they are within clock in buffer time");
-                if (IsClockInAllowed(jobProfile.ShiftStartTime, jobProfile.EarlyBufferMin))
+                bool clockInTimeOk = jp.EarlyBuffer == null ? IsClockInAllowed(jp.ShiftStartTime, jp.EarlyBufferMin) : IsClockInAllowed(jp.ShiftStartTime, (int)jp.EarlyBuffer);
+                if (clockInTimeOk)
                 {
                     logger.LogInformation("Clock in was successful");
                     ctx.PunchEntry.Add(new PunchEntry
                     {
                         ClockIn = DateTime.UtcNow,
-                        JobProfileId = (int)jobProfile.Id!
+                        JobProfileId = (int)jp.Id!
                     });
                     msg = "Succefully clocked in!!";
                 }
                 else
                 {
                     logger.LogWarning("Clock in rejected due to trying to clock in too early");
-                    return BadRequest(new { message = $"You cannot clock in at this time. Your shift starts on {jobProfile.ShiftStartTime} and you can clock in starting {jobProfile.EarlyBufferMin} min before" });
+                    return BadRequest(new { message = $"You cannot clock in at this time. Your shift starts on {jp.ShiftStartTime} and you can clock in starting {jp.EarlyBuffer ??jp.EarlyBufferMin} min before" });
                 }
             } else
             {
@@ -90,7 +91,8 @@ namespace TimeManager.Backend.Controllers.PunchManagement
             {
                 Id = jp.Id,
                 EarlyBufferMin = jp.ProfileTemplate.EarlyClockInBufferMin,
-                ShiftStartTime = jp.ProfileTemplate.ShiftStartTime
+                ShiftStartTime = jp.ProfileTemplate.ShiftStartTime,
+                EarlyBuffer = jp.EarlyBuffer,
             })
             .FirstOrDefault());
 
@@ -99,6 +101,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
             public int Id { get; set; }
             public int EarlyBufferMin { get; set; }
             public TimeOnly ShiftStartTime { get; set; }
+            public int? EarlyBuffer { get; set; }
         }
 
         private static bool IsClockInAllowed(TimeOnly startShiftTime, int EarlyBufferMin)

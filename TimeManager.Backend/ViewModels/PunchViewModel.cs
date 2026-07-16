@@ -24,6 +24,7 @@ namespace TimeManager.Backend.ViewModels
         [Display(Name = "Clock out")]
         public DateTime? ClockOutTime { get; set; }
 
+        public IEnumerable<SelectListItem> Employees { get; set; } = [];
     }
 
     public class PunchStatusModel

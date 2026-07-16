@@ -27,6 +27,32 @@ namespace TimeManager.Backend.Controllers.Punch
         }
 
         [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
+            IEnumerable<SelectListItem> employees = await jobProfileService.GetUserOptionsAsync(departmentId);
+            return View(new PunchViewModel
+            {
+                ClockInTime = DateTime.Now,
+                Employees = employees,
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(PunchViewModel pvm)
+        {
+            await punchServices.CreatePunchAsync(pvm);
+            int? departmentId = HttpContext.Session.GetDepartmentId();
+            IEnumerable<SelectListItem> employees = await jobProfileService.GetUserOptionsAsync(departmentId);
+            return View(new PunchViewModel
+            {
+                ClockInTime = DateTime.Now,
+                Employees = employees,
+            });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var punch = await punchServices.GetPunchByIdAsync(id);

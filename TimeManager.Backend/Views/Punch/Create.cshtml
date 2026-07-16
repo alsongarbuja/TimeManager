@@ -1,0 +1,19 @@
+﻿@model TimeManager.Backend.ViewModels.PunchViewModel
+
+@{
+    Layout = "_FormWrapper";
+    ViewData["Title"] = "Punch - Create";
+    ViewData["ModuleTitle"] = "Create Punch";
+    ViewData["ModuleSubtitle"] = "Create punch data";
+    ViewData["Controller"] = "Punch";
+}
+
+<form asp-controller="Punch" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <custom-select asp-for="EmployeeId" asp-items="Model.Employees" />
+    <custom-input asp-for="ClockInTime" />
+    <custom-input asp-for="ClockOutTime" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

@@ -13,7 +13,8 @@ namespace TimeManager.Backend.Services
 {
     public interface IPunchServices
     {
-        Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationFilter filter);
+        Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationQuery pagFilter, FilterCondition filter);
+        Task CreatePunchAsync(PunchViewModel pvm);
         Task<PunchEntry?> GetPunchByIdAsync(int id);
         Task<PunchEntry?> UpdatePunchAsync(int id, PunchDto punchEntryDto);
         Task<int?> DeletePunchByIdAsync(int id);
@@ -23,6 +24,16 @@ namespace TimeManager.Backend.Services
 
     public class PunchServices(HrmsDbContext context, ILogger<PunchEntry> logger) : IPunchServices
     {
+        public async Task CreatePunchAsync(PunchViewModel pvm)
+        {
+            context.PunchEntry.Add(new PunchEntry {
+                JobProfileId = pvm.EmployeeId,
+                ClockIn = pvm.ClockInTime.ToUniversalTime(),
+                ClockOut = pvm.ClockOutTime?.ToUniversalTime(),
+            });
+            await context.SaveChangesAsync();
+        }
+
         public async Task<int?> DeletePunchByIdAsync(int id)
         {
             var punch = await context.PunchEntry.FindOrThrowAsync(id);
@@ -81,14 +92,27 @@ namespace TimeManager.Backend.Services
              return await context.PunchEntry.Include(p => p.JobProfile).ThenInclude(jp => jp.Employee).Where(p => p.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationFilter filter)
+        public async Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationQuery pagFilter, FilterCondition filter)
         {
-            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(pagFilter, new PaginationQuery
+            {
+                PageSize = 25,
+                IsOrderDescending = true,
+                OrderBy = "clock in",
+            });
+
+            Console.WriteLine($"Page size: {pageSize}, OrderBy: {orderBy}, isOrderDescending: {isOrderDescending}");
+
             Expression<Func<PunchEntry, object>>? orderExpression = orderBy?.ToLower() switch
             {
                 "name" => pe => pe.JobProfile.Employee.FirstName,
+                "clock in" => pe => pe.ClockIn,
+                "clock out" => pe => pe.ClockOut,
                 _ => pe => pe.ClockIn,
             };
+
+            var builder = new ExpressionBuilder<PunchEntry>();
+            var whereExpression = filter.Value == "-404" ? null : builder.BuildPredicate(filter);
 
             (var punches, int totalRecords) = await context.PunchEntry.FindWithPaginationAsync(
                 pe => new PunchViewModel
@@ -101,7 +125,7 @@ namespace TimeManager.Backend.Services
                 }, 
                 ((pageNumber - 1) * pageSize), 
                 pageSize,
-                null,
+                whereExpression,
                 orderExpression,
                 isOrderDescending
                 );

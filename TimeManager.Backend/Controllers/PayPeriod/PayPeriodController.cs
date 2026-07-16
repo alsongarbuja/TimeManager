@@ -10,7 +10,7 @@ namespace TimeManager.Backend.Controllers.PayPeriod
     [Authorize(Policy = "AdminPolicy")]
     public class PayPeriodController(IPayPeriodService payPeriodService) : Controller
     {
-        public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> Index([FromQuery] PaginationQuery filter)
         {
             PagedResponse<PayPeriodViewModel> payperiods = await payPeriodService.GetPayPeriodsAsync(filter);
             return View(payperiods);

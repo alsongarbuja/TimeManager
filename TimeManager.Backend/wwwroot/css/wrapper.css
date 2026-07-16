@@ -112,6 +112,13 @@
 }
 
 /* List wrapper styling */
+.create-fields {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 1em;
+}
+
 .btn-create {
     display: inline;
     border-radius: 0.75rem;

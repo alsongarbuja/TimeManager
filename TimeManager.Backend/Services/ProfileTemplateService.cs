@@ -14,7 +14,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IProfileTemplateService
     {
-        Task<PagedResponse<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId, PaginationFilter filter);
+        Task<PagedResponse<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId, PaginationQuery filter);
         Task<ProfileTemplate> GetProfileTemplateByIdAsync(int id);
         Task CreateProfileTemplateAsync(ProfileTemplateViewModel pvm);
         Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm);
@@ -61,9 +61,9 @@ namespace TimeManager.Backend.Services
             return profileTemplates;
         }
 
-        public async Task<PagedResponse<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId, PaginationFilter filter)
+        public async Task<PagedResponse<ProfileTemplateViewModel>> GetProfileTemplatesAsync(int? departmentId, PaginationQuery filter)
         {
-            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ValidateFilterValues(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(filter);
 
             int totalRecords = 0;
 

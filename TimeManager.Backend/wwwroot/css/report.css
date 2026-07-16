@@ -238,6 +238,16 @@
     padding: 0 1.25rem 1.25rem;
 }
 
+.rbu-details-link {
+    display: inline-block;
+    margin-block: 1em;
+    background: steelblue;
+    border-radius: .5em;
+    padding: .5em;
+    color: white;
+    text-decoration: none;
+}
+
 .rbu-stats {
     margin-bottom: 1rem;
 }

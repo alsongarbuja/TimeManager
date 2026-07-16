@@ -6,13 +6,12 @@
     Layout = "_ListWrapper";
     ViewData["Title"] = "Punch entries";
 
-    List<string> Headers = ["Name", "Clock in", "Clock Out"];
-    List<string> OrderingKeys = ["Name"];
+    List<string> Headers = ["Name", "Clock In", "Clock Out"];
+    List<string> OrderingKeys = ["Name", "Clock In", "Clock Out"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Punches";
     ViewData["ModuleDesc"] = "Manage the punches in the system";
     ViewData["Controller"] = "Punch";
-    ViewData["HasCreate"] = false;
 
     ViewData["HasPagination"] = true;
     ViewData["OrderingKeys"] = OrderingKeys;
@@ -20,6 +19,38 @@
     ViewData["TotalRecords"] = Model.Data.TotalRecords;
 
     IEnumerable<PunchViewModel> punches = Model.Data.Data;
+
+    string val = Context.Request.Query["value"];
+}
+
+@section CustomCreate {
+    <form asp-controller="Punch"
+          asp-action="Index"
+          method="get">
+        <input hidden name="pageNumber" value="1" />
+        <input hidden name="pageSize" value="25" />
+        <input hidden name="orderBy" value="ClockIn" />
+        <input hidden name="isOrderDescending" value="True" />
+        <input hidden name="propertyName" value="JobProfileId" />
+        <input hidden name="operator" value="Equals" />
+
+        <div class='form-group'>
+            <label for='emp-select' class='form-label fw-semibold'>
+                Filter by employee
+            </label>
+            <select id='emp-select'
+                    name='value'
+                    class='form-input'
+                    onchange="this.form.submit()">
+                <option value="-404">All</option>
+                @foreach (var e in Model.Employees)
+                {
+                    <option value="@e.Value"
+                            selected="@(val == e.Value.ToString())">@e.Text</option>
+                }
+            </select>
+        </div>
+    </form>
 }
 
 @if (punches.Count() <= 0)
@@ -33,24 +64,6 @@
 }
 else
 {
-    @section CustomCreate {
-        <div>
-            <div class='form-group'>
-                <label for='emp-select' class='form-label fw-semibold'>
-                    Filter by employee
-                </label>
-                <select id='emp-select'
-                        name='emp-select'
-                        class='form-input'>
-                    <option value="all">All</option>
-                @foreach(var e in Model.Employees)
-                    {
-                        <option value="@e.Value">@e.Text</option>
-                    }
-                </select>
-            </div>
-        </div>
-    }
     foreach (var d in punches)
     {
         <tr class="table-row" data-employee-id="@d.EmployeeId">
@@ -67,23 +80,7 @@ else
             {
                 Controller = "Punch",
                 Id = d.Id,
-                // HasDelete = false,
             })
         </tr>
     }
-}
-
-@section scripts {
-    <script>
-        document.getElementById("emp-select").addEventListener("change", (e) => {
-            let id = e.target.value;
-            document.querySelectorAll("tr.table-row").forEach(row => {
-                if (id === "all" || row.dataset.employeeId.toString() === id) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
-            })
-        })
-    </script>
 }

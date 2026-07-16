@@ -23,7 +23,7 @@ namespace TimeManager.Backend.Controllers.User
         ) : Controller
     {
         [HttpGet]
-        public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> Index([FromQuery] PaginationQuery filter)
         {
             PagedResponse<UserViewModel> users = await userService.GetUsersAsync(filter);
             return View(users);

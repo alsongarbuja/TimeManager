@@ -8,6 +8,8 @@ using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using TimeManager.Backend.Models;
 
 namespace TimeManager.Backend.Controllers.JobProfile
 {
@@ -17,14 +19,28 @@ namespace TimeManager.Backend.Controllers.JobProfile
         IEmployeeService employeeService, 
         IProfileTemplateService profileTemplateService,
         IExcelService excelService,
+        ICacheService cacheService,
         HrmsDbContext context,
         ILogger<JP> logger
         ) : Controller
     {
         public async Task<IActionResult> Index([FromQuery] PaginationQuery filter)
         {
+            var uClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+             
+            if (!int.TryParse(uClaim, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            Preferences prefs = await cacheService.GetPreferencesAsync(userId);
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            PagedResponse<JobProfileViewModel> jp = await jobProfileService.GetJobProfilesAsync(departmentId, filter);
+            PagedResponse<JobProfileViewModel> jp = await jobProfileService.GetJobProfilesAsync(departmentId, filter, new PaginationQuery
+            {
+                PageSize = prefs.JobProfilesPref.Limit,
+                OrderBy = prefs.JobProfilesPref.OrderBy,
+                IsOrderDescending = prefs.JobProfilesPref.IsOrderDescending,
+            });
             return View(jp);
         }
 

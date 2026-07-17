@@ -10,12 +10,18 @@
     int totalPages = ViewData["TotalPages"] as int? ?? 1;
     int totalRecords = ViewData["TotalRecords"] as int? ?? 1;
     var orderingKeys = ViewData["OrderingKeys"] as List<string> ?? [];
+    string? orderBy = ViewData["OrderBy"] as string;
+    string? isDescending = ViewData["IsOrderDescending"] as string;
 
     int currentPage = int.TryParse(Context.Request.Query["pageNumber"], out var cp) ? cp : 1;
-    int pageSize = int.TryParse(Context.Request.Query["pageSize"], out var ps) ? ps : 10;
+    int pageSize = int.TryParse(Context.Request.Query["pageSize"], out var ps) ? ps : ViewData["PageSize"] as int? ?? 10;
 
-    string? currentOrderBy = Context.Request.Query["orderBy"];
-    bool currentIsDescending = Context.Request.Query["isOrderDescending"] == "True";
+    string? currentOrderBy = orderBy ?? Context.Request.Query["orderBy"];
+    bool currentIsDescending = !string.IsNullOrEmpty(Context.Request.Query["isOrderDescending"]) 
+        ? Context.Request.Query["isOrderDescending"] == "True" 
+        : string.IsNullOrEmpty(isDescending) 
+            ? false 
+            : isDescending == "True";
 
     string? propertyName = Context.Request.Query["propertyName"];
     string? operatorType = Context.Request.Query["operator"];
@@ -181,8 +187,8 @@
                                             class="table-header-orderable-cell table-header-cell-inner"
                                         >
                                             @header
-
-                                            @if (!string.IsNullOrEmpty(currentOrderBy) && currentOrderBy == header)
+                                            
+                                            @if (!string.IsNullOrEmpty(currentOrderBy) && currentOrderBy.ToLower() == header.ToLower())
                                             {
                                                 <span class="table-header-order-icon">
                                                         @if (currentIsDescending)

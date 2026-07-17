@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using TimeManager.Backend.Models;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.Models.Device_Management;
 using TimeManager.Backend.Models.Employee_Management;
@@ -84,6 +86,15 @@ namespace TimeManager.Backend.Data
                 .IsUnique()
                 .HasFilter("[ClockOut] IS NULL")
                 .HasDatabaseName("UX_PunchEntry_JobProfileId_OpenPunch");
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.Preferences)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+                    v => string.IsNullOrEmpty(v) 
+                        ? new Preferences() 
+                        : JsonSerializer.Deserialize<Preferences>(v, (JsonSerializerOptions)null)
+                );
         }
     }
 }

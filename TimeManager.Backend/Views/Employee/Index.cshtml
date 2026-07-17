@@ -19,6 +19,10 @@
     ViewData["OrderingKeys"] = OrderingKeys;
     ViewData["TotalPages"] = Model.TotalPages;
     ViewData["TotalRecords"] = Model.TotalRecords;
+
+    ViewData["OrderBy"] = Model.OrderBy;
+    ViewData["PageSize"] = Model.PageSize;
+    ViewData["IsOrderDescending"] = Model.IsOrderDescending;
 }
 
 @if (User.IsInRole(AppConstants.ADMIN_ROLE))

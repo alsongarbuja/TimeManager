@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
+using TimeManager.Backend.Models;
 using TimeManager.Backend.Models.Requests;
-using E = TimeManager.Backend.Models.Employee_Management.Employee;
 using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
+using E = TimeManager.Backend.Models.Employee_Management.Employee;
 
 namespace TimeManager.Backend.Controllers.Employee
 {
@@ -18,13 +20,28 @@ namespace TimeManager.Backend.Controllers.Employee
         IEmployeeService employeeService, 
         IDepartmentService departmentService,
         IUserService userService,
-        IExcelService excelService
+        IExcelService excelService,
+        ICacheService cacheService
         ) : Controller
     {
         public async Task<IActionResult> Index([FromQuery] PaginationQuery filter)
         {
+            var uClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(uClaim, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            Preferences prefs = await cacheService.GetPreferencesAsync(userId);
+
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            PagedResponse<EmployeeViewModel> employees = await employeeService.GetEmployeesAsync(departmentId, filter);
+            PagedResponse<EmployeeViewModel> employees = await employeeService.GetEmployeesAsync(departmentId, filter, new PaginationQuery
+            {
+                PageSize = prefs.EmployeesPref.Limit,
+                OrderBy = prefs.EmployeesPref.OrderBy,
+                IsOrderDescending = prefs.EmployeesPref.IsOrderDescending
+            });
             return View(employees);
         }
 

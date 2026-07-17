@@ -21,6 +21,10 @@
     IEnumerable<PunchViewModel> punches = Model.Data.Data;
 
     string val = Context.Request.Query["value"];
+
+    ViewData["OrderBy"] = Model.Data.OrderBy;
+    ViewData["PageSize"] = Model.Data.PageSize;
+    ViewData["IsOrderDescending"] = Model.Data.IsOrderDescending;
 }
 
 @section CustomCreate {

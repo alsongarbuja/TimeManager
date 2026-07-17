@@ -8,7 +8,7 @@
     ViewData["Title"] = "Job Profile";
 
     List<string> Headers = ["Employee", "Profile Template", "Shift Time", "Early Buffer"];
-    List<string> OrderingKeys = ["Employee"];
+    List<string> OrderingKeys = ["Employee", "Profile Template"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Job Profile";
     ViewData["ModuleDesc"] = "Manage job profiles in the department";
@@ -18,6 +18,10 @@
     ViewData["OrderingKeys"] = OrderingKeys;
     ViewData["TotalPages"] = Model.TotalPages;
     ViewData["TotalRecords"] = Model.TotalRecords;
+
+    ViewData["OrderBy"] = Model.OrderBy;
+    ViewData["PageSize"] = Model.PageSize;
+    ViewData["IsOrderDescending"] = Model.IsOrderDescending;
 }
 
 @section CustomCreate {

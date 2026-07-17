@@ -1,4 +1,5 @@
-﻿@model TimeManager.Backend.ViewModels.ChangePasswordModel;
+﻿@using TimeManager.Backend.Common
+@model TimeManager.Backend.ViewModels.SettingViewModel;
 
 @{
     Layout = "_AdminLayout";
@@ -9,24 +10,79 @@
     .section-header {
         border-bottom: 1px solid #e5e5e5;
         padding-bottom: 16px;
-        margin-bottom: 24px;
+        margin-bottom: .5em;
     }
 
     form > * {
         margin-block-end: 1em;
     }
+
+    .pref-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .pref-card > * + * {
+        margin-bottom: .5em;
+    }
 </style>
 
 <main class="content-area">
+    @if (User.IsInRole(AppConstants.ADMIN_ROLE))
+    {
+        <section class="settings-section">
+            <div class="section-header">
+                <h2 class="section-title">Default Views</h2>
+            </div>
+
+            <form asp-controller="Setting" asp-action="UpdatePreferences" method="post">
+                <div class="pref-grid">
+                    <div class="pref-card">
+                        <h4>Punches</h4>
+                        <custom-select asp-for="Preferences.PunchesPref.Limit" asp-items="@(new SelectList(Model.LimitOptions, "Value", "Text", Model.Preferences.PunchesPref.Limit))" />
+                        <custom-select asp-for="Preferences.PunchesPref.OrderBy" asp-items="@(new SelectList(Model.PunchesOrderByOptions, "Value", "Text", Model.Preferences.PunchesPref.OrderBy))" />
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" asp-for="Preferences.PunchesPref.IsOrderDescending" />
+                            <label class="form-check-label">Descending Order</label>
+                        </div>
+                    </div>
+
+                    <div class="pref-card">
+                        <h4>Employees</h4>
+                        <custom-select asp-for="Preferences.EmployeesPref.Limit" asp-items="@(new SelectList(Model.LimitOptions, "Value", "Text", Model.Preferences.EmployeesPref.Limit))" />
+                        <custom-select asp-for="Preferences.EmployeesPref.OrderBy" asp-items="@(new SelectList(Model.EmployeesOrderByOptions, "Value", "Text", Model.Preferences.EmployeesPref.OrderBy))" />
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" asp-for="Preferences.EmployeesPref.IsOrderDescending" />
+                            <label class="form-check-label">Descending Order</label>
+                        </div>
+                    </div>
+
+                    <div class="pref-card">
+                        <h4>Job Profiles</h4>
+                        <custom-select asp-for="Preferences.JobProfilesPref.Limit" asp-items="@(new SelectList(Model.LimitOptions, "Value", "Text", Model.Preferences.JobProfilesPref.Limit))" />
+                        <custom-select asp-for="Preferences.JobProfilesPref.OrderBy" asp-items="@(new SelectList(Model.JobProfilesOrderByOptions, "Value", "Text", Model.Preferences.JobProfilesPref.OrderBy))" />
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" asp-for="Preferences.JobProfilesPref.IsOrderDescending" />
+                            <label class="form-check-label">Descending Order</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Save Preferences</button>
+            </form>
+        </section>
+    }
+
     <section class="settings-section">
         <div class="section-header">
             <h2 class="section-title">Change password</h2>
         </div>
 
         <form asp-controller="Setting" asp-action="ChangePassword" method="post">
-            <custom-input asp-for="OldPassword" helperText="Forgot old password? Please contact administration to change it." />
-            <custom-input asp-for="NewPassword" />
-            <custom-input asp-for="ConfirmPassword" helperText="Make sure it's at least 8 characters including a number, a special character and an upppercase letter." />
+            <custom-input asp-for="PasswordModel.OldPassword" helperText="Forgot old password? Please contact administration to change it." />
+            <custom-input asp-for="PasswordModel.NewPassword" />
+            <custom-input asp-for="PasswordModel.ConfirmPassword" helperText="Make sure it's at least 8 characters including a number, a special character and an upppercase letter." />
             <button type="submit" class="btn btn-primary">Update password</button>
         </form>
     </section>

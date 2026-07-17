@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 using TimeManager.Backend.Controllers.PunchManagement.Dto;
 using TimeManager.Backend.Extensions;
+using TimeManager.Backend.Models;
 using TimeManager.Backend.Models.Requests;
 using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
@@ -12,12 +14,30 @@ using TimeManager.Backend.ViewModels;
 namespace TimeManager.Backend.Controllers.Punch
 {
     [Authorize(Policy = "AdminPolicy")]
-    public class PunchController(IPunchServices punchServices, IJobProfileService jobProfileService) : Controller
+    public class PunchController(
+        IPunchServices punchServices, 
+        IJobProfileService jobProfileService,
+        ICacheService cacheService
+        ) : Controller
     {
         public async Task<IActionResult> Index([FromQuery] PaginationQuery pagFilter, [FromQuery] FilterCondition filter)
         {
+            var uClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(uClaim, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            Preferences prefs = await cacheService.GetPreferencesAsync(userId);
+
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            PagedResponse<PunchViewModel> data = await punchServices.GetPunchesAsync(departmentId, pagFilter, filter);
+            PagedResponse<PunchViewModel> data = await punchServices.GetPunchesAsync(departmentId, pagFilter, filter, new PaginationQuery
+            {
+                PageSize = prefs.PunchesPref.Limit,
+                OrderBy = prefs.PunchesPref.OrderBy,
+                IsOrderDescending = prefs.PunchesPref.IsOrderDescending
+            });
             IEnumerable<SelectListItem> employees = await jobProfileService.GetUserOptionsAsync(departmentId);
             return View(new PunchViewOverall
             {

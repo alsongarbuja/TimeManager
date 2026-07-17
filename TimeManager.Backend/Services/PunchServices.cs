@@ -13,7 +13,12 @@ namespace TimeManager.Backend.Services
 {
     public interface IPunchServices
     {
-        Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationQuery pagFilter, FilterCondition filter);
+        Task<PagedResponse<PunchViewModel>> GetPunchesAsync(
+            int? departmentId, 
+            PaginationQuery pagFilter, 
+            FilterCondition filter,
+            PaginationQuery defaultQuery
+            );
         Task CreatePunchAsync(PunchViewModel pvm);
         Task<PunchEntry?> GetPunchByIdAsync(int id);
         Task<PunchEntry?> UpdatePunchAsync(int id, PunchDto punchEntryDto);
@@ -92,14 +97,14 @@ namespace TimeManager.Backend.Services
              return await context.PunchEntry.Include(p => p.JobProfile).ThenInclude(jp => jp.Employee).Where(p => p.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<PagedResponse<PunchViewModel>> GetPunchesAsync(int? departmentId, PaginationQuery pagFilter, FilterCondition filter)
+        public async Task<PagedResponse<PunchViewModel>> GetPunchesAsync(
+            int? departmentId, 
+            PaginationQuery pagFilter, 
+            FilterCondition filter,
+            PaginationQuery defaultQuery
+            )
         {
-            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(pagFilter, new PaginationQuery
-            {
-                PageSize = 25,
-                IsOrderDescending = true,
-                OrderBy = "clock in",
-            });
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(pagFilter, defaultQuery);
 
             Console.WriteLine($"Page size: {pageSize}, OrderBy: {orderBy}, isOrderDescending: {isOrderDescending}");
 

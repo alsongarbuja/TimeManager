@@ -15,7 +15,11 @@ namespace TimeManager.Backend.Services
 {
     public interface IEmployeeService
     {
-        Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(int? departmentId, PaginationQuery filter);
+        Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(
+            int? departmentId, 
+            PaginationQuery filter,
+            PaginationQuery defaultQuery
+            );
         Task<Employee> GetEmployeeByIdAsync(int id);
         Task<int> CreateEmployeeAsync(EmployeeDto employeeDto);
         Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto);
@@ -87,9 +91,13 @@ namespace TimeManager.Backend.Services
             return employees;
         }
 
-        public async Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(int? departmentId, PaginationQuery filter)
+        public async Task<PagedResponse<EmployeeViewModel>> GetEmployeesAsync(
+            int? departmentId, 
+            PaginationQuery filter,
+            PaginationQuery defaultQuery
+            )
         {
-            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(filter, defaultQuery);
             Expression<Func<Employee, object>>? orderExpression = orderBy?.ToLower() switch
             {
                 "so id" => e => e.UniqueId,
@@ -145,7 +153,9 @@ namespace TimeManager.Backend.Services
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
-                    e => !excludedUserIds.Contains(e.UserId) && !excludedOtherDepartmentUserIds.Contains(e.UserId)
+                    e => !excludedUserIds.Contains(e.UserId) && !excludedOtherDepartmentUserIds.Contains(e.UserId),
+                    orderExpression,
+                    isOrderDescending
                 );
             }
             return new PagedResponse<EmployeeViewModel>(employees, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);

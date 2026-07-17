@@ -14,7 +14,11 @@ namespace TimeManager.Backend.Services
 {
     public interface IJobProfileService
     {
-        Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId, PaginationQuery filter);
+        Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(
+            int? departmentId, 
+            PaginationQuery query,
+            PaginationQuery defaultQuery
+            );
         Task<JobProfile> GetJobProfileByIdAsync(int id);
         Task CreateJobProfileAsync(JobProfileViewModel jpvm);
         Task<JobProfile?> UpdateJobProfileASync(int id, JobProfileViewModel jpvm);
@@ -49,13 +53,18 @@ namespace TimeManager.Backend.Services
             return await context.JobProfile.FindOrThrowAsync(id);
         }
 
-        public async Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(int? departmentId, PaginationQuery filter)
+        public async Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(
+            int? departmentId, 
+            PaginationQuery query,
+            PaginationQuery defaultQuery
+            )
         {
-            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(filter);
+            (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(query, defaultQuery);
             int totalRecords = 0;
             Expression<Func<JobProfile, object>>? orderExpression = orderBy?.ToLower() switch
             {
                 "employee" => jp => jp.Employee.FirstName,
+                "profile template" => jp => jp.ProfileTemplate.Unit.Name,
                 _ => null
             };
 
@@ -98,7 +107,9 @@ namespace TimeManager.Backend.Services
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
-                    jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId
+                    jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId,
+                    orderExpression,
+                    isOrderDescending
                   );
             }
 

@@ -215,7 +215,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
                 {
                     Id = id,
                     Employees = (await employeeService.GetEmployeeOptionAsync(pvm.EmployeeId)),
-                    ProfileTemplates = (await employeeService.GetEmployeeOptionAsync(pvm.ProfileTemplateId)),
+                    ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync(pvm.ProfileTemplateId)),
                     EmployeeId = pvm.EmployeeId,
                     ProfileTemplateId = pvm.ProfileTemplateId,
                     JoinDate = pvm.JoinDate,

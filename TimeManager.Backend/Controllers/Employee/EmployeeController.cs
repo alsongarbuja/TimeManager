@@ -215,10 +215,19 @@ namespace TimeManager.Backend.Controllers.Employee
                 return View(employeeData);
             }
 
-            //await _employeeDepartmentService.UpdateEmployeeDepartmentAsync(e.Id, )
-
             TempData["success"] = "Employee updated";
-            return RedirectToAction(nameof(Index));
+            return View(new EmployeeData
+            {
+                EmployeeView = new EmployeeViewModel
+                {
+                    Id = e.Id,
+                    UniqueId = e.UniqueId,
+                    FirstName = e.FirstName,
+                    LastName = e.LastName,
+                },
+                Users = (await userService.GetUserOptionsAsync(e.UserId)),
+                Departments = (await departmentService.GetDepartmentOptionsAsync(employeeData.DepartmentId ?? 0))
+            });
         }
 
         [HttpPost]

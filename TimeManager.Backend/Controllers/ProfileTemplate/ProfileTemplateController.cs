@@ -41,8 +41,16 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProfileTemplateViewModel pvm)
         {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             await profileTemplateService.CreateProfileTemplateAsync(pvm);
-            return RedirectToAction(nameof(Index));
+            TempData["success"] = "Profile Template successfully created";
+            return View(new ProfileTemplateViewModel
+            {
+                Units = (await unitService.GetUnitReportOptionsAsync(departmentId)),
+                Roles = (await roleService.GetRoleOptionsAsync()),
+                EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
+                PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
+            });
         }
 
         [HttpGet]
@@ -93,7 +101,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
                     EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
                     PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
                 };
-                return RedirectToAction(nameof(Index));
+                return View(pv);
             } catch (ArgumentException ex)
             {
                 TempData["error"] = ex.Message;

@@ -25,6 +25,8 @@
     ViewData["OrderBy"] = Model.Data.OrderBy;
     ViewData["PageSize"] = Model.Data.PageSize;
     ViewData["IsOrderDescending"] = Model.Data.IsOrderDescending;
+
+    int offset = (Model.Data.PageNumber - 1) * Model.Data.PageSize;
 }
 
 @section CustomCreate {
@@ -71,6 +73,7 @@ else
     foreach (var d in punches)
     {
         <tr class="table-row" data-employee-id="@d.EmployeeId">
+            <sn-cell counter-name="PunchEntry" start="@offset" />
             <td class="table-cell">@d.Name</td>
             <td class="table-cell">@DateTime.Parse(d.ClockInTime.ToString()).ToLocalTime().ToString("hh:mm tt, MMM dd yyyy")</td>
             @if(d.ClockOutTime is not null)

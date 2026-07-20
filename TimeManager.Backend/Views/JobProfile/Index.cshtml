@@ -22,6 +22,8 @@
     ViewData["OrderBy"] = Model.OrderBy;
     ViewData["PageSize"] = Model.PageSize;
     ViewData["IsOrderDescending"] = Model.IsOrderDescending;
+
+    int offset = (Model.PageNumber - 1) * Model.PageSize;
 }
 
 @section CustomCreate {
@@ -50,6 +52,7 @@ else
     foreach (var d in Model.Data)
     {
         <tr class="table-row">
+            <sn-cell counter-name="JobProfile" start="@offset" />
             <td class="table-cell">@d.EmployeeString</td>
             <td class="table-cell">@d.ProfileTemplateString</td>
             <td class="table-cell">@d.ShiftStartTime</td>

@@ -7,13 +7,33 @@
 }
 
 <style>
+    .content-area {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .settings-section {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
     .section-header {
         border-bottom: 1px solid #e5e5e5;
         padding-bottom: 16px;
-        margin-bottom: .5em;
+        margin-bottom: 1em;
     }
 
-    form > * {
+    .section-title {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 600;
+    }
+
+    .settings-section form > * {
         margin-block-end: 1em;
     }
 
@@ -23,13 +43,27 @@
         gap: 20px;
     }
 
-    .pref-card > * + * {
-        margin-bottom: .5em;
+    .pref-card {
+        border: 1px solid #eee;
+        border-radius: 6px;
+        padding: 16px;
+        background: #fafafa;
     }
+
+        .pref-card > * + * {
+            margin-bottom: .5em;
+        }
+
+        .pref-card h4 {
+            margin: 0 0 .75em;
+            font-size: .95rem;
+            font-weight: 600;
+            color: #333;
+        }
 </style>
 
 <main class="content-area">
-    @if (User.IsInRole(AppConstants.ADMIN_ROLE))
+    @if (User.IsInRole(AppConstants.ADMIN_ROLE) || User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
     {
         <section class="settings-section">
             <div class="section-header">
@@ -91,3 +125,100 @@
 @section scripts {
     <script src="/js/passwordtoggle.js" defer></script>
 }
+
+
+
+@* 
+@using TimeManager.Backend.Common
+@model TimeManager.Backend.ViewModels.SettingViewModel;
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Settings";
+}
+
+<style>
+    .section-header {
+        border-bottom: 1px solid #e5e5e5;
+        padding-bottom: 16px;
+        margin-bottom: .5em;
+    }
+
+    form > * {
+        margin-block-end: 1em;
+    }
+
+    .pref-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .pref-card > * + * {
+        margin-bottom: .5em;
+    }
+</style>
+
+<main class="content-area">
+    @if (User.IsInRole(AppConstants.ADMIN_ROLE) || User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
+    {
+        <section class="settings-section">
+            <div class="section-header">
+                <h2 class="section-title">Default Views</h2>
+            </div>
+
+            <form asp-controller="Setting" asp-action="UpdatePreferences" method="post">
+                <div class="pref-grid">
+                    <div class="pref-card">
+                        <h4>Punches</h4>
+                        <custom-select asp-for="Preferences.PunchesPref.Limit" asp-items="@(new SelectList(Model.LimitOptions, "Value", "Text", Model.Preferences.PunchesPref.Limit))" />
+                        <custom-select asp-for="Preferences.PunchesPref.OrderBy" asp-items="@(new SelectList(Model.PunchesOrderByOptions, "Value", "Text", Model.Preferences.PunchesPref.OrderBy))" />
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" asp-for="Preferences.PunchesPref.IsOrderDescending" />
+                            <label class="form-check-label">Descending Order</label>
+                        </div>
+                    </div>
+
+                    <div class="pref-card">
+                        <h4>Employees</h4>
+                        <custom-select asp-for="Preferences.EmployeesPref.Limit" asp-items="@(new SelectList(Model.LimitOptions, "Value", "Text", Model.Preferences.EmployeesPref.Limit))" />
+                        <custom-select asp-for="Preferences.EmployeesPref.OrderBy" asp-items="@(new SelectList(Model.EmployeesOrderByOptions, "Value", "Text", Model.Preferences.EmployeesPref.OrderBy))" />
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" asp-for="Preferences.EmployeesPref.IsOrderDescending" />
+                            <label class="form-check-label">Descending Order</label>
+                        </div>
+                    </div>
+
+                    <div class="pref-card">
+                        <h4>Job Profiles</h4>
+                        <custom-select asp-for="Preferences.JobProfilesPref.Limit" asp-items="@(new SelectList(Model.LimitOptions, "Value", "Text", Model.Preferences.JobProfilesPref.Limit))" />
+                        <custom-select asp-for="Preferences.JobProfilesPref.OrderBy" asp-items="@(new SelectList(Model.JobProfilesOrderByOptions, "Value", "Text", Model.Preferences.JobProfilesPref.OrderBy))" />
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" asp-for="Preferences.JobProfilesPref.IsOrderDescending" />
+                            <label class="form-check-label">Descending Order</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Save Preferences</button>
+            </form>
+        </section>
+    }
+
+    <section class="settings-section">
+        <div class="section-header">
+            <h2 class="section-title">Change password</h2>
+        </div>
+
+        <form asp-controller="Setting" asp-action="ChangePassword" method="post">
+            <custom-input asp-for="PasswordModel.OldPassword" helperText="Forgot old password? Please contact administration to change it." />
+            <custom-input asp-for="PasswordModel.NewPassword" />
+            <custom-input asp-for="PasswordModel.ConfirmPassword" helperText="Make sure it's at least 8 characters including a number, a special character and an upppercase letter." />
+            <button type="submit" class="btn btn-primary">Update password</button>
+        </form>
+    </section>
+</main>
+
+@section scripts {
+    <script src="/js/passwordtoggle.js" defer></script>
+} *@

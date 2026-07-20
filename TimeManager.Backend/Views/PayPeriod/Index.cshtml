@@ -19,6 +19,8 @@
     ViewData["OrderingKeys"] = OrderingKeys;
     ViewData["TotalPages"] = Model.TotalPages;
     ViewData["TotalRecords"] = Model.TotalRecords;
+
+    int offset = (Model.PageNumber - 1) * Model.PageSize;
 }
 
 @if (Model.Data.Count() <= 0)
@@ -35,6 +37,7 @@ else
     foreach (var d in Model.Data)
     {
         <tr class="table-row">
+            <sn-cell counter-name="PayPeriod" start="@offset" />
             <td class="table-cell">@d.StartDate</td>
             <td class="table-cell table-desc">@d.EndDate</td>
         </tr>

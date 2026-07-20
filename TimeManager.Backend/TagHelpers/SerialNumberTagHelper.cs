@@ -21,8 +21,7 @@ namespace TimeManager.Backend.TagHelpers
             var key = $"SnCounter_{CounterName}";
             var items = ViewContext.HttpContext.Items;
 
-            int current = 0;
-            //int current = items.TryGetValue(key, out var val) ? (int)val! : 0;
+            int current;
             if (!items.ContainsKey(key))
             {
                 current = Start + 1;

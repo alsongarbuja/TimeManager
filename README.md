@@ -36,8 +36,8 @@ The project has following features:
 - [x] Extensible `pagination` feature
 - [ ] Extensible `filtering` feature
 - [x] Pay Period generation with Day Time Shift adjustment
-- [ ] Multiple `job profiling` for easy transfer from unit to unit
-- [ ] Report generation by `unit` and by `profile`
+- [x] Multiple `job profiling` for easy transfer from unit to unit
+- [x] Report generation by `unit` and by `profile`
 - [ ] Kiosk management with IP restriction for enhanced security
 
 #### Future features
@@ -45,7 +45,7 @@ The project has following features:
 Following are the future features, I will be working on to add more value to the system.
 
 - [ ] A two-week time scheduler with drag and drop calender view
-- [ ] Easy active clock in view for employees
+- [x] Easy active clock in view for employees
 
 ### Development
 
@@ -118,7 +118,7 @@ Now follow the following steps [ASP.NET Publish To IIS](https://learn.microsoft.
 
 ### Documentation
 
-For detailed documentation checkout this [google docs file]()
+For detailed documentation checkout this [documentation site](https://alsongarbuja.github.io/TimeManager-Doc)
 
 ### Tutorials
 

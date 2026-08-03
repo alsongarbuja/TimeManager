@@ -23,12 +23,20 @@ namespace TimeManager.Backend.TagHelpers
         [HtmlAttributeName("helperText")]
         public string? HelperText { get; set; }
 
+        [HtmlAttributeName("min")]
+        public string? Min { get; set; }
+
+        [HtmlAttributeName("max")]
+        public string? Max { get; set; }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             var propertyName = For.Name;
             var labelText = For.Metadata.DisplayName ?? For.Metadata.PropertyName ?? propertyName;
             var isRequired = Required ?? For.Metadata.IsRequired;
             var isMultiLine = For.Metadata.DataTypeName == "MultilineText";
+            var maxValue = Max;
+            var minValue = Min;
 
             var required = isRequired ? "<span class='form-required'>*</span>" : string.Empty;
             var inputIsRequired = isRequired ? "required" : string.Empty;
@@ -68,6 +76,10 @@ namespace TimeManager.Backend.TagHelpers
                 {
                     formattedValue = dt.ToLocalTime().ToString("yyyy-MM-ddTHH:mm");
                 }
+                //if (DateTime.TryParse(maxValue, out DateTime val))
+                //{
+                //    maxValue = val;
+                //}
             } else if (type == "time")
             {
                 if (For.Model is TimeOnly t)
@@ -84,7 +96,7 @@ namespace TimeManager.Backend.TagHelpers
 
             var input = isMultiLine
                 ? $"<textarea name='{propertyName}' class='{classes}'>{System.Net.WebUtility.HtmlEncode(formattedValue)}</textarea>"
-                : $"<input name='{propertyName}' {inputIsRequired} value='{formattedValue}' class='{classes}' type='{type}' />";
+                : $"<input name='{propertyName}' {inputIsRequired} value='{formattedValue}' class='{classes}' type='{type}' max='{maxValue}' min='{minValue}' />";
 
             if (type == "password")
             {

@@ -21,6 +21,7 @@ namespace TimeManager.Backend.Controllers.PayPeriod
         public async Task<IActionResult> Generate() {
             await payPeriodService.AutoGeneratePayPeriod();
 
+            TempData["success"] = "Successfully auto generated 30 pay periods";
             return RedirectToAction(nameof(Index));
         }
     }

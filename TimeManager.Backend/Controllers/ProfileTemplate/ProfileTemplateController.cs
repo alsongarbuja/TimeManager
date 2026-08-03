@@ -101,6 +101,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
                     EmployeeTypes = (await employeeTypeService.GetEmployeeTypeOptionsAsync()),
                     PayFrequencies = (await payFrequencyService.GetPayFrequencyOptionsAsync())
                 };
+                TempData["success"] = "Successfully updated the profile template";
                 return View(pv);
             } catch (ArgumentException ex)
             {
@@ -128,7 +129,7 @@ namespace TimeManager.Backend.Controllers.ProfileTemplate
             try
             {
                 await profileTemplateService.DeleteProfileTemplateAsync(id);
-                TempData["success"] = "Successfully removed the data";
+                TempData["success"] = "Successfully removed the profile template";
             }
             catch (KeyNotFoundException ex)
             {

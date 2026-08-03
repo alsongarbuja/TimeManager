@@ -182,6 +182,7 @@ namespace TimeManager.Backend.Controllers.Employee
             var e = await employeeService.GetEmployeeByIdAsync(id);
             if (e == null) return NotFound();
             int? departmentId = HttpContext.Session.GetDepartmentId();
+            TempData["success"] = "Successfully updated employee data";
             return View(new EmployeeData
             {
                 EmployeeView = new EmployeeViewModel

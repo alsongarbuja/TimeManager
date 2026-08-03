@@ -69,7 +69,7 @@ namespace TimeManager.Backend.Controllers.Role
             try
             {
                 await roleService.DeleteRoleByIdAsync(id);
-                TempData["success"] = "Successfully removed the data";
+                TempData["success"] = "Successfully removed the role";
             } catch (KeyNotFoundException ex)
             {
                 TempData["error"] = ex.Message;

@@ -34,7 +34,6 @@
           asp-action="Index"
           method="get">
         <input hidden name="pageNumber" value="1" />
-        <input hidden name="pageSize" value="25" />
         <input hidden name="orderBy" value="ClockIn" />
         <input hidden name="isOrderDescending" value="True" />
         <input hidden name="propertyName" value="JobProfileId" />
@@ -46,9 +45,9 @@
             </label>
             <select id='emp-select'
                     name='value'
-                    class='form-input'
+                    class='form-input tom-select tm-select'
                     onchange="this.form.submit()">
-                <option value="-404">All</option>
+                <option value=""></option>
                 @foreach (var e in Model.Employees)
                 {
                     <option value="@e.Value"

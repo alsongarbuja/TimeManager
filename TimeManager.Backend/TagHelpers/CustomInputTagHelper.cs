@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace TimeManager.Backend.TagHelpers
 {
-    [HtmlTargetElement("custom-input", Attributes="asp-for")]
-    public class CustomInputTagHelper: TagHelper
+    [HtmlTargetElement("custom-input", Attributes = "asp-for")]
+    public class CustomInputTagHelper : TagHelper
     {
         [HtmlAttributeName("asp-for")]
         public required ModelExpression For { get; set; }
@@ -31,7 +31,8 @@ namespace TimeManager.Backend.TagHelpers
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            var propertyName = For.Name;
+            var propertyName = ViewContext.ViewData.TemplateInfo
+                .GetFullHtmlFieldName(For.Name);
             var labelText = For.Metadata.DisplayName ?? For.Metadata.PropertyName ?? propertyName;
             var isRequired = Required ?? For.Metadata.IsRequired;
             var isMultiLine = For.Metadata.DataTypeName == "MultilineText";
@@ -44,11 +45,12 @@ namespace TimeManager.Backend.TagHelpers
             var propertyValue = For.Model?.ToString() ?? string.Empty;
 
             string type = "text";
-            
+
             if (For.Metadata.DataTypeName == "Password")
             {
                 type = "password";
-            } else if (For.Metadata.DataTypeName == "Time" || For.ModelExplorer.ModelType == typeof(TimeOnly) || For.ModelExplorer.ModelType == typeof(TimeOnly?))
+            }
+            else if (For.Metadata.DataTypeName == "Time" || For.ModelExplorer.ModelType == typeof(TimeOnly) || For.ModelExplorer.ModelType == typeof(TimeOnly?))
             {
                 type = "time";
             }
@@ -60,7 +62,8 @@ namespace TimeManager.Backend.TagHelpers
             else if (For.ModelExplorer.ModelType == typeof(DateTimeOffset) || For.ModelExplorer.ModelType == typeof(DateTimeOffset?) || For.ModelExplorer.ModelType == typeof(DateTime) || For.ModelExplorer.ModelType == typeof(DateTime?))
             {
                 type = "datetime-local";
-            } else if (For.ModelExplorer.ModelType == typeof(IFormFile))
+            }
+            else if (For.ModelExplorer.ModelType == typeof(IFormFile))
             {
                 type = "file";
             }
@@ -72,7 +75,8 @@ namespace TimeManager.Backend.TagHelpers
                 if (For.Model is DateTimeOffset dto)
                 {
                     formattedValue = dto.ToLocalTime().ToString("yyyy-MM-ddTHH:mm");
-                } else if (For.Model is DateTime dt)
+                }
+                else if (For.Model is DateTime dt)
                 {
                     formattedValue = dt.ToLocalTime().ToString("yyyy-MM-ddTHH:mm");
                 }
@@ -80,7 +84,8 @@ namespace TimeManager.Backend.TagHelpers
                 //{
                 //    maxValue = val;
                 //}
-            } else if (type == "time")
+            }
+            else if (type == "time")
             {
                 if (For.Model is TimeOnly t)
                 {

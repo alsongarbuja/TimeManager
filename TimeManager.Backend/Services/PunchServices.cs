@@ -104,6 +104,7 @@ namespace TimeManager.Backend.Services
             PaginationQuery defaultQuery
             )
         {
+            Console.WriteLine("FILTER VALUE => "+filter.Value);
             (int pageNumber, int pageSize, string? orderBy, bool isOrderDescending) = PaginationValidation.ConvertToValidPaginationQueries(pagFilter, defaultQuery);
 
             Console.WriteLine($"Page size: {pageSize}, OrderBy: {orderBy}, isOrderDescending: {isOrderDescending}");
@@ -117,7 +118,7 @@ namespace TimeManager.Backend.Services
             };
 
             var builder = new ExpressionBuilder<PunchEntry>();
-            var whereExpression = filter.Value == "-404" ? null : builder.BuildPredicate(filter);
+            var whereExpression = string.IsNullOrEmpty(filter.Value) ? null : builder.BuildPredicate(filter);
 
             (var punches, int totalRecords) = await context.PunchEntry.FindWithPaginationAsync(
                 pe => new PunchViewModel

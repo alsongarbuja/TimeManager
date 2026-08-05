@@ -107,7 +107,9 @@ namespace TimeManager.Backend.Services
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
-                    pt => pt.Unit.DepartmentId == departmentId
+                    pt => pt.Unit.DepartmentId == departmentId,
+                    orderExpression,
+                    isOrderDescending
                     );
             }
 

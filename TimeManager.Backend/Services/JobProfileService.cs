@@ -17,6 +17,7 @@ namespace TimeManager.Backend.Services
         Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(
             int? departmentId, 
             PaginationQuery query,
+            FilterCondition filter,
             PaginationQuery defaultQuery
             );
         Task<JobProfile> GetJobProfileByIdAsync(int id);
@@ -33,9 +34,7 @@ namespace TimeManager.Backend.Services
             context.JobProfile.Add(new JobProfile { 
                 EmployeeId = jpvm.EmployeeId, 
                 ProfileTemplateId = jpvm.ProfileTemplateId, 
-                EarlyBuffer = jpvm.EarlyBuffer, 
-                JoinDate = jpvm.JoinDate.ToUniversalTime(), 
-                EndDate = jpvm.EndDate?.ToUniversalTime() 
+                EarlyBuffer = jpvm.EarlyBuffer,
             });
             await context.SaveChangesAsync();
         }
@@ -56,6 +55,7 @@ namespace TimeManager.Backend.Services
         public async Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(
             int? departmentId, 
             PaginationQuery query,
+            FilterCondition filter,
             PaginationQuery defaultQuery
             )
         {
@@ -64,9 +64,12 @@ namespace TimeManager.Backend.Services
             Expression<Func<JobProfile, object>>? orderExpression = orderBy?.ToLower() switch
             {
                 "employee" => jp => jp.Employee.FirstName,
-                "profile template" => jp => jp.ProfileTemplate.Unit.Name,
+                "profile group" => jp => jp.ProfileTemplate.Unit.Name,
                 _ => null
             };
+
+            var builder = new ExpressionBuilder<JobProfile>();
+            var whereExpression = string.IsNullOrEmpty(filter.Value) ? null : builder.BuildPredicate(filter);
 
             IEnumerable<JobProfileViewModel> jobprofiles = [];
 
@@ -86,7 +89,7 @@ namespace TimeManager.Backend.Services
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
-                    null,
+                    whereExpression,
                     orderExpression,
                     isOrderDescending
                   );
@@ -152,8 +155,6 @@ namespace TimeManager.Backend.Services
             }
 
             jp.EarlyBuffer = jpvm.EarlyBuffer;
-            jp.JoinDate = jpvm.JoinDate.ToUniversalTime();
-            jp.EndDate = jpvm.EndDate?.ToUniversalTime();
             jp.ProfileTemplateId = jpvm.ProfileTemplateId;
             jp.EmployeeId = jpvm.EmployeeId;
 

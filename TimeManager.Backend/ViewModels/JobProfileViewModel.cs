@@ -1,14 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using TimeManager.Backend.Models.Responses;
+using TimeManager.Backend.ViewModels.PartialViews;
 
 namespace TimeManager.Backend.ViewModels
 {
+    public class JobProfileOverall
+    {
+        public PagedResponse<JobProfileViewModel> JobProfiles { get; set; }
+        public IEnumerable<SelectListItem> Employees { get; set; } = [];
+    }
+
     public class JobProfileViewModel
     {
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Profile template is required")]
-        [Display(Name = "Profile Template")]
+        [Display(Name = "Profile Group")]
         public int ProfileTemplateId { get; set; }
 
 
@@ -16,15 +24,11 @@ namespace TimeManager.Backend.ViewModels
         [Display(Name = "Employee")]
         public int EmployeeId { get; set; }
 
-        [Required(ErrorMessage = "Join Date is required")]
-        [Display(Name = "Join Date")]
-        public DateTime JoinDate { get; set; }
-
-        [Display(Name = "End Date")]
-        public DateTime? EndDate { get; set; }
-
         [Display(Name = "Early clock buffer")]
         public int? EarlyBuffer { get; set; }
+
+        [Required]
+        public IEnumerable<JobHistoryRowViewModel> JobHistories { get; set; } = [];
 
         public string ProfileTemplateString { get; set; } = string.Empty;
         public string EmployeeString { get; set; } = string.Empty;

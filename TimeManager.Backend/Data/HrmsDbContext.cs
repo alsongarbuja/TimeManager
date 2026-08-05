@@ -22,6 +22,7 @@ namespace TimeManager.Backend.Data
         public DbSet<PayFrequency> PayFrequency { get; set; }
         public DbSet<ProfileTemplate> ProfileTemplate { get; set; }
         public DbSet<JobProfile> JobProfile { get; set; }
+        public DbSet<JobHistory> JobHistory { get; set; }
         //public DbSet<EmployeeDepartment> EmployeeDepartment { get; set; }
 
         // Organization Management Models

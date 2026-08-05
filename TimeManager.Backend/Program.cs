@@ -87,6 +87,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPunchServices, PunchServices>();
 builder.Services.AddScoped<IKioskService, KioskService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IJobHistoryService, JobHistoryService>();
 builder.Services.AddScoped<IExcelService, ExcelService>();
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<CurrentEmployeeService>();

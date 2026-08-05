@@ -5,8 +5,6 @@
     var Controller = ViewData["Controller"] as string;
 }
 
-@RenderSection("scripts", required: false)
-
 <div class="page-container">
     <div class="page-content-wrapper">
 
@@ -33,6 +31,8 @@
 
     </div>
 </div>
+
+@RenderSection("scripts", required: false)
 
 @* @section Scripts {
     @{

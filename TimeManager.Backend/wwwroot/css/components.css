@@ -27,6 +27,7 @@
 /* === Custom Input Tag Helper === */
 
 .form-group {
+    position: relative;
     width: 100%;
 }
 
@@ -62,7 +63,31 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
     resize: vertical;
+    box-sizing: border-box;
 }
+
+.tm-select-wrapper .ts-control {
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    min-height: 44px;
+}
+
+.tm-select-wrapper.focus .ts-control {
+    border-color: #d1d5db;
+}
+
+.tm-select-wrapper .ts-dropdown {
+    background: white;
+    border-radius: 0.5rem;
+}
+
+/*.tm-select-wrapper .ts-dropdown .option:hover,
+.tm-select-wrapper .ts-dropdown .option:focus-visible,
+.tm-select-wrapper .ts-dropdown .option:focus,
+.tm-select-wrapper .ts-dropdown:focus-within .option {
+    background-color: #d1d4db;
+}*/
 
 .form-input-error {
     border: 1px solid red !important;

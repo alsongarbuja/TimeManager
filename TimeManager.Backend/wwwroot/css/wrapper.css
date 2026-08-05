@@ -97,6 +97,13 @@
     gap: 1em;
 }
 
+.job-history-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    place-content: center;
+    gap: 1em;
+}
+
 .form-body > form > button[type=submit] {
     padding-block: 1em;
     grid-column: 1/3;

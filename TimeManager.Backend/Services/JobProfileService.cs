@@ -73,7 +73,18 @@ namespace TimeManager.Backend.Services
             };
 
             var builder = new ExpressionBuilder<JobProfile>();
-            var whereExpression = string.IsNullOrEmpty(filter.Value) ? null : builder.BuildPredicate(filter);
+            var whereExpression = string.IsNullOrEmpty(filter.Value) 
+                ? null 
+                : departmentId == null
+                ? builder.BuildPredicate(filter)
+                : builder.BuildPredicate([
+                    new FilterCondition { 
+                        PropertyName = "ProfileTemplate.Unit.DepartmentId",
+                        Value = departmentId.ToString(),
+                        Operator = FilterOperator.Equals
+                    },
+                    filter,
+                    ]);
 
             IEnumerable<JobProfileViewModel> jobprofiles = [];
 
@@ -114,8 +125,7 @@ namespace TimeManager.Backend.Services
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
-                    // WHERE EXPRESSION MULTIPLE
-                    jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId,
+                    whereExpression,
                     orderExpression,
                     isOrderDescending
                   );

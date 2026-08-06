@@ -21,7 +21,7 @@ namespace TimeManager.Backend.Services
             PaginationQuery defaultQuery
             );
         Task<JobProfile> GetJobProfileByIdAsync(int id);
-        Task CreateJobProfileAsync(JobProfileViewModel jpvm);
+        Task<int?> CreateJobProfileAsync(JobProfileViewModel jpvm);
         Task<JobProfile?> UpdateJobProfileASync(int id, JobProfileViewModel jpvm);
         Task<int?> DeleteJobProfileAsync(int id);
         Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId);
@@ -29,14 +29,18 @@ namespace TimeManager.Backend.Services
 
     public class JobProfileService(HrmsDbContext context, ILogger<JobProfile> logger) : IJobProfileService
     {
-        public async Task CreateJobProfileAsync(JobProfileViewModel jpvm)
+        public async Task<int?> CreateJobProfileAsync(JobProfileViewModel jpvm)
         {
-            context.JobProfile.Add(new JobProfile { 
-                EmployeeId = jpvm.EmployeeId, 
-                ProfileTemplateId = jpvm.ProfileTemplateId, 
+            var jp = new JobProfile
+            {
+                EmployeeId = jpvm.EmployeeId,
+                ProfileTemplateId = jpvm.ProfileTemplateId,
                 EarlyBuffer = jpvm.EarlyBuffer,
-            });
+            };
+            context.JobProfile.Add(jp);
             await context.SaveChangesAsync();
+
+            return jp.Id;
         }
 
         public async Task<int?> DeleteJobProfileAsync(int id)
@@ -110,6 +114,7 @@ namespace TimeManager.Backend.Services
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
+                    // WHERE EXPRESSION MULTIPLE
                     jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId,
                     orderExpression,
                     isOrderDescending

@@ -6,6 +6,7 @@ using System.Security.Claims;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models;
+using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.Models.Requests;
 using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
@@ -65,7 +66,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
                 ProfileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync()
             };
 
-            ViewData.TemplateInfo.HtmlFieldPrefix = $"JobHistories[{Guid.NewGuid():N}]";
+            ViewData.TemplateInfo.HtmlFieldPrefix = $"JobHistories[{index}]";
 
             return PartialView("JobHistorySection", model);
         }
@@ -85,7 +86,34 @@ namespace TimeManager.Backend.Controllers.JobProfile
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(JobProfileViewModel pvm)
         {
-            await jobProfileService.CreateJobProfileAsync(pvm);
+            if (pvm.JobHistories.Count <= 0)
+            {
+                TempData["error"] = "Please add atleast one job history to continue";
+                return View(new JobProfileViewModel
+                {
+                    Employees = (await employeeService.GetEmployeeOptionAsync()),
+                    ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync())
+                });
+            }
+
+            int? id = await jobProfileService.CreateJobProfileAsync(new JobProfileViewModel
+            {
+                EarlyBuffer = pvm.EarlyBuffer,
+                EmployeeId = pvm.EmployeeId,
+                ProfileTemplateId = pvm.JobHistories[0].ProfileTemplateId,
+            });
+            
+            if (id == null)
+            {
+                TempData["error"] = "Error while creating the job profile.";
+                return View(new JobProfileViewModel
+                {
+                    Employees = (await employeeService.GetEmployeeOptionAsync()),
+                    ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync())
+                });
+            }
+
+            await jobHistoryService.CreateJobHistoryForProfileId((int)id, pvm.JobHistories[0]);
             TempData["success"] = "Job Profile successfully created";
             return View(new JobProfileViewModel
             {
@@ -98,7 +126,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> BulkCreate(IFormFile excelFile)
         {
-            (List<Dictionary<string, string>> data, string? error) = excelService.ParseExcelFileToList(excelFile, ["Index", "Unique ID", "Role"]);
+            (List<Dictionary<string, string>> data, string? error) = excelService.ParseExcelFileToList(excelFile, ["Index", "Unique ID", "Role", "Hire Date"]);
 
             if (!string.IsNullOrEmpty(error))
             {
@@ -109,7 +137,8 @@ namespace TimeManager.Backend.Controllers.JobProfile
             var validRows = data.Where(item =>
                     !string.IsNullOrEmpty(item["Index"]) &&
                     !string.IsNullOrEmpty(item["Unique ID"]) &&
-                    !string.IsNullOrEmpty(item["Role"]) 
+                    !string.IsNullOrEmpty(item["Role"]) &&
+                    !string.IsNullOrEmpty(item["Hire Date"])
                 ).ToList();
 
             if (validRows.Count == 0)
@@ -158,6 +187,8 @@ namespace TimeManager.Backend.Controllers.JobProfile
                 {
                     var jobProfileToCreate = new List<JP>();
 
+                    var historyTrackingList = new List<(JP JobProfile, int ProfileTemplateId, string HireDate)>();
+
                     foreach (var row in validRows)
                     {
                         var ptLookupKey = (Index: row["Index"].ToLowerInvariant(), RoleName: row["Role"].ToLowerInvariant());
@@ -186,6 +217,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
                             EmployeeId = employeeId
                         };
                         jobProfileToCreate.Add(jp);
+                        historyTrackingList.Add((jp, profileTemplateId, row["Hire Date"]));
                         addedCount++;
                     }
 
@@ -193,6 +225,30 @@ namespace TimeManager.Backend.Controllers.JobProfile
                     {
                         await context.JobProfile.AddRangeAsync(jobProfileToCreate);
                         await context.SaveChangesAsync();
+
+                        var jobHistoriesToCreate = new List<JobHistory>();
+
+                        foreach (var item in historyTrackingList)
+                        {
+                            if (DateTime.TryParse(item.HireDate, out var JoinDate))
+                            {
+                                jobHistoriesToCreate.Add(new JobHistory { 
+                                    JobProfileId = item.JobProfile.Id,
+                                    ProfileTemplateId = item.ProfileTemplateId,
+                                    JoinDate = JoinDate.ToUniversalTime(),
+                                    EndDate = null
+                                });
+                            } else
+                            {
+                                logger.LogWarning($"Failed to parse hire date string: {item.HireDate}");
+                            }
+                        }
+
+                        if (jobHistoriesToCreate.Count > 0)
+                        {
+                            await context.JobHistory.AddRangeAsync(jobHistoriesToCreate);
+                            await context.SaveChangesAsync();
+                        }
                     }
 
                     await transaction.CommitAsync();
@@ -238,7 +294,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
                         Value = pt.Value,
                         Selected = pt.Value.ToString() == j.ProfileTemplateId.ToString()
                     })
-                })
+                }).ToList()
             };
             return View(pvm);
         }
@@ -247,10 +303,43 @@ namespace TimeManager.Backend.Controllers.JobProfile
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, JobProfileViewModel pvm)
         {
-            Console.WriteLine(pvm.JobHistories.Count());
+            var profileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync();
+            
+            async Task PopulateViewDropdownsAsync()
+            {
+                pvm.Employees = await employeeService.GetEmployeeOptionAsync(pvm.EmployeeId);
+                pvm.ProfileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync(pvm.ProfileTemplateId);
+
+                foreach (var jh in pvm.JobHistories)
+                {
+                    jh.ProfileTemplates = profileTemplates;
+                }
+            }
+
+            if (pvm.JobHistories.Count <= 0)
+            {
+                TempData["error"] = "Add at least one job history to save the profile";
+                await PopulateViewDropdownsAsync();
+                return View(pvm);
+            }
+
+            var prevJH = await jobHistoryService.GetJobHistoriesByProfileId(pvm.Id);
+            if (pvm.JobHistories.Count < prevJH.Count)
+            {
+                var prevJHIds = prevJH.Select(p => p.Id);
+                var currentJHIds = pvm.JobHistories.Select(j => j.Id);
+
+                for (int i = 0; i < prevJHIds.Count(); i++)
+                {
+                    if (!currentJHIds.Contains(prevJHIds.ElementAt(i)))
+                    {
+                        await jobHistoryService.DeleteJobHistoryById(prevJHIds.ElementAt(i));
+                    }
+                }
+            }
+
             foreach (var jh in pvm.JobHistories)
             {
-                Console.WriteLine("END DATE => " + jh.EndDate);
                 if (jh.Id == null)
                 {
                     await jobHistoryService.CreateJobHistoryForProfileId(pvm.Id, jh);
@@ -261,30 +350,26 @@ namespace TimeManager.Backend.Controllers.JobProfile
             }
 
             var pt = pvm.JobHistories.FirstOrDefault(j => j.EndDate == null);
+            pvm.ProfileTemplateId = pt != null ? pt.ProfileTemplateId : pvm.JobHistories[pvm.JobHistories.Count - 1].ProfileTemplateId;
+
+            await PopulateViewDropdownsAsync();
 
             var jp = await jobProfileService.UpdateJobProfileASync(id, pvm);
             if (jp == null)
             {
                 TempData["error"] = "Unexpected error occured. No job profile found";
-                return View(new JobProfileViewModel
-                {
-                    Id = id,
-                    Employees = (await employeeService.GetEmployeeOptionAsync(pvm.EmployeeId)),
-                    ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync(pvm.ProfileTemplateId)),
-                    EmployeeId = pvm.EmployeeId,
-                    ProfileTemplateId = pt.ProfileTemplateId,
-                    EarlyBuffer = pvm.EarlyBuffer,
-                });
+                return View(pvm);
             }
             TempData["success"] = "Job profile successfully updated";
             return View(new JobProfileViewModel
             {
                 Id = id,
                 Employees = (await employeeService.GetEmployeeOptionAsync(jp.EmployeeId)),
-                ProfileTemplates = (await employeeService.GetEmployeeOptionAsync(jp.ProfileTemplateId)),
+                ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync(jp.ProfileTemplateId)),
                 EmployeeId = jp.EmployeeId,
                 ProfileTemplateId = jp.ProfileTemplateId,
                 EarlyBuffer = jp.EarlyBuffer,
+                JobHistories = pvm.JobHistories,
             });
         }
 

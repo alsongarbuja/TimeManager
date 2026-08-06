@@ -19,6 +19,14 @@
     cursor: not-allowed;
 }
 
+.btn-danger {
+    background-color: red;
+}
+
+.btn-info {
+    background-color: dodgerblue;
+}
+
 /* === Button Partial View End === */
 
 

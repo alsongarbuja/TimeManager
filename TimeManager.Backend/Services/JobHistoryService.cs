@@ -8,7 +8,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IJobHistoryService
     {
-        Task<IEnumerable<JobHistory>> GetJobHistoriesByProfileId(int id);
+        Task<List<JobHistory>> GetJobHistoriesByProfileId(int id);
         Task CreateJobHistoryForProfileId(int id, JobHistoryRowViewModel jhrvm);
         Task<JobHistory?> UpdateJobHistoryById(int jobHistoryId, JobHistoryRowViewModel jhrvm);
         Task<int?> DeleteJobHistoryById(int jobHistoryId);
@@ -54,7 +54,7 @@ namespace TimeManager.Backend.Services
             return jh;
         }
 
-        public async Task<IEnumerable<JobHistory>> GetJobHistoriesByProfileId(int id)
+        public async Task<List<JobHistory>> GetJobHistoriesByProfileId(int id)
         {
             var data = await context.JobHistory.Where(jh => jh.JobProfileId == id).OrderBy(jh => jh.JoinDate).ToListAsync();
             return data;

@@ -28,7 +28,7 @@ namespace TimeManager.Backend.ViewModels
         public int? EarlyBuffer { get; set; }
 
         [Required]
-        public IEnumerable<JobHistoryRowViewModel> JobHistories { get; set; } = [];
+        public List<JobHistoryRowViewModel> JobHistories { get; set; } = [];
 
         public string ProfileTemplateString { get; set; } = string.Empty;
         public string EmployeeString { get; set; } = string.Empty;

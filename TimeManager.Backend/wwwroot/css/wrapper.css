@@ -99,9 +99,15 @@
 
 .job-history-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    place-content: center;
+    grid-template-columns: 4fr 4fr 4fr 1fr 1fr;
+    place-content: end;
+    align-items: end;
+    justify-content: end;
     gap: 1em;
+}
+
+.job-history-row .edit-job-history-row, .job-history-row .remove-job-history-row {
+    height: fit-content;
 }
 
 .form-body > form > button[type=submit] {

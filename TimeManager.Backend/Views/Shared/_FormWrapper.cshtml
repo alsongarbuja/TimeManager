@@ -9,9 +9,12 @@
     <div class="page-content-wrapper">
 
         <div class="page-header">
-            <a asp-controller="@Controller" asp-action="Index" class="btn-back">
+            <button class="btn-back" onclick="window.history.back();">
                 ← Back
-            </a>
+            </button>
+            @* <a asp-controller="@Controller" asp-action="Index" class="btn-back">
+                ← Back
+            </a> *@
 
             <div>
                 <h1 class="page-title">

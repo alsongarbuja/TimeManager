@@ -31,6 +31,12 @@ else if (initFailed)
 }
 else
 { *@
+    <div class="time-container">
+        <div class="digital-clock">
+            <div class="clock-time">@currentDigitalTime</div>
+            <div class="clock-date">@currentDate</div>
+        </div>
+    </div>
     <div class="punch-container">
         <div class="punch-card">
             @if(isSubmitting)
@@ -96,8 +102,8 @@ else
     private ElementReference myIdeo;
     private string errorMessage = "";
 
-    private bool isInitializing = true;
-    private bool initFailed = false;
+    // private bool isInitializing = true;
+    // private bool initFailed = false;
     private bool isAvailable = true;
     private bool isSubmitting = false;
 
@@ -107,6 +113,28 @@ else
     private string greetingMessage = "";
     private string modalBg = "";
 
+    private string currentDigitalTime = DateTime.Now.ToString("hh:mm:ss tt");
+    private string currentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+    private PeriodicTimer? timer;
+    private CancellationTokenSource? cts;
+
+    private async Task StartClockAsync(CancellationToken cancellationToken)
+    {
+        timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                currentDigitalTime = DateTime.Now.ToString("hh:mm tt");
+                currentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+                StateHasChanged();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
     private class ClockInOutModel
     {
         public string UniqueId { get; set; } = "";
@@ -115,10 +143,12 @@ else
 
     public record ApiErrorResponse(string Message, bool IsClockedOut, string Status, string Time, string Greeting);
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     await InitializeKiosk();
-    // }
+    protected override void OnInitialized()
+    {
+        cts = new CancellationTokenSource();
+        _ = StartClockAsync(cts.Token);
+        // await InitializeKiosk();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -220,5 +250,12 @@ else
         StateHasChanged();
 
         await myIdeo.FocusAsync();
+    }
+
+    public void Dispose()
+    {
+        cts?.Cancel();
+        cts?.Dispose();
+        timer?.Dispose();
     }
 }

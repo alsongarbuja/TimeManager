@@ -164,7 +164,6 @@
 .password-toggle-btn,
 .datetime-clear-btn {
     position: absolute;
-    right: 2rem;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -172,6 +171,14 @@
     padding: 0.25rem;
     color: var(--text-muted);
     transition: color 0.15s;
+}
+
+.password-toggle-btn {
+    right: 0.8275rem;
+}
+
+.datetime-clear-btn {
+    right: 2rem;
 }
 
     .password-toggle-btn:hover,

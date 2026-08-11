@@ -12,13 +12,13 @@
         Text = "Dashboard",
         Url = "dashboard",
         IconClass = "ri-layout-grid-line",
-        Roles = AppConstants.EmployeeRoles(),
+        Roles = [AppConstants.SUPER_ADMIN_ROLE, ..AppConstants.EmployeeRoles()],
         },
         new LinkProps {
         Text = "Report",
         Url = "report",
         IconClass = "ri-file-chart-line",
-        Roles = AppConstants.AdminRoles(),
+        Roles = [AppConstants.ADMIN_ROLE],
         },
         new LinkProps {
         Text = "Settings",
@@ -109,7 +109,7 @@
                 Text = "Employee",
                 Url = "employee",
                 IconClass = "ri-folder-user-line",
-                Roles = AppConstants.AdminRoles(),
+                Roles = [AppConstants.SUPER_ADMIN_ROLE],
             },
             new LinkProps {
                 Text = "Profile Group",

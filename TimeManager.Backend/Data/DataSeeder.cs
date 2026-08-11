@@ -64,6 +64,7 @@ namespace TimeManager.Backend.Data
 
             var defaultSuperAdmin = configuration["SeedSettings:SuperAdminEmail"] ?? "superadmin@hrms.com";
             var defaultSuperAdminPassword = configuration["SeedSettings:SuperAdminPassword"];
+            var defaultSuperAdminUniqueId = configuration["SeedSettings:SuperAdminUniqueId"];
 
             if (string.IsNullOrEmpty(defaultSuperAdminPassword))
             {
@@ -80,6 +81,7 @@ namespace TimeManager.Backend.Data
                     {
                         UserName = "superadmin",
                         Email = defaultSuperAdmin,
+                        UniqueId = defaultSuperAdminUniqueId,
                         EmailConfirmed = true,
                     };
 

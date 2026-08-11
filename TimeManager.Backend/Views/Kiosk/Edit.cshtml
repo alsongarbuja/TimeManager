@@ -13,7 +13,7 @@
     @Html.AntiForgeryToken()
     
     <custom-input asp-for="Name" />
-    <custom-input asp-for="AllowedIPAddress" />
+    @* <custom-input asp-for="AllowedIPAddress" /> *@
 
     @if (User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
         {

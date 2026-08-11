@@ -1,0 +1,24 @@
+﻿@page "/"
+@layout MainLayout
+@rendermode InteractiveServer
+
+@using Services
+@inject KioskSessionService KioskSession
+@inject NavigationManager Navigation
+
+<PageTitle>Starting...</PageTitle>
+
+<div class="boot-container">
+    <div class="boot-card">
+        <div class="boot-spinner"></div>
+        <p class="boot-text">Starting kiosk...</p>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var hasSession = await KioskSession.RestoreSessionAsync();
+        Navigation.NavigateTo(hasSession ? "/punch" : "/provision", replace: true);
+    }
+}

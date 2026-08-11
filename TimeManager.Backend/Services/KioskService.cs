@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Security.Claims;
 using System.Text;
 using TimeManager.Backend.Data;
@@ -17,26 +16,34 @@ namespace TimeManager.Backend.Services
     {
         Task<IEnumerable<KioskViewModel>> GetKiosksAsync(int? departmentId);
         Task<Kiosk> GetKioskByIdAsync(int id);
-        Task CreateKioskAsync(KioskViewModel kvm);
+        Task<string> CreateKioskAsync(KioskViewModel kvm);
         Task<Kiosk?> UpdateKioskAsync(int id, KioskViewModel kvm);
         Task<int?> DeleteKioskByIdAsync(int id);
         Task<IEnumerable<SelectListItem>> GetKioskOptionsAsync();
-        Task<Kiosk?> ResolveKioskByIpAsync(IPAddress ipAddress);
+        Task<Kiosk?> ResolveKioskByTokenAsync(string token);
+        Task<string> RegenerateKioskTokenAsync(int id);
         string GenerateKisokToken(Kiosk kiosk);
     }
 
     public class KioskService(HrmsDbContext hrmsDbContext, IConfiguration configuration) : IKioskService
     {
-        public async Task CreateKioskAsync(KioskViewModel kvm)
+        public async Task<string> CreateKioskAsync(KioskViewModel kvm)
         {
-            hrmsDbContext.Kiosk.Add(new Kiosk
+            var kiosk = new Kiosk
             {
                 Name = kvm.Name,
-                AllowedIPAddress = kvm.AllowedIPAddress,
                 Description = kvm.Description,
                 DepartmentId = kvm.DepartmentId,
-            });
+            };
+            hrmsDbContext.Kiosk.Add(kiosk);
             await hrmsDbContext.SaveChangesAsync();
+
+            string token = GenerateKisokToken(kiosk);
+
+            kiosk.DeviceToken = token;
+            await hrmsDbContext.SaveChangesAsync();
+
+            return token;
         }
 
         public async Task<int?> DeleteKioskByIdAsync(int id)
@@ -62,12 +69,12 @@ namespace TimeManager.Backend.Services
 
             string issuer = configuration["JWT:Issuer"] ?? throw new InvalidOperationException("JWT issuer is not configured in the env");
             string audience = configuration["JWT:KioskAudience"] ?? throw new InvalidOperationException("JWT kiosk audience is not configured in the env");
-            int expiryHours = configuration.GetValue<int>("JWT:KioskExpiryHours", 12);
 
             var token = new JwtSecurityToken(
-                issuer, audience, 
+                issuer, audience,
                 claims,
-                expires: DateTime.UtcNow.AddHours(expiryHours),
+                notBefore: null,
+                expires: null,
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
             );
 
@@ -91,27 +98,25 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<KioskViewModel>> GetKiosksAsync(int? departmentId)
         {
-
             IEnumerable<KioskViewModel> kiosks = [];
-            
-             if (departmentId == null)
+
+            if (departmentId == null)
             {
                 kiosks = await hrmsDbContext.Kiosk.Select(k => new KioskViewModel
                 {
                     Id = k.Id,
                     Name = k.Name,
                     DepartmentId = k.DepartmentId,
-                    AllowedIPAddress = k.AllowedIPAddress,
                     DepartmentName = k.Department.Name,
                 }).ToListAsync();
-            } else
+            }
+            else
             {
                 kiosks = await hrmsDbContext.Kiosk.Where(k => k.DepartmentId == departmentId).Select(k => new KioskViewModel
                 {
                     Id = k.Id,
                     Name = k.Name,
                     DepartmentId = k.DepartmentId,
-                    AllowedIPAddress = k.AllowedIPAddress,
                     DepartmentName = k.Department.Name,
                 }).ToListAsync();
             }
@@ -119,9 +124,20 @@ namespace TimeManager.Backend.Services
             return kiosks;
         }
 
-        public async Task<Kiosk?> ResolveKioskByIpAsync(IPAddress ipAddress)
+        public async Task<Kiosk?> ResolveKioskByTokenAsync(string token)
         {
-            return await hrmsDbContext.Kiosk.Include(k => k.Department).FirstOrDefaultAsync(k => k.AllowedIPAddress == ipAddress);
+            return await hrmsDbContext.Kiosk.Include(k => k.Department).FirstOrDefaultAsync(k => k.DeviceToken == token);
+        }
+
+        public async Task<string> RegenerateKioskTokenAsync(int id)
+        {
+            var kiosk = await hrmsDbContext.Kiosk.FindOrThrowAsync(id);
+
+            string token = GenerateKisokToken(kiosk);
+            kiosk.DeviceToken = token;
+            await hrmsDbContext.SaveChangesAsync();
+
+            return token;
         }
 
         public async Task<Kiosk?> UpdateKioskAsync(int id, KioskViewModel kvm)

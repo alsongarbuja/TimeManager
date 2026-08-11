@@ -1,0 +1,252 @@
+﻿@page "/provision"
+@layout MainLayout
+@rendermode InteractiveServer
+@implements IDisposable
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Services
+@inject KioskSessionService KioskSession
+@inject NavigationManager Navigation
+
+<PageTitle>Kiosk Setup</PageTitle>
+
+<div class="provision-page">
+    @if (step == SetupStep.ScanId)
+    {
+        <div class="punch-container">
+            <div class="punch-card">
+                @if (isSubmitting)
+                {
+                    <div class="loading-spinner-container">
+                        <div class="progress-ring"></div>
+                        <div class="pulse-dot"></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="scanner-zone">
+                        <div class="card-silhouette">
+                            <div class="barcode-lines"></div>
+                            <div class="laser-line"></div>
+                        </div>
+                    </div>
+                }
+
+                <span class="provision-badge">Kiosk Setup</span>
+                <h1 class="title">Scan ID Card to Set Up Kiosk</h1>
+
+                <EditForm Model="@idModel" FormName="KioskInitForm" OnValidSubmit="HandleKioskInitCheck">
+                    <input @ref="scanInput" class="textfield-minimal" autofocus type="text"
+                           name="UniqueId" @bind-value="idModel.UniqueId"
+                           placeholder="@(isSubmitting ? "Checking authorization..." : "Waiting for scan...")"
+                           autocomplete="off"
+                           disabled="@isSubmitting" />
+                </EditForm>
+
+                <p class="helper-text">or type your ID and press <kbd>Enter</kbd></p>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert-error">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z" />
+                        </svg>
+                        <span>@errorMessage</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="provision-form-container">
+            <div class="provision-form-card">
+                <span class="provision-badge">Kiosk Setup</span>
+                <h1 class="title">Provision This Kiosk</h1>
+                <p class="provision-subtitle">Give this kiosk a name and assign it to a department.</p>
+
+                <EditForm Model="@provisionModel" FormName="KioskProvisionForm" OnValidSubmit="HandleProvision">
+                    <DataAnnotationsValidator />
+
+                    <label class="provision-label" for="kiosk-name">Kiosk Name</label>
+                    <InputText id="kiosk-name" class="provision-input" @bind-Value="provisionModel.Name"
+                               placeholder="e.g. Warehouse Entrance" disabled="@isSubmitting" />
+                    <ValidationMessage For="@(() => provisionModel.Name)" class="provision-field-error" />
+
+                    <label class="provision-label" for="kiosk-description">Description</label>
+                    <InputTextArea id="kiosk-description" class="provision-input provision-textarea"
+                                   @bind-Value="provisionModel.Description"
+                                   placeholder="e.g. Front entrance kiosk near loading dock"
+                                   disabled="@isSubmitting" />
+
+                    <label class="provision-label" for="kiosk-department">Department</label>
+                    <InputSelect id="kiosk-department" class="provision-input" @bind-Value="provisionModel.DepartmentId" disabled="@(isSubmitting || isLoadingDepartments)">
+                        <option value="0" disabled>@(isLoadingDepartments ? "Loading departments..." : "Select a department")</option>
+                        @foreach (var dept in departmentOptions)
+                        {
+                            <option value="@dept.Value">@dept.Text</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => provisionModel.DepartmentId)" class="provision-field-error" />
+
+                    <button type="submit" class="provision-submit-btn" disabled="@(isSubmitting || isLoadingDepartments)">
+                        @(isSubmitting ? "Provisioning..." : "Provision Kiosk")
+                    </button>
+                </EditForm>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert-error">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z" />
+                        </svg>
+                        <span>@errorMessage</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private enum SetupStep { ScanId, ProvisionForm }
+    private SetupStep step = SetupStep.ScanId;
+
+    private ElementReference scanInput;
+    private string errorMessage = "";
+    private bool isSubmitting = false;
+    private bool isLoadingDepartments = false;
+
+    private class KioskIdModel
+    {
+        public string UniqueId { get; set; } = "";
+    }
+    private KioskIdModel idModel = new();
+
+    private class KioskProvisionModel
+    {
+        [Required(ErrorMessage = "Please enter a name for this kiosk.")]
+        public string Name { get; set; } = "";
+
+        public string Description { get; set; } = "";
+
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a department.")]
+        public int DepartmentId { get; set; } = 0;
+    }
+    private KioskProvisionModel provisionModel = new();
+
+    private List<SelectListItem> departmentOptions = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (await KioskSession.RestoreSessionAsync())
+            {
+                Navigation.NavigateTo("/punch", replace: true);
+            }
+        }
+        if (step == SetupStep.ScanId && !isSubmitting)
+        {
+            await scanInput.FocusAsync();
+        }
+    }
+
+    private async Task HandleKioskInitCheck()
+    {
+        if (isSubmitting || string.IsNullOrEmpty(idModel.UniqueId))
+        {
+            return;
+        }
+
+        try
+        {
+            isSubmitting = true;
+            errorMessage = "";
+            StateHasChanged();
+
+            var error = await KioskSession.InitKioskAsync(idModel.UniqueId);
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                errorMessage = error;
+                idModel.UniqueId = "";
+            }
+            else
+            {
+                await LoadDepartmentsAsync();
+                step = SetupStep.ProvisionForm;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = "An unexpected error occurred. Please try again.";
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadDepartmentsAsync()
+    {
+        isLoadingDepartments = true;
+        StateHasChanged();
+
+        var departments = await KioskSession.GetDeptOptionsAsync();
+        departmentOptions = departments.ToList();
+
+        if (departmentOptions.Count == 0)
+        {
+            errorMessage = "No departments could be loaded. Please contact IT before continuing.";
+        }
+
+        isLoadingDepartments = false;
+        StateHasChanged();
+    }
+
+    private async Task HandleProvision()
+    {
+        if (isSubmitting) return;
+
+        try
+        {
+            isSubmitting = true;
+            errorMessage = "";
+            StateHasChanged();
+
+            var (success, error) = await KioskSession.ProvisionKioskAsync(
+                provisionModel.Name.Trim(),
+                provisionModel.Description.Trim(),
+                provisionModel.DepartmentId);
+
+            if (!success)
+            {
+                errorMessage = error;
+                return;
+            }
+
+            Navigation.NavigateTo("/punch", replace: true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = "An unexpected error occurred. Please try again.";
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        // no timers/subscriptions on this page currently, kept for symmetry
+    }
+}

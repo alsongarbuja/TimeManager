@@ -63,7 +63,7 @@ namespace TimeManager.Backend.Utility
         public Expression<Func<T, bool>>? BuildPredicate(IEnumerable<FilterCondition> filters, bool useAnd = true)
         {
             var validConditions = filters?.Where(c => !string.IsNullOrEmpty(c.PropertyName)).ToList();
-            if (validConditions == null || !validConditions.Any()) return null;
+            if (validConditions == null || validConditions.Count == 0) return null;
 
             var parameter = Expression.Parameter(typeof(T), "x");
             Expression? combinedExpression = null;

@@ -80,10 +80,6 @@ namespace TimeManager.Backend.TagHelpers
                 {
                     formattedValue = dt.ToLocalTime().ToString("yyyy-MM-ddTHH:mm");
                 }
-                //if (DateTime.TryParse(maxValue, out DateTime val))
-                //{
-                //    maxValue = val;
-                //}
             }
             else if (type == "time")
             {
@@ -122,8 +118,6 @@ namespace TimeManager.Backend.TagHelpers
                             $"</button>" +
                         $"</div>";
             }
-
-            //if (type == "file")
 
             var helperSpan = !string.IsNullOrEmpty(HelperText)
                 ? $"<span class='form-input-helper-text'>{HelperText}</span>"

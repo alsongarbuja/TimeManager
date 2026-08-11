@@ -164,7 +164,7 @@
 .password-toggle-btn,
 .datetime-clear-btn {
     position: absolute;
-    right: 0.875rem;
+    right: 2rem;
     background: transparent;
     border: none;
     cursor: pointer;

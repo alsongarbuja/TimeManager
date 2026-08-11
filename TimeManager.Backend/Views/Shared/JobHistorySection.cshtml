@@ -11,9 +11,9 @@
     <input type="hidden" name="JobHistories.Index" value="@index" />
     <input type="hidden" asp-for="Id" />
 
-    <custom-select asp-for="ProfileTemplateId" asp-items="Model.ProfileTemplates" />
-    <custom-input asp-for="JoinDate" max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
-    <custom-input asp-for="EndDate" max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+    <custom-select asp-for="ProfileTemplateId" asp-items="Model.ProfileTemplates" classes="job-history-template" />
+    <custom-input asp-for="JoinDate" max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" classes="job-history-join" />
+    <custom-input asp-for="EndDate" max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" classes="job-history-end" />
 
     <button type="button" class="btn btn-info edit-job-history-row">Edit</button>
     <button type="button" class="btn btn-danger remove-job-history-row">Remove</button>

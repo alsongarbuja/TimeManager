@@ -58,7 +58,7 @@ public class CustomSelectTagHelper : TagHelper
         if (Required ?? For.Metadata.IsRequired)
             select.Attributes["required"] = "required";
 
-        output.Content.AppendHtml("<div class='form-group'>");
+        output.Content.AppendHtml($"<div class='form-group {Classes}'>");
 
         output.Content.AppendHtml(
             _generator.GenerateLabel(

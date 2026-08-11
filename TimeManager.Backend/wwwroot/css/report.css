@@ -45,18 +45,13 @@
     white-space: nowrap;
 }
 
-.report-page-back:hover {
-    border-color: #4F67E4;
-    color: #4F67E4;
-}
-
+    .report-page-back:hover {
+        border-color: #4F67E4;
+        color: #4F67E4;
+    }
 /* ==== Report result pages common end ====== */
 
-
-
-
 /* ======= Report Result By Unit page ======== */
-
 .rbu-controls {
     display: flex;
     align-items: flex-end;
@@ -98,11 +93,11 @@
     min-width: 220px;
 }
 
-.rbu-select:focus {
-    outline: none;
-    border-color: #4F67E4;
-    box-shadow: 0 0 0 3px rgba(79, 103, 228, 0.12);
-}
+    .rbu-select:focus {
+        outline: none;
+        border-color: #4F67E4;
+        box-shadow: 0 0 0 3px rgba(79, 103, 228, 0.12);
+    }
 
 .rbu-select-chevron {
     position: absolute;
@@ -126,10 +121,10 @@
     white-space: nowrap;
 }
 
-.rbu-expand-all:hover {
-    border-color: #4F67E4;
-    color: #4F67E4;
-}
+    .rbu-expand-all:hover {
+        border-color: #4F67E4;
+        color: #4F67E4;
+    }
 
 .rbu-accordion {
     display: flex;
@@ -145,9 +140,9 @@
     transition: border-color 0.15s;
 }
 
-.rbu-item.rbu-open {
-    border-color: #C7D0F8;
-}
+    .rbu-item.rbu-open {
+        border-color: #C7D0F8;
+    }
 
 .rbu-trigger {
     width: 100%;
@@ -164,9 +159,9 @@
     transition: background 0.1s;
 }
 
-.rbu-trigger:hover {
-    background: #F8F9FB;
-}
+    .rbu-trigger:hover {
+        background: #F8F9FB;
+    }
 
 .rbu-trigger-left {
     display: flex;
@@ -252,9 +247,9 @@
     margin-bottom: 1rem;
 }
 
-.rbu-stats .rg-stat-value {
-    font-size: 1.5rem;
-}
+    .rbu-stats .rg-stat-value {
+        font-size: 1.5rem;
+    }
 
 .rbu-table-card {
     border-radius: 8px;
@@ -293,5 +288,4 @@
         grid-template-columns: 1fr;
     }
 }
-
 /* ======= Report Result By Unit page End ======== */

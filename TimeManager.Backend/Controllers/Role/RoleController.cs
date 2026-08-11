@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
@@ -22,6 +23,19 @@ namespace TimeManager.Backend.Controllers.Role
         public async Task<IActionResult> Create(RoleViewModel evm)
         {
             if (!ModelState.IsValid) return View(evm);
+            if (evm.Name == AppConstants.SUPER_ADMIN_ROLE)
+            {
+                ModelState.AddModelError("Name", "Cannot create this role");
+                return View(evm);
+            }
+
+            var role = await roleService.GetRoleByNameAsync(evm.Name);
+            if (role != null)
+            {
+                ModelState.AddModelError("Name", "Role already exists");
+                return View(evm);
+            }
+
             await roleService.CreateRoleAsync(new RoleDto
             {
                 Name = evm.Name,
@@ -69,7 +83,7 @@ namespace TimeManager.Backend.Controllers.Role
             try
             {
                 await roleService.DeleteRoleByIdAsync(id);
-                TempData["success"] = "Successfully removed the data";
+                TempData["success"] = "Successfully removed the role";
             } catch (KeyNotFoundException ex)
             {
                 TempData["error"] = ex.Message;

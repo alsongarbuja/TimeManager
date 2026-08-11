@@ -18,11 +18,5 @@ namespace TimeManager.Backend.Controllers.Device.Dto
         public string Description { get; set; } = string.Empty;
     }
 
-    public record KioskSessionResponse(
-        string Token,
-        string KioskName,
-        int DepartmentId,
-        string DepartmentName,
-        DateTime ExpiresAt
-    );
+    public record KioskSessionResponse(string Token);
 }

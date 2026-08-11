@@ -4,18 +4,75 @@
     Layout = "_FormWrapper";
     ViewData["Title"] = "Job Profile - Add";
     ViewData["ModuleTitle"] = "Create Job Profile";
-    ViewData["ModuleSubtitle"] = "Add newjob profile";
+    ViewData["ModuleSubtitle"] = "Add new job profile";
     ViewData["Controller"] = "JobProfile";
 }
 
 <form asp-controller="JobProfile" asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
-    <custom-select asp-for="EmployeeId" asp-items="@Model.Employees" />
-    <custom-select asp-for="ProfileTemplateId" asp-items="@Model.ProfileTemplates" />
-    <custom-input asp-for="JoinDate" />
-    <custom-input asp-for="EndDate" />
+    <custom-select asp-for="EmployeeId" asp-items="@Model.Employees" searchable />
     <custom-input asp-for="EarlyBuffer" />
+
+    <div id="jobHistoryContainer" class="grid-col-2">
+        @for (int i = 0; i < Model.JobHistories.Count(); i++)
+        {
+            var rowViewData = new ViewDataDictionary(ViewData);
+            rowViewData.TemplateInfo.HtmlFieldPrefix = $"JobHistories[{i}]";
+            @await Html.PartialAsync("JobHistorySection", Model.JobHistories.ElementAt(i), rowViewData)
+        }
+    </div>
+
+    @{
+        var lastRow = Model.JobHistories.LastOrDefault();
+        bool addDisabled = lastRow != null && lastRow.EndDate == null;
+    }
+    <button type="button" id="addJobHistoryBtn" class="btn btn-secondary w-fit" disabled="@addDisabled">
+        Add Job History
+    </button>
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+@section scripts {
+    <script>
+        (function () {
+            const container = document.getElementById('jobHistoryContainer');
+            const addBtn = document.getElementById('addJobHistoryBtn');
+
+            function lastEndDateInput() {
+                const rows = container.querySelectorAll('.job-history-row');
+                if (!rows.length) return null;
+                return rows[rows.length - 1].querySelector('input[name$=".EndDate"]');
+            }
+
+            function refreshAddButton() {
+                const input = lastEndDateInput();
+                addBtn.disabled = !!input && !input.value;
+            }
+
+            function bindRow(row) {
+                const endDateInput = row.querySelector('input[name$=".EndDate"]');
+                if (endDateInput) endDateInput.addEventListener('change', refreshAddButton);
+
+                const removeBtn = row.querySelector('.remove-job-history-row');
+                removeBtn.addEventListener('click', () => {
+                    row.remove();
+                    refreshAddButton();
+                });
+            }
+
+            addBtn.addEventListener('click', async () => {
+                const res = await fetch('@Url.Action("AddJobHistoryRow", "JobProfile")');
+                if (!res.ok) return;
+                const html = await res.text();
+                container.insertAdjacentHTML('beforeend', html);
+                bindRow(container.lastElementChild);
+                refreshAddButton();
+            });
+
+            container.querySelectorAll('.job-history-row').forEach(bindRow);
+            refreshAddButton();
+        })();
+    </script>
+}

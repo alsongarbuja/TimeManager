@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Net;
 using TimeManager.Backend.Models.Organization_Management;
 
 namespace TimeManager.Backend.Models.Device_Management
@@ -18,8 +17,8 @@ namespace TimeManager.Backend.Models.Device_Management
         [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
         public string? Description { get; set; }
 
-        [Required(ErrorMessage = "Allowed IP Address is required")]
-        public required IPAddress AllowedIPAddress { get; set; }
+        [Required(ErrorMessage = "Device token is required")]
+        public string DeviceToken { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Departmetn ID is required")]
         public int DepartmentId { get; set; }

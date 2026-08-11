@@ -19,7 +19,6 @@ namespace TimeManager.Backend.Controllers.Kiosk
         {
             return View(new KioskViewModel
             {
-                AllowedIPAddress = System.Net.IPAddress.Parse("0.0.0.1"),
                 Departments = (await departmentService.GetDepartmentOptionsAsync())
             });
         }
@@ -30,7 +29,6 @@ namespace TimeManager.Backend.Controllers.Kiosk
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
             await kioskService.CreateKioskAsync(new KioskViewModel {
-                AllowedIPAddress = kvm.AllowedIPAddress,
                 DepartmentId = departmentId ?? kvm.DepartmentId,
                 Name = kvm.Name,
                 Description = kvm.Description,
@@ -47,7 +45,6 @@ namespace TimeManager.Backend.Controllers.Kiosk
                 Id = k.Id,
                 Name = k.Name,
                 Description = k.Description,
-                AllowedIPAddress = k.AllowedIPAddress,
                 Departments = (await departmentService.GetDepartmentOptionsAsync())
             };
             return View(kvm);

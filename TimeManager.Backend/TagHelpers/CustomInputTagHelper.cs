@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace TimeManager.Backend.TagHelpers
 {
-    [HtmlTargetElement("custom-input", Attributes="asp-for")]
-    public class CustomInputTagHelper: TagHelper
+    [HtmlTargetElement("custom-input", Attributes = "asp-for")]
+    public class CustomInputTagHelper : TagHelper
     {
         [HtmlAttributeName("asp-for")]
         public required ModelExpression For { get; set; }
@@ -23,12 +23,21 @@ namespace TimeManager.Backend.TagHelpers
         [HtmlAttributeName("helperText")]
         public string? HelperText { get; set; }
 
+        [HtmlAttributeName("min")]
+        public string? Min { get; set; }
+
+        [HtmlAttributeName("max")]
+        public string? Max { get; set; }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            var propertyName = For.Name;
+            var propertyName = ViewContext.ViewData.TemplateInfo
+                .GetFullHtmlFieldName(For.Name);
             var labelText = For.Metadata.DisplayName ?? For.Metadata.PropertyName ?? propertyName;
             var isRequired = Required ?? For.Metadata.IsRequired;
             var isMultiLine = For.Metadata.DataTypeName == "MultilineText";
+            var maxValue = Max;
+            var minValue = Min;
 
             var required = isRequired ? "<span class='form-required'>*</span>" : string.Empty;
             var inputIsRequired = isRequired ? "required" : string.Empty;
@@ -36,11 +45,12 @@ namespace TimeManager.Backend.TagHelpers
             var propertyValue = For.Model?.ToString() ?? string.Empty;
 
             string type = "text";
-            
+
             if (For.Metadata.DataTypeName == "Password")
             {
                 type = "password";
-            } else if (For.Metadata.DataTypeName == "Time" || For.ModelExplorer.ModelType == typeof(TimeOnly) || For.ModelExplorer.ModelType == typeof(TimeOnly?))
+            }
+            else if (For.Metadata.DataTypeName == "Time" || For.ModelExplorer.ModelType == typeof(TimeOnly) || For.ModelExplorer.ModelType == typeof(TimeOnly?))
             {
                 type = "time";
             }
@@ -52,7 +62,8 @@ namespace TimeManager.Backend.TagHelpers
             else if (For.ModelExplorer.ModelType == typeof(DateTimeOffset) || For.ModelExplorer.ModelType == typeof(DateTimeOffset?) || For.ModelExplorer.ModelType == typeof(DateTime) || For.ModelExplorer.ModelType == typeof(DateTime?))
             {
                 type = "datetime-local";
-            } else if (For.ModelExplorer.ModelType == typeof(IFormFile))
+            }
+            else if (For.ModelExplorer.ModelType == typeof(IFormFile))
             {
                 type = "file";
             }
@@ -64,11 +75,13 @@ namespace TimeManager.Backend.TagHelpers
                 if (For.Model is DateTimeOffset dto)
                 {
                     formattedValue = dto.ToLocalTime().ToString("yyyy-MM-ddTHH:mm");
-                } else if (For.Model is DateTime dt)
+                }
+                else if (For.Model is DateTime dt)
                 {
                     formattedValue = dt.ToLocalTime().ToString("yyyy-MM-ddTHH:mm");
                 }
-            } else if (type == "time")
+            }
+            else if (type == "time")
             {
                 if (For.Model is TimeOnly t)
                 {
@@ -84,7 +97,7 @@ namespace TimeManager.Backend.TagHelpers
 
             var input = isMultiLine
                 ? $"<textarea name='{propertyName}' class='{classes}'>{System.Net.WebUtility.HtmlEncode(formattedValue)}</textarea>"
-                : $"<input name='{propertyName}' {inputIsRequired} value='{formattedValue}' class='{classes}' type='{type}' />";
+                : $"<input name='{propertyName}' {inputIsRequired} value='{formattedValue}' class='{classes}' type='{type}' max='{maxValue}' min='{minValue}' />";
 
             if (type == "password")
             {
@@ -105,8 +118,6 @@ namespace TimeManager.Backend.TagHelpers
                             $"</button>" +
                         $"</div>";
             }
-
-            //if (type == "file")
 
             var helperSpan = !string.IsNullOrEmpty(HelperText)
                 ? $"<span class='form-input-helper-text'>{HelperText}</span>"

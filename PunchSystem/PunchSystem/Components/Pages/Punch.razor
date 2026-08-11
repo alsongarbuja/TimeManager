@@ -1,45 +1,46 @@
-﻿@page "/"
+﻿@page "/punch"
 @layout MainLayout
 @rendermode InteractiveServer
+@implements IDisposable
 
 @using System.Net.Http.Json
-@* @using Services *@
+@using Services
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@* @inject KioskSessionService KioskSession  *@
+@inject KioskSessionService KioskSession
 
 <PageTitle>Clock In Out</PageTitle>
 
-@* @if (isInitializing)
+@if (isCheckingSession)
 {
     <div class="punch-container">
         <div class="punch-card">
-            <p class="helper-text">Initializing kiosk...</p>
-        </div>
-    </div>
-}
-else if (initFailed)
-{
-    <div class="punch-container">
-        <div class="punch-card">
-            <div class="alert-error">
-                <span>This device is not registered as a kiosk. Please contact your administrator.</span>
+            <div class="loading-spinner-container">
+                <div class="progress-ring"></div>
+                <div class="pulse-dot"></div>
             </div>
-            <button class="btn-retry" @onclick="InitializeKiosk">Retry</button>
+            <h1 class="title">Preparing kiosk...</h1>
         </div>
     </div>
 }
 else
-{ *@
+{
+    <div class="time-container">
+        <div class="digital-clock">
+            <div class="clock-time">@currentDigitalTime</div>
+            <div class="clock-date">@currentDate</div>
+        </div>
+    </div>
     <div class="punch-container">
         <div class="punch-card">
-            @if(isSubmitting)
+            @if (isSubmitting)
             {
                 <div class="loading-spinner-container">
                     <div class="progress-ring"></div>
                     <div class="pulse-dot"></div>
                 </div>
-            } else
+            }
+            else
             {
                 <div class="scanner-zone">
                     <div class="card-silhouette">
@@ -54,9 +55,9 @@ else
             <EditForm Model="@cioModel" FormName="ClockInOutForm" OnValidSubmit="HandleClockInOut">
                 <input @ref="myIdeo" class="textfield-minimal" autofocus type="text"
                        name="UniqueId" @bind-value="cioModel.UniqueId"
-                   placeholder="@(isSubmitting ? "Processing punch..." : "Waiting for scan...")"
-                   autocomplete="off"
-                   disabled="@isSubmitting"            />
+                       placeholder="@(isSubmitting ? "Processing punch..." : "Waiting for scan...")"
+                       autocomplete="off"
+                       disabled="@isSubmitting" />
             </EditForm>
 
             <p class="helper-text">or type your ID and press <kbd>Enter</kbd></p>
@@ -65,8 +66,8 @@ else
             {
                 <div class="alert-error">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                        <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                        <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z" />
                     </svg>
                     <span>@errorMessage</span>
                 </div>
@@ -80,7 +81,7 @@ else
             <div class="success-modal @modalBg">
                 <div class="modal-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
                     </svg>
                 </div>
                 <h2 class="modal-title">@apiMessage</h2>
@@ -90,14 +91,13 @@ else
             </div>
         </div>
     }
-@* } *@
+}
 
 @code {
     private ElementReference myIdeo;
     private string errorMessage = "";
 
-    private bool isInitializing = true;
-    private bool initFailed = false;
+    private bool isCheckingSession = true;
     private bool isAvailable = true;
     private bool isSubmitting = false;
 
@@ -107,6 +107,11 @@ else
     private string greetingMessage = "";
     private string modalBg = "";
 
+    private string currentDigitalTime = DateTime.Now.ToString("hh:mm:ss tt");
+    private string currentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+    private PeriodicTimer? timer;
+    private CancellationTokenSource? cts;
+
     private class ClockInOutModel
     {
         public string UniqueId { get; set; } = "";
@@ -115,32 +120,49 @@ else
 
     public record ApiErrorResponse(string Message, bool IsClockedOut, string Status, string Time, string Greeting);
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     await InitializeKiosk();
-    // }
+    protected override async Task OnInitializedAsync()
+    {
+        // isCheckingSession = false;
+        cts = new CancellationTokenSource();
+        _ = StartClockAsync(cts.Token);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // if (!isInitializing && !initFailed)
-        if (!isSubmitting)
-        {        
+        if (firstRender)
+        {
+            var hasSession = await KioskSession.RestoreSessionAsync();
+            if (!hasSession)
+            {
+                Navigation.NavigateTo("/provision", replace: true);
+                return;
+            }
+
+            isCheckingSession = false;
+            StateHasChanged();
+        }
+        if (!isCheckingSession && !isSubmitting)
+        {
             await myIdeo.FocusAsync();
         }
     }
 
-    // private async Task InitializeKiosk()
-    // {
-    //     isInitializing = true;
-    //     initFailed = false;
-
-    //     var success = await KioskSession.InitializedAsync();
-
-    //     isInitializing = false;
-    //     initFailed = !success;
-
-    //     StateHasChanged();
-    // }
+    private async Task StartClockAsync(CancellationToken cancellationToken)
+    {
+        timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                currentDigitalTime = DateTime.Now.ToString("hh:mm:ss tt");
+                currentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+                StateHasChanged();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
 
     private async Task HandleClockInOut()
     {
@@ -155,33 +177,22 @@ else
             errorMessage = "";
             StateHasChanged();
 
-            // if (!KioskSession.IsInitialized)
-            // {
-            //     await InitializeKiosk();
-            //     if (initFailed) return;
-            // }
+            var res = await Http.PostAsJsonAsync("api/punch", new { UniqueId = cioModel.UniqueId });
 
-            var res = await Http.PostAsJsonAsync("api/punch", new
+            if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                UniqueId = cioModel.UniqueId,
-                DepartmentId = 1,
-            });
-
-            // if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            // {
-            //     KioskSession.Invalidate();
-            //     await InitializeKiosk();
-            //     if (initFailed) return;
-
-            //     res = await Http.PostAsJsonAsync("api/punch", new { UniqueId = cioModel.UniqueId });
-            // }
+                errorMessage = "Unauthorized";
+                // await KioskSession.ClearTokenAsync();
+                // Navigation.NavigateTo("/provision", replace: true);
+                return;
+            }
 
             var result = await res.Content.ReadFromJsonAsync<ApiErrorResponse>();
             if (result is not null)
             {
                 if (!res.IsSuccessStatusCode)
                 {
-                    errorMessage = result.Message;
+                    errorMessage = result.Message ?? "Something went wrong. Please try again.";
                 }
                 else
                 {
@@ -193,6 +204,10 @@ else
                     await TriggerSuccessModal();
                 }
             }
+            else if (!res.IsSuccessStatusCode)
+            {
+                errorMessage = "Something went wrong. Please try again.";
+            }
 
             cioModel.UniqueId = "";
         }
@@ -200,7 +215,8 @@ else
         {
             Console.WriteLine(ex);
             errorMessage = "An unexpected error occurred. Please try again.";
-        } finally
+        }
+        finally
         {
             isSubmitting = false;
             StateHasChanged();
@@ -213,12 +229,19 @@ else
         isAvailable = false;
         StateHasChanged();
 
-        await Task.Delay(2500);
+        await Task.Delay(2000);
 
         showModal = false;
         isAvailable = true;
         StateHasChanged();
 
         await myIdeo.FocusAsync();
+    }
+
+    public void Dispose()
+    {
+        cts?.Cancel();
+        cts?.Dispose();
+        timer?.Dispose();
     }
 }

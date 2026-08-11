@@ -1,32 +1,66 @@
-﻿/* === Button Partial View === */
-
-.btn {
-    border: none;
-    border-radius: 0.25em;
-    padding: 1em;  
-    display: flex;
-    align-items: center; 
-    gap: 4px; 
-    justify-content: center; 
-    cursor: pointer; 
-    background-color: black;
-    color: white;
+﻿.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    background-color: var(--primary);
+    color: #ffffff;
+    transition: var(--transition-base);
+    text-decoration: none;
+    box-sizing: border-box;
 }
 
-.btn:disabled {
-    background-color: dimgray;
-    opacity: 0.4;
-    cursor: not-allowed;
+    .btn:hover {
+        background-color: var(--primary-hover);
+    }
+
+    .btn:disabled {
+        background-color: #F3F4F6;
+        color: #9CA3AF;
+        border-color: #E5E7EB;
+        opacity: 1;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+.btn-secondary {
+    background-color: #ffffff;
+    color: #374151;
+    border-color: var(--neutral-border);
 }
 
-/* === Button Partial View End === */
+    .btn-secondary:hover {
+        background-color: #F9FAFB;
+        border-color: #9CA3AF;
+    }
 
+.btn-danger {
+    background-color: var(--danger);
+    color: #ffffff;
+}
 
+    .btn-danger:hover {
+        background-color: var(--danger-hover);
+    }
 
+.btn-info {
+    background-color: #3B82F6;
+    color: #ffffff;
+}
 
-/* === Custom Input Tag Helper === */
+    .btn-info:hover {
+        background-color: #2563EB;
+    }
 
+/* ==================================================================== 2. Form Inputs & Select Tag Helpers ==================================================================== */
 .form-group {
+    position: relative;
     width: 100%;
 }
 
@@ -35,119 +69,133 @@
     font-size: 0.875rem;
     font-weight: 500;
     color: #374151;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.375rem;
 }
 
 .form-required {
-    color: #ef4444;
+    color: var(--danger);
 }
 
 .form-input-wrapper {
-/*    max-width: 100%;*/
-    border-radius: 0.375rem;
+    border-radius: var(--radius-md);
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .form-input {
     appearance: none;
     width: 100%;
-    padding: 0.625rem 0.75rem;
+    padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
-    color: #000000;
+    color: var(--text-main);
     background-color: #ffffff;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
+    border: 1px solid var(--neutral-border);
+    border-radius: var(--radius-md);
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
+    transition: var(--transition-base);
     resize: vertical;
+    box-sizing: border-box;
 }
 
+    .form-input::placeholder {
+        color: #9CA3AF;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--brand-indigo);
+        box-shadow: 0 0 0 3px rgba(79, 103, 228, 0.15);
+    }
+
 .form-input-error {
-    border: 1px solid red !important;
+    border-color: var(--danger) !important;
 }
+
+    .form-input-error:focus {
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+    }
 
 .form-input-helper-text {
     display: block;
-    margin-top: 6px;
-    font-size: 12px;
-    color: #666666;
-}
-
-.form-input::placeholder {
-    color: #9ca3af;
-}
-
-.form-input:focus {
-    outline: 2px solid transparent;
-    outline-offset: 2px;
-    border-color: #000000;
-    --tw-ring-color: #000000;
-    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
 }
 
 .form-error {
     margin-top: 0.375rem;
     font-size: 0.875rem;
-    color: #dc2626;
+    color: var(--danger);
 }
 
-.password-toggle-wrapper {
+/* TomSelect / Select Customization */
+.tm-select-wrapper .ts-control {
+    background-color: #ffffff;
+    border: 1px solid var(--neutral-border);
+    border-radius: var(--radius-md);
+    min-height: 42px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.tm-select-wrapper.focus .ts-control {
+    border-color: var(--brand-indigo);
+    box-shadow: 0 0 0 3px rgba(79, 103, 228, 0.15);
+}
+
+.tm-select-wrapper .ts-dropdown {
+    background: #ffffff;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--neutral-border);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Password Toggle & Clear Buttons */
+.password-toggle-wrapper,
+.datetime-clear-wrapper {
     position: relative;
     display: flex;
     align-items: center;
-}
-
-.password-toggle-wrapper .form-input {
-    padding-right: 2.5rem;
     width: 100%;
 }
 
-.password-toggle-btn {
+    .password-toggle-wrapper .form-input {
+        padding-right: 2.75rem;
+    }
+
+.password-toggle-btn,
+.datetime-clear-btn {
     position: absolute;
-    right: 0.75rem;
-    background: none;
+    background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 1.1rem;
-    padding: 0;
-    color: #666;
+    font-size: 1rem;
+    padding: 0.25rem;
+    color: var(--text-muted);
+    transition: color 0.15s;
 }
+
+.password-toggle-btn {
+    right: 0.8275rem;
+}
+
+.datetime-clear-btn {
+    right: 2rem;
+}
+
+    .password-toggle-btn:hover,
+    .datetime-clear-btn:hover {
+        color: var(--text-main);
+    }
 
 input::-ms-reveal {
     display: none;
 }
 
-/* Custom Table Styling */
-.tbl {
-
-}
-
-.datetime-clear-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.datetime-clear-btn {
-    position: absolute;
-    right: 2rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #888;
-}
-
-.datetime-clear-btn:hover {
-    color: #333;
-}
-
+/* ==================================================================== 3. Layout & Grid Utilities ==================================================================== */
 .grid-col-2 {
     grid-column: span 2;
 }
 
-/* Notification styles */
+/* ==================================================================== 4. Modals & Notifications (Toasts) ==================================================================== */
 .toast {
     position: fixed;
     bottom: 1.5rem;
@@ -156,24 +204,24 @@ input::-ms-reveal {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.875rem 1rem;
-    border-radius: 0.5rem;
+    padding: 0.875rem 1.125rem;
+    border-radius: var(--radius-lg);
     font-size: 0.875rem;
     font-weight: 500;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    animation: slideIn 0.2s ease-out;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .toast-success {
-    background-color: #f0fdf4;
-    color: #166534;
-    border: 1px solid #bbf7d0;
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
 }
 
 .toast-error {
-    background-color: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background-color: var(--error-bg);
+    color: var(--error-text);
+    border: 1px solid var(--error-border);
 }
 
 .toast button {
@@ -182,16 +230,22 @@ input::-ms-reveal {
     cursor: pointer;
     color: inherit;
     margin-left: auto;
+    opacity: 0.7;
+    transition: opacity 0.15s;
 }
+
+    .toast button:hover {
+        opacity: 1;
+    }
 
 @keyframes slideIn {
     from {
-        transform: translateX(100%);
+        transform: translateY(1rem);
         opacity: 0;
     }
 
     to {
-        transform: translateX(0);
+        transform: translateY(0);
         opacity: 1;
     }
 }
@@ -206,8 +260,8 @@ input::-ms-reveal {
     z-index: 50;
     width: 100vw;
     height: 100dvh;
-    background: #0000002a;
-    backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
 }
 
 .modal-overlay-visible {
@@ -215,79 +269,97 @@ input::-ms-reveal {
 }
 
 .modal-wrapper {
-    background: white;
+    background: #ffffff;
     position: relative;
-    padding: 1em;
-    border-radius: .5em;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
 
 .modal-content a {
     display: block;
-    margin-block-end: .5em;
+    margin-block-end: 0.75rem;
     text-decoration: none;
     text-align: right;
+    color: var(--brand-indigo);
 }
 
 .modal-content > form {
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    gap: 1rem;
 }
 
 .btn-modal {
-   background: transparent !important;
-   color: black !important;
-   border: 1px solid black !important;
-   cursor: pointer;
+    background: transparent !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--neutral-border) !important;
 }
 
-.btn-modal:hover {
-    background: #0000002d !important;
-}
+    .btn-modal:hover {
+        background: #F3F4F6 !important;
+    }
 
 .btn-modal-close {
     position: absolute;
-    top: .1em;
-    right: .1em;
+    top: 0.75rem;
+    right: 0.75rem;
     background: transparent;
     border: none !important;
-    font-size: 1.5em;
+    font-size: 1.25rem;
     cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+    border-radius: var(--radius-sm);
 }
 
-.btn-modal-close:hover {
-    background: transparent !important;
-}
+    .btn-modal-close:hover {
+        background: #F3F4F6 !important;
+        color: var(--text-main) !important;
+    }
 
-
-/* ==== ActionTd Partial View ==== */
-
+/* ==================================================================== 5. Action Cell Partial View ==================================================================== */
 .table-actions {
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1rem;
     display: flex;
     align-items: center;
-    justify-content: start;
-    gap: 1em;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+.btn-action-delete,
+.btn-action-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-sm);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition: filter 0.15s;
 }
 
 .btn-action-delete {
-    background-color: orangered;
-    width: 2rem;
-    height: 2rem;
+    background-color: var(--danger);
 }
+
+    .btn-action-delete:hover {
+        filter: brightness(0.9);
+    }
 
 .btn-action-edit {
-    background-color: steelblue;
-    width: 2rem;
-    height: 2rem;
+    background-color: var(--brand-indigo);
 }
 
-/* ==== ActionTd Partial View End ==== */
+    .btn-action-edit:hover {
+        filter: brightness(0.9);
+    }
 
-
-
-/* ===== ReportStat Partial View ======= */
-
+/* ==================================================================== 6. Report Stats & Dashboards ==================================================================== */
 .report-page-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -296,22 +368,23 @@ input::-ms-reveal {
 }
 
 .report-page-stat-card {
-    background: #fff;
+    background: #ffffff;
     border: 1px solid #E5E7EB;
-    border-left: 3px solid #4F67E4;
-    border-radius: 8px;
+    border-left: 3px solid var(--brand-indigo);
+    border-radius: var(--radius-md);
     padding: 1.25rem 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
 }
 
 .report-page-stat-label {
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #6B7280;
+    color: var(--text-muted);
 }
 
 .report-page-stat-value {
@@ -319,7 +392,7 @@ input::-ms-reveal {
     font-weight: 700;
     letter-spacing: -0.03em;
     font-variant-numeric: tabular-nums;
-    color: #111827;
+    color: var(--text-main);
     line-height: 1;
 }
 
@@ -327,24 +400,15 @@ input::-ms-reveal {
     .report-page-stats {
         grid-template-columns: 1fr;
     }
-
-    .report-page-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
 }
 
-/* ===== ReportStat Partial View End ====== */
-
-
-
-/* ===== ReportTable Partial View ====== */
-
+/* ==================================================================== 7. Tables & Reports ==================================================================== */
 .report-page-table-card {
-    background: #fff;
+    background: #ffffff;
     border: 1px solid #E5E7EB;
-    border-radius: 10px;
+    border-radius: var(--radius-lg);
     overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
 .report-page-table-scroll {
@@ -361,12 +425,12 @@ input::-ms-reveal {
 .report-page-th {
     padding: 0.75rem 1rem;
     text-align: left;
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: 600;
     letter-spacing: 0.07em;
     text-transform: uppercase;
-    color: #6B7280;
-    background: #F8F9FB;
+    color: var(--text-muted);
+    background: var(--neutral-bg-light);
     border-bottom: 1px solid #E5E7EB;
     white-space: nowrap;
 }
@@ -382,22 +446,22 @@ input::-ms-reveal {
 
 .report-page-th-total {
     text-align: right;
-    color: #4F67E4;
+    color: var(--brand-indigo);
     min-width: 80px;
 }
 
 .report-page-table tbody tr {
     border-bottom: 1px solid #F3F4F6;
-    transition: background 0.1s;
+    transition: background-color 0.1s;
 }
 
-.report-page-table tbody tr:last-child {
-    border-bottom: none;
-}
+    .report-page-table tbody tr:last-child {
+        border-bottom: none;
+    }
 
-.report-page-table tbody tr:hover {
-    background: #F8F9FB;
-}
+    .report-page-table tbody tr:hover {
+        background: var(--neutral-bg-light);
+    }
 
 .report-page-foot-row {
     border-top: 2px solid #E5E7EB;
@@ -413,13 +477,10 @@ input::-ms-reveal {
     font-size: 1rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    color: #4F67E4;
+    color: var(--brand-indigo);
     letter-spacing: -0.01em;
     white-space: nowrap;
 }
-
-
-/* ==== WeekRow Partial View ==== */
 
 .week-label {
     padding: 0.875rem 1rem;
@@ -439,14 +500,14 @@ input::-ms-reveal {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     font-size: 0.875rem;
-    color: #111827;
+    color: var(--text-main);
     line-height: 1.2;
 }
 
 .hours-type {
     display: inline-block;
     margin-top: 3px;
-    font-size: 10px;
+    font-size: 0.625rem;
     font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -455,20 +516,20 @@ input::-ms-reveal {
     line-height: 1.4;
 }
 
-.hours-type.reg {
-    background: #ECFDF5;
-    color: #065F46;
-}
+    .hours-type.reg {
+        background: #ECFDF5;
+        color: #065F46;
+    }
 
-.hours-type.hol {
-    background: #FFFBEB;
-    color: #92400E;
-}
+    .hours-type.hol {
+        background: #FFFBEB;
+        color: #92400E;
+    }
 
-.hours-type.ot {
-    background: #FEF2F2;
-    color: #991B1B;
-}
+    .hours-type.ot {
+        background: #FEF2F2;
+        color: #991B1B;
+    }
 
 .no-entry {
     color: #D1D5DB;
@@ -483,8 +544,3 @@ input::-ms-reveal {
     color: #374151;
     white-space: nowrap;
 }
-
-/* ===== WeekRow Partial View End ===== */
-
-
-/* ========= ReportTable Partial View End =========== */

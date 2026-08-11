@@ -65,6 +65,7 @@ namespace TimeManager.Backend.Controllers.User
                 {
                     var role = await roleService.GetRoleByIdAsync(rvm.Role) ?? throw new KeyNotFoundException("Role not found for the given Id");
                     await userManager.AddToRoleAsync(user, role.Name!);
+                    TempData["success"] = "User added successfully";
                     return RedirectToAction(nameof(Index));
                 } catch (KeyNotFoundException ex)
                 {
@@ -195,6 +196,7 @@ namespace TimeManager.Backend.Controllers.User
         {
             var u = await userService.UpdateUserAsync(id, rvm);
             if (u == null) return View(rvm);
+            TempData["success"] = "User updated successfully";
             return RedirectToAction(nameof(Index));
         }
 

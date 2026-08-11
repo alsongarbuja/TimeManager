@@ -1,55 +1,95 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
+using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Controllers.Device.Dto;
+using TimeManager.Backend.Data;
 using TimeManager.Backend.Services;
+using TimeManager.Backend.ViewModels;
+using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers.Device
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class KioskController(IKioskService kioskService) : ControllerBase
+    public class KioskController(
+        IKioskService kioskService,
+        HrmsDbContext context,
+        UserManager<U> userManager,
+        IDepartmentService departmentService
+    ) : ControllerBase
     {
         [HttpPost("init")]
         [AllowAnonymous]
-        public async Task<IActionResult> Init()
+        public async Task<IActionResult> Init([FromBody] KioskSetupViewModel data)
         {
-            var clientIp = GetClientIp();
-
-            if (clientIp == null)
+            if (string.IsNullOrWhiteSpace(data.UniqueId))
             {
-                return Unauthorized(new { error = "Unable to determine client Ip address" });
+                return BadRequest(new { message = "An ID is required to set up this kiosk" });
             }
 
-            var kiosk = await kioskService.ResolveKioskByIpAsync(clientIp);
-            if (kiosk == null)
+            var user = await context.Users.Where(u => u.UniqueId == data.UniqueId).FirstOrDefaultAsync();
+
+            if (user == null)
             {
-                return Unauthorized(new { error = "This device is not authorized as a kiosk" });
+                return Unauthorized(new { message = "User not authorized to setup Kiosk" });
             }
 
-            var token = kioskService.GenerateKisokToken(kiosk);
+            var roles = await userManager.GetRolesAsync(user);
 
-            return Ok(new KioskSessionResponse(
-                Token: token,
-                KioskName: kiosk.Name,
-                DepartmentId: kiosk.DepartmentId,
-                DepartmentName: kiosk.Department.Name,
-                ExpiresAt: DateTime.UtcNow.AddHours(12)
-            ));
+            if (!roles.Contains(AppConstants.SUPER_ADMIN_ROLE))
+            {
+                return Unauthorized(new { message = "User is not authorized to setup kiosk" });
+            }
+
+            return Ok(new
+            {
+                message = "Successfully identified authorized user",
+            });
         }
 
-        private IPAddress? GetClientIp()
+        [HttpGet("departments")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetDeptOptsAsync()
         {
-            // In production, scope to known proxy IPs.
-            var forwarded = Request.Headers["X-Forwarded-For"].FirstOrDefault();
-            if (!string.IsNullOrEmpty(forwarded))
+            return Ok(new
             {
-                var firstIp = forwarded.Split(',')[0].Trim();
-                if (IPAddress.TryParse(firstIp, out _))
-                    return IPAddress.Parse(firstIp);
+                departments = await departmentService.GetDepartmentOptionsAsync()
+            });
+        }
+
+        [HttpPost("provision")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Provision([FromBody] KioskViewModel kvm)
+        {
+            if (!ModelState.IsValid)
+            {
+                var firstError = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .FirstOrDefault();
+
+                return BadRequest(new { message = firstError ?? "Invalid kiosk details provided" });
             }
 
-            return HttpContext.Connection.RemoteIpAddress?.MapToIPv4();
+            try
+            {
+                string token = await kioskService.CreateKioskAsync(kvm);
+                return Ok(new KioskSessionResponse(Token: token));
+            }
+            catch (Exception)
+            {
+                return BadRequest(new { message = "Unable to provision this kiosk. Please try again or contact IT." });
+            }
+        }
+
+        [HttpPost("{id:int}/revoke")]
+        [Authorize(Roles = AppConstants.SUPER_ADMIN_ROLE)]
+        public async Task<IActionResult> RevokeToken(int id)
+        {
+            string newToken = await kioskService.RegenerateKioskTokenAsync(id);
+            return Ok(new KioskSessionResponse(Token: newToken));
         }
     }
 }

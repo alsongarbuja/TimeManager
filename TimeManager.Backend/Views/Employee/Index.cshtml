@@ -23,6 +23,8 @@
     ViewData["OrderBy"] = Model.OrderBy;
     ViewData["PageSize"] = Model.PageSize;
     ViewData["IsOrderDescending"] = Model.IsOrderDescending;
+
+    int offset = (Model.PageNumber - 1) * Model.PageSize;
 }
 
 @if (User.IsInRole(AppConstants.ADMIN_ROLE))
@@ -56,6 +58,7 @@ else
     foreach (var d in Model.Data)
     {
         <tr class="table-row">
+            <sn-cell counter-name="Employee" start="@offset" />
             <td class="table-cell">@d.UniqueId</td>
             <td class="table-cell">@d.FirstName @d.LastName</td>
             <td class="table-cell">@d.Email</td>

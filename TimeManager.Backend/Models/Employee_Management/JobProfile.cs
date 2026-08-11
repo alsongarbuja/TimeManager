@@ -13,10 +13,6 @@ namespace TimeManager.Backend.Models.Employee_Management
 
         public required int EmployeeId { get; set; }
 
-        public DateTime JoinDate { get; set; }
-
-        public DateTime? EndDate { get; set; }
-
         public int? EarlyBuffer { get; set; }
 
         [ForeignKey("ProfileTemplateId")]

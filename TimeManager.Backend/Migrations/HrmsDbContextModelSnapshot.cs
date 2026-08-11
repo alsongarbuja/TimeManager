@@ -214,6 +214,9 @@ namespace TimeManager.Backend.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
+                    b.Property<string>("UniqueId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -239,16 +242,16 @@ namespace TimeManager.Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AllowedIPAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(45)");
-
                     b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DeviceToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -328,6 +331,35 @@ namespace TimeManager.Backend.Migrations
                     b.ToTable("EmployeeType");
                 });
 
+            modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.JobHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("JobProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("JoinDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProfileTemplateId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobProfileId");
+
+                    b.HasIndex("ProfileTemplateId");
+
+                    b.ToTable("JobHistory");
+                });
+
             modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.JobProfile", b =>
                 {
                     b.Property<int>("Id")
@@ -341,12 +373,6 @@ namespace TimeManager.Backend.Migrations
 
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("JoinDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("ProfileTemplateId")
                         .HasColumnType("int");
@@ -601,6 +627,25 @@ namespace TimeManager.Backend.Migrations
                     b.Navigation("Department");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.JobHistory", b =>
+                {
+                    b.HasOne("TimeManager.Backend.Models.Employee_Management.JobProfile", "JobProfile")
+                        .WithMany()
+                        .HasForeignKey("JobProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TimeManager.Backend.Models.Employee_Management.ProfileTemplate", "ProfileTemplate")
+                        .WithMany()
+                        .HasForeignKey("ProfileTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobProfile");
+
+                    b.Navigation("ProfileTemplate");
                 });
 
             modelBuilder.Entity("TimeManager.Backend.Models.Employee_Management.JobProfile", b =>

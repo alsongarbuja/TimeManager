@@ -17,6 +17,8 @@
     ViewData["OrderingKeys"] = Headers;
     ViewData["TotalPages"] = Model.TotalPages;
     ViewData["TotalRecords"] = Model.TotalRecords;
+
+    int offset = (Model.PageNumber - 1) * Model.PageSize;
 }
 
 @section CustomCreate {
@@ -46,6 +48,7 @@ else
     foreach (var d in Model.Data)
     {
         <tr class="table-row">
+            <sn-cell counter-name="Users" start="@offset" />
             <td class="table-cell">@d.UserName</td>
             <td class="table-cell">@d.Email</td>
             @await Html.PartialAsync("ActionTd", new ActionTdViewModel

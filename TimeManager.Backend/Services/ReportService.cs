@@ -65,6 +65,7 @@ namespace TimeManager.Backend.Services
                 .Include(jp => jp.ProfileTemplate)
                 .ThenInclude(pt => pt.Unit)
                 .Where(jp => jp.ProfileTemplate.UnitId == id)
+                .OrderBy(jp => jp.Employee.FirstName)
                 .AsSplitQuery()
                 .ToListAsync();
 

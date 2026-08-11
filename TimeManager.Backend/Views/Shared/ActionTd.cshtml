@@ -5,7 +5,7 @@
     {
         <form method="post" asp-controller="@Model.Controller" asp-action="Delete" asp-route-id="@Model.Id" onsubmit="return confirm('Delete this resource?')">
             @Html.AntiForgeryToken()
-            <button class="btn btn-action-delete">
+            <button class="btn btn-danger">
                 <i class="ri-delete-bin-7-line"></i>
             </button>
         </form>
@@ -29,7 +29,7 @@
 
     @if(Model.HasEdit)
     {
-        <a asp-controller="@Model.Controller" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-action-edit">
+        <a asp-controller="@Model.Controller" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-info">
             <i class="ri-edit-line"></i>
         </a>
     }

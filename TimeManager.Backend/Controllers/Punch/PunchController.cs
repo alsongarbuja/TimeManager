@@ -65,6 +65,7 @@ namespace TimeManager.Backend.Controllers.Punch
             await punchServices.CreatePunchAsync(pvm);
             int? departmentId = HttpContext.Session.GetDepartmentId();
             IEnumerable<SelectListItem> employees = await jobProfileService.GetUserOptionsAsync(departmentId);
+            TempData["success"] = "Successfully created a punch entry";
             return View(new PunchViewModel
             {
                 ClockInTime = DateTime.Now,
@@ -104,7 +105,7 @@ namespace TimeManager.Backend.Controllers.Punch
                 return View(pvm);
             }
 
-            TempData["success"] = "Successfully edited the data";
+            TempData["success"] = "Successfully edited the punch entry";
             return RedirectToAction(nameof(Index));
         }
 
@@ -113,6 +114,7 @@ namespace TimeManager.Backend.Controllers.Punch
         public async Task<IActionResult> Delete(int id)
         {
             await punchServices.DeletePunchByIdAsync(id);
+            TempData["success"] = "Successfully deleted the punch entry";
             return RedirectToAction(nameof(Index));
         }
     }

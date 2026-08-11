@@ -97,7 +97,7 @@ namespace TimeManager.Backend.Controllers.Unit
                 return View(uvm);
             }
 
-            TempData["success"] = "Successfully edited the data";
+            TempData["success"] = "Successfully edited the unit";
             return RedirectToAction(nameof(Index));
         }
 
@@ -108,7 +108,7 @@ namespace TimeManager.Backend.Controllers.Unit
             try
             {
                 await unitService.DeleteUnitByIdAsync(id);
-                TempData["success"] = "Successfully removed the data";
+                TempData["success"] = "Successfully removed the unit";
             } catch(KeyNotFoundException ex)
             {
                 TempData["error"] = ex.Message;

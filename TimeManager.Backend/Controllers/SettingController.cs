@@ -16,7 +16,7 @@ namespace TimeManager.Backend.Controllers
         {
             var model = new SettingViewModel();
 
-            if (User.IsInRole(AppConstants.ADMIN_ROLE))
+            if (User.IsInRole(AppConstants.ADMIN_ROLE) || User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
             {
                 var userClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (int.TryParse(userClaim, out int userId))

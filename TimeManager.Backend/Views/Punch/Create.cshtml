@@ -12,8 +12,8 @@
     @Html.AntiForgeryToken()
 
     <custom-select asp-for="EmployeeId" asp-items="Model.Employees" />
-    <custom-input asp-for="ClockInTime" />
-    <custom-input asp-for="ClockOutTime" />
+    <custom-input asp-for="ClockInTime" max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+    <custom-input asp-for="ClockOutTime" max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

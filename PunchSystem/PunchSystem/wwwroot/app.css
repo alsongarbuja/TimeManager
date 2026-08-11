@@ -278,3 +278,168 @@ kbd {
         width: 0%;
     }
 }
+
+.time-container {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 1000;
+}
+
+.digital-clock {
+    padding: 16px 24px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.clock-time {
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.clock-date {
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+
+/* ============= Home Page ==================*/
+
+.boot-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.boot-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.boot-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #5b8cff;
+    border-radius: 50%;
+    animation: boot-spin 0.8s linear infinite;
+}
+
+.boot-text {
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+}
+
+@keyframes boot-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ============= Provision Page ==================*/
+
+.setup-card {
+    border-top: 4px solid #111111 !important;
+}
+
+.setup-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: 999px;
+    background: #f1f1f1;
+    border: 1px solid #e0e0e0;
+    color: #444444;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.form-card-alignment {
+    text-align: left !important;
+    align-items: stretch !important;
+}
+
+.provision-subtitle {
+    color: #666666;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.provision-label {
+    display: block;
+    text-align: left;
+    margin-top: 1rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #444444;
+    letter-spacing: 0.02em;
+}
+
+.provision-input {
+    width: 100%;
+    background: #f5f5f5;
+    border: 1px solid #e5e5e5;
+    color: #111111;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+    .provision-input:focus {
+        background: #ffffff;
+        border-color: #111111;
+    }
+
+.provision-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.provision-field-error {
+    display: block;
+    text-align: left;
+    margin-top: 0.3rem;
+    color: #cc0000;
+    font-size: 0.75rem;
+}
+
+.provision-submit-btn {
+    width: 100%;
+    margin-top: 1.75rem;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 8px;
+    background: #111111;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+    .provision-submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .provision-submit-btn:not(:disabled):hover {
+        background: #333333;
+    }

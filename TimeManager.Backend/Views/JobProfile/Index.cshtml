@@ -1,14 +1,13 @@
 ﻿@using TimeManager.Backend.ViewModels.PartialViews
-@using TimeManager.Backend.Models.Responses
 @using TimeManager.Backend.ViewModels
-@model PagedResponse<JobProfileViewModel>
+@model JobProfileOverall
 
 @{
     Layout = "_ListWrapper";
     ViewData["Title"] = "Job Profile";
 
-    List<string> Headers = ["Employee", "Profile Template", "Shift Time", "Early Buffer"];
-    List<string> OrderingKeys = ["Employee", "Profile Template"];
+    List<string> Headers = ["Employee", "Profile Group", "Shift Time", "Early Buffer"];
+    List<string> OrderingKeys = ["Employee", "Profile Group"];
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Job Profile";
     ViewData["ModuleDesc"] = "Manage job profiles in the department";
@@ -16,15 +15,43 @@
 
     ViewData["HasPagination"] = true;
     ViewData["OrderingKeys"] = OrderingKeys;
-    ViewData["TotalPages"] = Model.TotalPages;
-    ViewData["TotalRecords"] = Model.TotalRecords;
+    ViewData["TotalPages"] = Model.JobProfiles.TotalPages;
+    ViewData["TotalRecords"] = Model.JobProfiles.TotalRecords;
 
-    ViewData["OrderBy"] = Model.OrderBy;
-    ViewData["PageSize"] = Model.PageSize;
-    ViewData["IsOrderDescending"] = Model.IsOrderDescending;
+    ViewData["OrderBy"] = Model.JobProfiles.OrderBy;
+    ViewData["PageSize"] = Model.JobProfiles.PageSize;
+    ViewData["IsOrderDescending"] = Model.JobProfiles.IsOrderDescending;
+
+    string val = Context.Request.Query["value"];
+
+    int offset = (Model.JobProfiles.PageNumber - 1) * Model.JobProfiles.PageSize;
 }
 
 @section CustomCreate {
+    <form asp-controller="JobProfile"
+          asp-action="Index"
+          method="get">
+        <input hidden name="pageNumber" value="1" />
+        <input hidden name="propertyName" value="Id" />
+        <input hidden name="operator" value="Equals" />
+
+        <div class='form-group'>
+            <label for='emp-select' class='form-label fw-semibold'>
+                Filter by employee
+            </label>
+            <select id='emp-select'
+                    name='value'
+                    class='form-input tom-select tm-select'
+                    onchange="this.form.submit()">
+                <option value=""></option>
+                @foreach (var e in Model.Employees)
+                {
+                    <option value="@e.Value"
+                            selected="@(val == e.Value.ToString())">@e.Text</option>
+                }
+            </select>
+        </div>
+    </form>
     <button class="btn-create btn-modal">Bulk Create</button>
 }
 
@@ -36,7 +63,7 @@
            />
 }
 
-@if (Model.Data.Count() <= 0)
+@if (Model.JobProfiles.Data.Count() <= 0)
 {
     <tr>
         <td colspan="@Headers.Count"
@@ -47,9 +74,10 @@
 }
 else
 {
-    foreach (var d in Model.Data)
+    foreach (var d in Model.JobProfiles.Data)
     {
         <tr class="table-row">
+            <sn-cell counter-name="JobProfile" start="@offset" />
             <td class="table-cell">@d.EmployeeString</td>
             <td class="table-cell">@d.ProfileTemplateString</td>
             <td class="table-cell">@d.ShiftStartTime</td>
@@ -58,6 +86,7 @@ else
             {
                 Controller = "JobProfile",
                 Id = d.Id,
+                HasDelete = false,
             })
         </tr>
     }

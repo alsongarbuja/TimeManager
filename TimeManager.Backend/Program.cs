@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TimeManager.Backend.Common;
@@ -56,17 +57,6 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.Add(new AuthorizeFilter());
 });
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowBlazor", policy =>
-//    {
-//        policy.WithOrigins("https://localhost:7046")
-//        .AllowAnyMethod()
-//        .AllowAnyHeader()
-//        .AllowCredentials();
-//    });
-//});
-
 var connectionString = builder.Configuration.GetConnectionString("SQLConnectionString");
 
 builder.Services.AddDbContext<HrmsDbContext>(options =>
@@ -87,6 +77,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPunchServices, PunchServices>();
 builder.Services.AddScoped<IKioskService, KioskService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IJobHistoryService, JobHistoryService>();
 builder.Services.AddScoped<IExcelService, ExcelService>();
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<CurrentEmployeeService>();
@@ -97,12 +88,29 @@ builder.Services.AddAuthentication()
         options.TokenValidationParameters = new TokenValidationParameters {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:KioskAudience"],
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:KioskSecret"]!)),
+
+            ValidateLifetime = false,     
+            RequireExpirationTime = false,
+        };
+
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var rawToken = (context.SecurityToken as JsonWebToken)?.EncodedToken;
+                var kioskSession = context.HttpContext.RequestServices.GetRequiredService<IKioskService>();
+
+                var kiosk = rawToken is null ? null : await kioskSession.ResolveKioskByTokenAsync(rawToken);
+                if (kiosk is null)
+                {
+                    context.Fail("Kiosk token is no longer valid");
+                }
+            }
         };
     });
 

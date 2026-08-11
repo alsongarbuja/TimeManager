@@ -95,8 +95,7 @@ namespace TimeManager.Backend.Controllers
                 if (role.Contains(AppConstants.SUPER_ADMIN_ROLE))
                 {
                     HttpContext.Session.Remove("DepartmentId");
-                    // TODO: Change to dashboard later
-                    return LocalRedirect(returnUrl ?? "/app/report"); 
+                    return LocalRedirect(returnUrl ?? "/app/dashboard"); 
                 }
 
                 if (role.Contains(AppConstants.ADMIN_ROLE))
@@ -108,7 +107,6 @@ namespace TimeManager.Backend.Controllers
                         return View(model);
                     }
                     HttpContext.Session.SetInt32("DepartmentId", employee.DepartmentId ?? 0);
-                    // TODO: Change to dashboard later
                     return LocalRedirect(returnUrl ?? "/app/report");
                 }
 

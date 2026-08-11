@@ -17,10 +17,11 @@ namespace TimeManager.Backend.Services
         Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(
             int? departmentId, 
             PaginationQuery query,
+            FilterCondition filter,
             PaginationQuery defaultQuery
             );
         Task<JobProfile> GetJobProfileByIdAsync(int id);
-        Task CreateJobProfileAsync(JobProfileViewModel jpvm);
+        Task<int?> CreateJobProfileAsync(JobProfileViewModel jpvm);
         Task<JobProfile?> UpdateJobProfileASync(int id, JobProfileViewModel jpvm);
         Task<int?> DeleteJobProfileAsync(int id);
         Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId);
@@ -28,16 +29,18 @@ namespace TimeManager.Backend.Services
 
     public class JobProfileService(HrmsDbContext context, ILogger<JobProfile> logger) : IJobProfileService
     {
-        public async Task CreateJobProfileAsync(JobProfileViewModel jpvm)
+        public async Task<int?> CreateJobProfileAsync(JobProfileViewModel jpvm)
         {
-            context.JobProfile.Add(new JobProfile { 
-                EmployeeId = jpvm.EmployeeId, 
-                ProfileTemplateId = jpvm.ProfileTemplateId, 
-                EarlyBuffer = jpvm.EarlyBuffer, 
-                JoinDate = jpvm.JoinDate.ToUniversalTime(), 
-                EndDate = jpvm.EndDate?.ToUniversalTime() 
-            });
+            var jp = new JobProfile
+            {
+                EmployeeId = jpvm.EmployeeId,
+                ProfileTemplateId = jpvm.ProfileTemplateId,
+                EarlyBuffer = jpvm.EarlyBuffer,
+            };
+            context.JobProfile.Add(jp);
             await context.SaveChangesAsync();
+
+            return jp.Id;
         }
 
         public async Task<int?> DeleteJobProfileAsync(int id)
@@ -56,6 +59,7 @@ namespace TimeManager.Backend.Services
         public async Task<PagedResponse<JobProfileViewModel>> GetJobProfilesAsync(
             int? departmentId, 
             PaginationQuery query,
+            FilterCondition filter,
             PaginationQuery defaultQuery
             )
         {
@@ -64,15 +68,31 @@ namespace TimeManager.Backend.Services
             Expression<Func<JobProfile, object>>? orderExpression = orderBy?.ToLower() switch
             {
                 "employee" => jp => jp.Employee.FirstName,
-                "profile template" => jp => jp.ProfileTemplate.Unit.Name,
+                "profile group" => jp => jp.ProfileTemplate.Unit.Name,
                 _ => null
             };
 
+            var builder = new ExpressionBuilder<JobProfile>();
+            var whereExpression = string.IsNullOrEmpty(filter.Value) 
+                ? departmentId == null ? null : builder.BuildPredicate(new FilterCondition
+                {
+                    PropertyName = "ProfileTemplate.Unit.DepartmentId",
+                    Value = departmentId.ToString(),
+                    Operator = FilterOperator.Equals
+                })
+                : departmentId == null
+                ? builder.BuildPredicate(filter)
+                : builder.BuildPredicate([
+                    new FilterCondition { 
+                        PropertyName = "ProfileTemplate.Unit.DepartmentId",
+                        Value = departmentId.ToString(),
+                        Operator = FilterOperator.Equals
+                    },
+                    filter,
+                    ]);
+
             IEnumerable<JobProfileViewModel> jobprofiles = [];
 
-            if (departmentId == null)
-            {
-                logger.LogInformation("No department id found so sending all job profiles");
                 (jobprofiles, totalRecords) = await context.JobProfile.FindWithPaginationAsync(
                      jp =>
                     new JobProfileViewModel
@@ -86,32 +106,10 @@ namespace TimeManager.Backend.Services
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
-                    null,
+                    whereExpression,
                     orderExpression,
                     isOrderDescending
                   );
-            }
-            else
-            {
-                logger.LogInformation($"Sending job profile connected to the deparment id: {departmentId}");
-                (jobprofiles, totalRecords) = await context.JobProfile.FindWithPaginationAsync(
-                     jp =>
-                    new JobProfileViewModel
-                    {
-                        Id = jp.Id,
-                        EmployeeId = jp.EmployeeId,
-                        EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                        ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index}) / {jp.ProfileTemplate.Role.Name}",
-                        EarlyBuffer = jp.EarlyBuffer,
-                        ShiftStartTime = jp.ProfileTemplate.ShiftStartTime,
-                    },
-                    ((pageNumber - 1) * pageSize),
-                    pageSize,
-                    jp => jp.ProfileTemplate.Unit.DepartmentId == departmentId,
-                    orderExpression,
-                    isOrderDescending
-                  );
-            }
 
             return new PagedResponse<JobProfileViewModel>(jobprofiles, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }
@@ -152,8 +150,6 @@ namespace TimeManager.Backend.Services
             }
 
             jp.EarlyBuffer = jpvm.EarlyBuffer;
-            jp.JoinDate = jpvm.JoinDate.ToUniversalTime();
-            jp.EndDate = jpvm.EndDate?.ToUniversalTime();
             jp.ProfileTemplateId = jpvm.ProfileTemplateId;
             jp.EmployeeId = jpvm.EmployeeId;
 

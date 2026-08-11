@@ -59,7 +59,7 @@ namespace TimeManager.Backend.Controllers.Department
                 return View(dvm);
             }
 
-            TempData["success"] = "Successfully edited the data";
+            TempData["success"] = "Successfully edited the department";
             return RedirectToAction(nameof(Index));
         }
 
@@ -70,7 +70,7 @@ namespace TimeManager.Backend.Controllers.Department
             try
             {
                 await departmentService.DeleteDepartmentByIdAsync(id);
-                TempData["success"] = "Successfully removed the data";
+                TempData["success"] = "Successfully removed the department";
             } catch (KeyNotFoundException ex)
             {
                 TempData["error"] = ex.Message;

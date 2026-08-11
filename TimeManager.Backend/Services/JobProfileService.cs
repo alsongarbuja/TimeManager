@@ -74,7 +74,12 @@ namespace TimeManager.Backend.Services
 
             var builder = new ExpressionBuilder<JobProfile>();
             var whereExpression = string.IsNullOrEmpty(filter.Value) 
-                ? null 
+                ? departmentId == null ? null : builder.BuildPredicate(new FilterCondition
+                {
+                    PropertyName = "ProfileTemplate.Unit.DepartmentId",
+                    Value = departmentId.ToString(),
+                    Operator = FilterOperator.Equals
+                })
                 : departmentId == null
                 ? builder.BuildPredicate(filter)
                 : builder.BuildPredicate([
@@ -88,9 +93,6 @@ namespace TimeManager.Backend.Services
 
             IEnumerable<JobProfileViewModel> jobprofiles = [];
 
-            if (departmentId == null)
-            {
-                logger.LogInformation("No department id found so sending all job profiles");
                 (jobprofiles, totalRecords) = await context.JobProfile.FindWithPaginationAsync(
                      jp =>
                     new JobProfileViewModel
@@ -108,28 +110,6 @@ namespace TimeManager.Backend.Services
                     orderExpression,
                     isOrderDescending
                   );
-            }
-            else
-            {
-                logger.LogInformation($"Sending job profile connected to the deparment id: {departmentId}");
-                (jobprofiles, totalRecords) = await context.JobProfile.FindWithPaginationAsync(
-                     jp =>
-                    new JobProfileViewModel
-                    {
-                        Id = jp.Id,
-                        EmployeeId = jp.EmployeeId,
-                        EmployeeString = $"{jp.Employee.FirstName} {jp.Employee.LastName}",
-                        ProfileTemplateString = $"{jp.ProfileTemplate.Unit.Name} ({jp.ProfileTemplate.Unit.Index}) / {jp.ProfileTemplate.Role.Name}",
-                        EarlyBuffer = jp.EarlyBuffer,
-                        ShiftStartTime = jp.ProfileTemplate.ShiftStartTime,
-                    },
-                    ((pageNumber - 1) * pageSize),
-                    pageSize,
-                    whereExpression,
-                    orderExpression,
-                    isOrderDescending
-                  );
-            }
 
             return new PagedResponse<JobProfileViewModel>(jobprofiles, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }

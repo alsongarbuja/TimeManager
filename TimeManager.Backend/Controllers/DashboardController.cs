@@ -12,5 +12,12 @@ namespace TimeManager.Backend.Controllers
             var data = await dashboardService.GetCurrentUserDashboardData(jobProfileId ?? 0);
             return View(data);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Setup()
+        {
+            var data = await dashboardService.GetSuperAdminSetupDashboardCheckData();
+            return View(data);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿@using TimeManager.Backend.Extensions
 @using TimeManager.Backend.Common
+@using TimeManager.Backend.Utility;
 
 @{
     List<LinkGroup> _links = [
@@ -7,12 +8,17 @@
         Title = "General",
         ByRole = AppConstants.AllRoles(),
         LinkData = [
-
+            new LinkProps {
+                Text = "Dashboard",
+                Url = "dashboard/setup",
+                IconClass = "ri-layout-grid-line",
+                Roles = [AppConstants.SUPER_ADMIN_ROLE],
+            },
         new LinkProps {
         Text = "Dashboard",
         Url = "dashboard",
         IconClass = "ri-layout-grid-line",
-        Roles = [AppConstants.SUPER_ADMIN_ROLE, ..AppConstants.EmployeeRoles()],
+        Roles = AppConstants.EmployeeRoles(),
         },
         new LinkProps {
         Text = "Report",
@@ -164,7 +170,7 @@
                             {
                                 var targetUrl = $"/app/{link.Url}";
 
-                                bool IsActive = string.Equals(ViewContext.HttpContext.Request.Path.ToString().Split("/")[2].Split("?")[0], link.Url.Split("?")[0], StringComparison.OrdinalIgnoreCase);
+                                bool IsActive = NavigationHelper.IsNavActive(ViewContext.HttpContext.Request.Path.ToString(), link.Url);
                                 <li>
                                     <a href="@targetUrl" class="sidebar-link @(IsActive ? "is-active" : "")">
                                         <i class="@link.IconClass sidebar-link-icon"></i>

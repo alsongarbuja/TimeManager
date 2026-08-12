@@ -34,11 +34,8 @@
     }
 
     @section modalcontent {
-        <partial name="BulkCreateForm" 
-            model='new BulkCreateModel() { 
-                Controller = "Employee", 
-                     ExampleFileName = "timemanager_employee_bulk_import_example.xlsx"
-            }' 
+        <partial name="BulkEmployeeCreateForm" 
+            model='new BulkEmployeeCreateViewModel()' 
           />
     }
 }
@@ -47,7 +44,7 @@
 @if (Model.Data.Count() <= 0)
 {
     <tr>
-        <td colspan="@Headers.Count"
+        <td colspan="@(Headers.Count + 2)"
             class="table-empty-cell">
             No data available
         </td>

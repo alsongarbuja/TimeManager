@@ -1,8 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using TimeManager.Backend.Models.Responses;
 
 namespace TimeManager.Backend.ViewModels
 {
+    public class UserOverallViewModel
+    {
+        public PagedResponse<UserViewModel> Data { get; set; }
+
+        public IEnumerable<SelectListItem> Departments { get; set; } = [];
+    }
+
     public class UserViewModel
     {
         public int Id { get; set; }

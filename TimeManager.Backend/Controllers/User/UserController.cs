@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.Models.Requests;
 using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
@@ -16,8 +18,10 @@ namespace TimeManager.Backend.Controllers.User
     public class UserController(
         UserManager<U> userManager, 
         HrmsDbContext context,
+        IDepartmentService departmentService,
         IUserService userService, 
         IRoleService roleService, 
+        IUserDepartmentPivotService userDepartmentPivotService,
         IConfiguration configuration,
         IExcelService excelService,
         ILogger<U> logger
@@ -27,7 +31,12 @@ namespace TimeManager.Backend.Controllers.User
         public async Task<IActionResult> Index([FromQuery] PaginationQuery filter)
         {
             PagedResponse<UserViewModel> users = await userService.GetUsersAsync(filter);
-            return View(users);
+            IEnumerable<SelectListItem> departments = await departmentService.GetDepartmentOptionsAsync();
+            return View(new UserOverallViewModel
+            {
+                Data = users,
+                Departments = departments
+            });
         }
 
         [HttpGet]
@@ -91,7 +100,7 @@ namespace TimeManager.Backend.Controllers.User
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkCreate(IFormFile excelFile)
+        public async Task<IActionResult> BulkCreate(IFormFile excelFile, int departmentId)
         {
             (List<Dictionary<string, string>> d, string? error) = excelService.ParseExcelFileToList(excelFile, ["Email", "Role", "UserName"]);
 
@@ -160,7 +169,6 @@ namespace TimeManager.Backend.Controllers.User
                     }
 
                     await transaction.CommitAsync();
-                    TempData["success"] = $"Successfully imported {addedCount} users";
                 } catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
@@ -168,6 +176,27 @@ namespace TimeManager.Backend.Controllers.User
                     TempData["error"] = "An error occured during bulk import. No changes saved";
                 }
             });
+
+            var existingUserIds = userManager.Users
+                .Where(u => existingEmails.Contains(u.Email))
+                .Select(u => u.Id)
+                .ToHashSet();
+
+            List<UserDepartmentPivot> toAddUdpData = [];
+            foreach (var id in existingUserIds)
+            {
+                if (await context.UserDepartmentPivots.AnyAsync(udp => udp.UserId == id && udp.DepartmentId == departmentId))
+                {
+                    continue;
+                }
+                toAddUdpData.Add(new UserDepartmentPivot { 
+                    DepartmentId = departmentId,
+                    UserId = id,
+                });
+            }
+            await userDepartmentPivotService.AddUserToDepartmentRangeAsync(toAddUdpData);
+
+            TempData["success"] = $"Successfully imported {addedCount} users & associated {toAddUdpData.Count} users to the selected department";
 
             return RedirectToAction(nameof(Index));
         }

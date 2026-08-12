@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using DocumentFormat.OpenXml.Office2010.Word;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
-using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Employee_Management;
@@ -31,8 +31,9 @@ namespace TimeManager.Backend.Services
 
     public class EmployeeService(
         HrmsDbContext hrmsDbContext, 
-        ILogger<Employee> logger
-        ) : IEmployeeService
+        ILogger<Employee> logger,
+        IUserDepartmentPivotService userDepartmentPivotService
+    ) : IEmployeeService
     {
         public async Task<int> CreateEmployeeAsync(EmployeeDto employeeDto)
         {
@@ -50,7 +51,6 @@ namespace TimeManager.Backend.Services
                     LastName = employeeDto.LastName,
                     UniqueId = employeeDto.UniqueId,
                     UserId = employeeDto.UserId,
-                    DepartmentId = employeeDto.DepartmentId,
                 };
                 hrmsDbContext.Employee.Add(employee);
                 await hrmsDbContext.SaveChangesAsync();
@@ -108,56 +108,37 @@ namespace TimeManager.Backend.Services
             
             int totalRecords = 0;
             IEnumerable<EmployeeViewModel> employees = [];
+            var builder = new ExpressionBuilder<Employee>();
+            Expression<Func<Employee, bool>>? whereExpression = null;
 
-            if (departmentId == null)
+            if (departmentId != null)
             {
-                logger.LogInformation("No department Id found sending back all users");
-                (employees, totalRecords) = await hrmsDbContext.Employee.FindWithPaginationAsync(
-                    e => new EmployeeViewModel
-                    {
-                        Id = e.Id,
-                        FirstName = e.FirstName,
-                        LastName = e.LastName,
-                        Email = e.User.Email ?? string.Empty,
-                        UniqueId = e.UniqueId,
-                    },
-                    ((pageNumber - 1) * pageSize),
-                    pageSize,
-                    null,
-                    orderExpression,
-                    isOrderDescending
-                 );
-            } else
-            {
-                logger.LogInformation("Sending only the department connected users");
-                var excludedUserIds = await hrmsDbContext.UserRoles
-                    .Join(hrmsDbContext.Roles,
-                        ur => ur.RoleId,
-                        r => r.Id,
-                        (ur, r) => new { ur.UserId, r.Name })
-                    .Where(x => x.Name == AppConstants.SUPER_ADMIN_ROLE || x.Name == AppConstants.ADMIN_ROLE)
-                    .Select(x => x.UserId)
-                    .ToHashSetAsync();
-                var excludedOtherDepartmentUserIds = await hrmsDbContext.JobProfile.Where(
-                        jp => jp.ProfileTemplate.Unit.DepartmentId != departmentId
-                    ).Select(jp => jp.Employee.UserId).ToHashSetAsync();
+                var toCheckUserIds = await userDepartmentPivotService.GetUserIdsByDepartmentId((int)departmentId);
 
-                (employees, totalRecords) = await hrmsDbContext.Employee.FindWithPaginationAsync(
-                    e => new EmployeeViewModel
+                whereExpression = builder.BuildPredicate(new FilterCondition
                     {
-                        Id = e.Id,
-                        FirstName = e.FirstName,
-                        LastName = e.LastName,
-                        Email = e.User.Email ?? string.Empty,
-                        UniqueId = e.UniqueId,
-                    },
-                    ((pageNumber - 1) * pageSize),
-                    pageSize,
-                    e => !excludedUserIds.Contains(e.UserId) && !excludedOtherDepartmentUserIds.Contains(e.UserId),
-                    orderExpression,
-                    isOrderDescending
-                );
+                        PropertyName = "UserId",
+                        Operator = FilterOperator.In,
+                        Values = [.. toCheckUserIds.Select(i => i.ToString())]
+                });
             }
+
+            (employees, totalRecords) = await hrmsDbContext.Employee.FindWithPaginationAsync(
+                e => new EmployeeViewModel
+                {
+                    Id = e.Id,
+                    FirstName = e.FirstName,
+                    LastName = e.LastName,
+                    Email = e.User.Email ?? string.Empty,
+                    UniqueId = e.UniqueId,
+                },
+                ((pageNumber - 1) * pageSize),
+                pageSize,
+                whereExpression,
+                orderExpression,
+                isOrderDescending
+                );
+            
             return new PagedResponse<EmployeeViewModel>(employees, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }
 

@@ -15,12 +15,7 @@
     <custom-input asp-for="EmployeeView.FirstName" />
     <custom-input asp-for="EmployeeView.LastName" />
     <custom-input asp-for="EmployeeView.UniqueId" />
-    <custom-select asp-for="UserId" asp-items="@Model.Users" />
-
-    @if (User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
-        { 
-            <custom-select asp-for="DepartmentId" asp-items="@Model.Departments" placeholder="-- Department --" />
-        }
+    <custom-select asp-for="UserId" asp-items="@Model.Users" searchable />
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

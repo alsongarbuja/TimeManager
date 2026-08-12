@@ -14,7 +14,8 @@ namespace TimeManager.Backend.Controllers
         SignInManager<U> signInManager,
         UserManager<U> userManager,
         ILogger<U> logger,
-        IEmployeeService employeeService
+        IEmployeeService employeeService,
+        IUserDepartmentPivotService userDepartmentPivotService
         ) : Controller
     {
         [AllowAnonymous]
@@ -106,7 +107,10 @@ namespace TimeManager.Backend.Controllers
                         TempData["error"] = "Employee data was not found for the User";
                         return View(model);
                     }
-                    HttpContext.Session.SetInt32("DepartmentId", employee.DepartmentId ?? 0);
+
+                    var deptIds = await userDepartmentPivotService.GetDepartmentIdsByUserId(user.Id);
+
+                    HttpContext.Session.SetInt32("DepartmentId", deptIds.ElementAt(0));
                     return LocalRedirect(returnUrl ?? "/app/report");
                 }
 

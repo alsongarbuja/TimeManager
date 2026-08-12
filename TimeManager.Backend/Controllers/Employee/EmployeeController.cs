@@ -48,10 +48,11 @@ namespace TimeManager.Backend.Controllers.Employee
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             EmployeeData employeeData = new() { 
                 EmployeeView = new EmployeeViewModel(),
                 Departments = (await departmentService.GetDepartmentOptionsAsync()),
-                Users = (await userService.GetUserOptionsAsync())
+                Users = (await userService.GetUserOptionsAsync(departmentId))
             };
             return View(employeeData);
         }
@@ -62,6 +63,7 @@ namespace TimeManager.Backend.Controllers.Employee
         {
             try
             {
+                int? departmentId = HttpContext.Session.GetDepartmentId();
                 int id = await employeeService.CreateEmployeeAsync(new EmployeeDto
                 {
                     Email = employeeData.EmployeeView.Email,
@@ -69,14 +71,12 @@ namespace TimeManager.Backend.Controllers.Employee
                     FirstName = employeeData.EmployeeView.FirstName,
                     LastName = employeeData.EmployeeView.LastName,
                     UserId = employeeData.UserId,
-                    DepartmentId = employeeData.DepartmentId,
                 });
                 TempData["success"] = "Employee Data created successfully";
                 return View(new EmployeeData
                 {
                     EmployeeView = new EmployeeViewModel(),
-                    Departments = (await departmentService.GetDepartmentOptionsAsync()),
-                    Users = (await userService.GetUserOptionsAsync())
+                    Users = (await userService.GetUserOptionsAsync(departmentId))
                 });
             } catch (ArgumentException ex)
             {
@@ -192,7 +192,7 @@ namespace TimeManager.Backend.Controllers.Employee
                     FirstName = e.FirstName, 
                     LastName = e.LastName,
                 },
-                Users = (await userService.GetUserOptionsAsync(e.UserId)),
+                Users = (await userService.GetUserOptionsAsync(departmentId, e.UserId)),
                 Departments = (await departmentService.GetDepartmentOptionsAsync(departmentId ?? 0))
             });
         }
@@ -208,7 +208,6 @@ namespace TimeManager.Backend.Controllers.Employee
                 FirstName = employeeData.EmployeeView.FirstName,
                 LastName = employeeData.EmployeeView.LastName,
                 UserId = employeeData.UserId,
-                DepartmentId = employeeData.DepartmentId,
             });
             if (e == null)
             {
@@ -227,7 +226,6 @@ namespace TimeManager.Backend.Controllers.Employee
                     LastName = e.LastName,
                 },
                 Users = (await userService.GetUserOptionsAsync(e.UserId)),
-                Departments = (await departmentService.GetDepartmentOptionsAsync(employeeData.DepartmentId ?? 0))
             });
         }
 

@@ -34,6 +34,7 @@
           asp-action="Index"
           method="get">
         <input hidden name="pageNumber" value="1" />
+        <input hidden name="pageSize" value="@Model.Data.PageSize" />
         <input hidden name="orderBy" value="ClockIn" />
         <input hidden name="isOrderDescending" value="True" />
         <input hidden name="propertyName" value="JobProfileId" />

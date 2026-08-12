@@ -6,7 +6,7 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Role
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = AppConstants.SUPER_ADMIN_ROLE)]
     public class RoleController(IRoleService roleService) : Controller
     {
         public async Task<IActionResult> Index()

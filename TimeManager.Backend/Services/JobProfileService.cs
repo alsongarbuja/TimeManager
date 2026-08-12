@@ -74,22 +74,24 @@ namespace TimeManager.Backend.Services
 
             var builder = new ExpressionBuilder<JobProfile>();
             var whereExpression = string.IsNullOrEmpty(filter.Value) 
-                ? departmentId == null ? null : builder.BuildPredicate(new FilterCondition
-                {
-                    PropertyName = "ProfileTemplate.Unit.DepartmentId",
-                    Value = departmentId.ToString(),
-                    Operator = FilterOperator.Equals
-                })
+                ? departmentId == null 
+                    ? null 
+                    : builder.BuildPredicate(new FilterCondition
+                        {
+                            PropertyName = "ProfileTemplate.Unit.DepartmentId",
+                            Value = departmentId.ToString(),
+                            Operator = FilterOperator.Equals
+                        })
                 : departmentId == null
-                ? builder.BuildPredicate(filter)
-                : builder.BuildPredicate([
-                    new FilterCondition { 
-                        PropertyName = "ProfileTemplate.Unit.DepartmentId",
-                        Value = departmentId.ToString(),
-                        Operator = FilterOperator.Equals
-                    },
-                    filter,
-                    ]);
+                    ? builder.BuildPredicate(filter)
+                    : builder.BuildPredicate([
+                        new FilterCondition { 
+                            PropertyName = "ProfileTemplate.Unit.DepartmentId",
+                            Value = departmentId.ToString(),
+                            Operator = FilterOperator.Equals
+                        },
+                        filter,
+                      ]);
 
             IEnumerable<JobProfileViewModel> jobprofiles = [];
 

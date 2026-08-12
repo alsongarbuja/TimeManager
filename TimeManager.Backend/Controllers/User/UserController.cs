@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Requests;
 using TimeManager.Backend.Models.Responses;
@@ -11,7 +12,7 @@ using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers.User
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = AppConstants.SUPER_ADMIN_ROLE)]
     public class UserController(
         UserManager<U> userManager, 
         HrmsDbContext context,

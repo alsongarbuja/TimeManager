@@ -18,7 +18,6 @@ namespace TimeManager.Backend.Controllers.Unit
         public async Task<IActionResult> Index()
         {
             int? departmentId = HttpContext.Session.GetDepartmentId();
-
             var units = await unitService.GetUnitsAysnc(departmentId);
             return View(units);
         }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Models.Organization_Management;
+using TimeManager.Backend.Utility;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Services
@@ -26,7 +27,17 @@ namespace TimeManager.Backend.Services
     {
         public async Task<IEnumerable<UnitViewModel>> GetUnitsAysnc(int? departmentId)
         {
-            var units = await context.Unit.Select(u => new UnitViewModel
+            var builder = new ExpressionBuilder<Unit>();
+            var whereExpression = departmentId != null
+                ? builder.BuildPredicate(new FilterCondition
+                {
+                    PropertyName = "DepartmentId",
+                    Operator = FilterOperator.Equals,
+                    Value = departmentId.ToString(),
+                })
+                : u => true;
+
+            var units = await context.Unit.Where(whereExpression).Select(u => new UnitViewModel
             {
                 Id = u.Id,
                 Name = u.Name,
@@ -36,10 +47,6 @@ namespace TimeManager.Backend.Services
                 DepartmentId = u.DepartmentId,
             }).ToListAsync();
 
-            if (departmentId != null)
-            {
-                units = [.. units.Where(u => u.DepartmentId == (int)departmentId)];
-            }
             return units;
         }
 

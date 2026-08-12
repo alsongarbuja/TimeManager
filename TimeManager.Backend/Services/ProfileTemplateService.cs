@@ -74,29 +74,19 @@ namespace TimeManager.Backend.Services
                 "role" => pt => pt.Role.Name,
                 _ => null,
             };
+
+            var builder = new ExpressionBuilder<ProfileTemplate>();
+            var whereExpression = departmentId != null
+                ? builder.BuildPredicate(new FilterCondition
+                {
+                    PropertyName = "Unit.DepartmentId",
+                    Operator = FilterOperator.Equals,
+                    Value = departmentId.ToString()
+                })
+                : null;
             
-            if (departmentId == null)
-            {
-                (profileTemplates, totalRecords) = await hrmsDbContext.ProfileTemplate.FindWithPaginationAsync(
-                 pt => new ProfileTemplateViewModel
-                 {
-                     Id = pt.Id,
-                     Unit = $"{pt.Unit.Name} - {pt.Unit.Index}",
-                     Role = pt.Role.Name ?? "Default",
-                     EmployeeType = pt.EmployeeType.Name,
-                     ShiftStartTime = pt.ShiftStartTime,
-                     EarlyClockInBufferMin = pt.EarlyClockInBufferMin,
-                 },
-                 ((pageNumber - 1) * pageSize),
-                 pageSize,
-                 null,
-                 orderExpression,
-                 isOrderDescending
-                    );
-            } else
-            {
-                (profileTemplates, totalRecords) = await hrmsDbContext.ProfileTemplate.FindWithPaginationAsync(
-                    pt => new ProfileTemplateViewModel 
+            (profileTemplates, totalRecords) = await hrmsDbContext.ProfileTemplate.FindWithPaginationAsync(
+                    pt => new ProfileTemplateViewModel
                     {
                         Id = pt.Id,
                         Unit = $"{pt.Unit.Name} - {pt.Unit.Index}",
@@ -107,11 +97,10 @@ namespace TimeManager.Backend.Services
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
-                    pt => pt.Unit.DepartmentId == departmentId,
+                    whereExpression,
                     orderExpression,
                     isOrderDescending
-                    );
-            }
+                );
 
             return new PagedResponse<ProfileTemplateViewModel>(profileTemplates, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }

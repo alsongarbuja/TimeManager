@@ -1,16 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Kiosk
 {
+    [Authorize(Roles = AppConstants.SUPER_ADMIN_ROLE)]
     public class KioskController(IKioskService kioskService, IDepartmentService departmentService) : Controller
     {
         public async Task<IActionResult> Index()
         {
-            int? departmentId = HttpContext.Session.GetDepartmentId();
-            var kiosks = await kioskService.GetKiosksAsync(departmentId);
+            var kiosks = await kioskService.GetKiosksAsync();
             return View(kiosks);
         }
 

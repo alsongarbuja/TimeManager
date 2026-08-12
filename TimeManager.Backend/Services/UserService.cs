@@ -16,7 +16,7 @@ namespace TimeManager.Backend.Services
     public interface IUserService
     {
         Task<PagedResponse<UserViewModel>> GetUsersAsync(PaginationQuery filter);
-        Task<(User? User, Role? Role)> GetUserByIdAsync(int id);
+        Task<(User? User, RoleViewModel? Role)> GetUserByIdAsync(int id);
         //Task CreateUserAsync(UserViewModel uvm);
         Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm);
         Task<int?> DeleteUserByIdAsync(int id);
@@ -48,7 +48,7 @@ namespace TimeManager.Backend.Services
             return id;
         }
 
-        public async Task<(User? User, Role? Role)> GetUserByIdAsync(int id)
+        public async Task<(User? User, RoleViewModel? Role)> GetUserByIdAsync(int id)
         {
             var user = await userManager.FindByIdAsync(id.ToString());
             if (user == null)

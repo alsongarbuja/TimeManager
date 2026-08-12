@@ -22,13 +22,9 @@ namespace TimeManager.Backend.Controllers.Department
         public async Task<IActionResult> Create(DepartmentViewModel departmentViewModel)
         {
             if (!ModelState.IsValid) return View(departmentViewModel);
-            await departmentService.CreateDepartmentAsync(new Services.DepartmentDto
-            {
-                Name = departmentViewModel.Name,
-                Description = departmentViewModel.Description,
-            });
+            await departmentService.CreateDepartmentAsync(departmentViewModel);
             TempData["Success"] = "Department created";
-            return RedirectToAction(nameof(Index));
+            return View(new DepartmentViewModel());
         }
 
         [HttpGet]
@@ -49,9 +45,7 @@ namespace TimeManager.Backend.Controllers.Department
         public async Task<IActionResult> Edit(int id, DepartmentViewModel dvm)
         {
             if (!ModelState.IsValid) return View(dvm);
-            var d = await departmentService.UpdateDepartmentAsync(id, new DepartmentDto { Name = dvm.Name,
-                Description = dvm.Description
-            });
+            var d = await departmentService.UpdateDepartmentAsync(id, dvm);
 
             if (d == null)
             {
@@ -60,7 +54,12 @@ namespace TimeManager.Backend.Controllers.Department
             }
 
             TempData["success"] = "Successfully edited the department";
-            return RedirectToAction(nameof(Index));
+            return View(new DepartmentViewModel
+            {
+                Id = d.Id,
+                Name = d.Name,
+                Description = d.Description
+            });
         }
 
         [HttpPost]

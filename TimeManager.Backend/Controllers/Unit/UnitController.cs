@@ -2,12 +2,18 @@
 using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Services;
+using TimeManager.Backend.Utility;
 using TimeManager.Backend.ViewModels;
+using U = TimeManager.Backend.Models.Organization_Management.Unit;
 
 namespace TimeManager.Backend.Controllers.Unit
 {
     [Authorize(Policy = "AdminPolicy")]
-    public class UnitController(IUnitService unitService, IDepartmentService departmentService) : Controller
+    public class UnitController(
+        IUnitService unitService, 
+        IDepartmentService departmentService,
+        ILogger<U> logger
+    ) : Controller
     {
         public async Task<IActionResult> Index()
         {
@@ -29,34 +35,23 @@ namespace TimeManager.Backend.Controllers.Unit
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(UnitViewModel unitViewModel)
+        public async Task<IActionResult> Create(UnitViewModel uvm)
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Where(x => x.Value?.Errors.Count > 0)
-                           .Select(x => new
-                           {
-                               x.Key,
-                               Errors = string.Join(", ", x.Value?.Errors.Select(e => e.ErrorMessage)!)
-                           });
-
-                foreach (var error in errors)
-                {
-                    Console.WriteLine($"Field: {error.Key} | Error: {error.Errors}");
-                }
-                return View(unitViewModel);
+                ModelValidationLog.LogModelStateValidationFailedLogs(logger, ModelState);
+                return View(uvm);
             }
             int? departmentId = HttpContext.Session.GetDepartmentId();
 
-            await unitService.CreateUnitAsync(new UnitDto
-            {
-                Name = unitViewModel.Name,
-                Description = unitViewModel.Description,
-                DepartmentId = departmentId ?? (int)unitViewModel.DepartmentId!,
-                Index = unitViewModel.Index,
-            });
+            await unitService.CreateUnitAsync(uvm);
             TempData["Success"] = "Unit created";
-            return RedirectToAction(nameof(Index));
+            var departments = departmentId == null ? await departmentService.GetDepartmentOptionsAsync() : [];
+
+            return View(new UnitViewModel
+            {
+                Departments = departments
+            });
         }
 
         [HttpGet]
@@ -65,16 +60,7 @@ namespace TimeManager.Backend.Controllers.Unit
             var unit = await unitService.GetUnitByIdAsync(id);
 
             if (unit == null) return NotFound();
-            return View(new UnitViewModel
-            {
-                Id = unit.Id,
-                Name = unit.Name,
-                Index = unit.Index,
-                Description = unit.Description,
-                DepartmentName = unit.Department.Name,
-                DepartmentId = unit.DepartmentId,
-                Departments = (await departmentService.GetDepartmentOptionsAsync(unit.DepartmentId))
-            });
+            return View(unit);
         }
 
         [HttpPost]
@@ -83,13 +69,7 @@ namespace TimeManager.Backend.Controllers.Unit
         {
             if (!ModelState.IsValid) return View(uvm);
             int? departmentId = HttpContext.Session.GetDepartmentId();
-            var d = await unitService.UpdateUnitAsync(id, new UnitDto
-            {
-                Name = uvm.Name,
-                Index = uvm.Index,
-                Description = uvm.Description,
-                DepartmentId = departmentId ?? (int)uvm.DepartmentId!,
-            });
+            var d = await unitService.UpdateUnitAsync(id, uvm);
 
             if (d == null)
             {

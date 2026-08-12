@@ -12,20 +12,73 @@ namespace TimeManager.Backend.Services
     public interface IRoleService
     {
         Task<IEnumerable<RoleViewModel>> GetRolesAsync();
-        Task<Role> GetRoleByIdAsync(int id);
-        Task<Role> GetRoleByNameAsync(string name);
-        Task CreateRoleAsync(RoleDto roleDto);
-        Task<Role?> UpdateRoleAsync(int id, RoleDto roleDto);
+        Task<RoleViewModel> GetRoleByIdAsync(int id);
+        Task<RoleViewModel> GetRoleByNameAsync(string name);
+        Task CreateRoleAsync(RoleViewModel rvm);
+        Task<RoleViewModel?> UpdateRoleAsync(int id, RoleViewModel rvm);
         Task<int?> DeleteRoleByIdAsync(int id);
         Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(int selectedId = 0);
     }
 
     public class RoleService(HrmsDbContext hrmsDbContext, ILogger<Role> logger) : IRoleService
     {
-        public async Task CreateRoleAsync(RoleDto roleDto)
+        public async Task<IEnumerable<RoleViewModel>> GetRolesAsync()
         {
-            hrmsDbContext.Roles.Add(new Role { Name = roleDto.Name, Description = roleDto.Description });
+            var roles = await hrmsDbContext.Roles
+                .Where(r => r.Name != AppConstants.SUPER_ADMIN_ROLE)
+                .Select(r => new RoleViewModel
+                {
+                    Id = r.Id,
+                    Name = r.Name ?? "Default",
+                })
+                .ToListAsync();
+            return roles;
+        }
+
+        public async Task<RoleViewModel> GetRoleByIdAsync(int id)
+        {
+            Role role = await hrmsDbContext.Roles.FindOrThrowAsync(id);
+            return new RoleViewModel
+            {
+                Id = role.Id,
+                Name = role.Name ?? "",
+                Description = role.Description
+            };
+        }
+
+        public async Task<RoleViewModel> GetRoleByNameAsync(string name)
+        {
+            Role role = await hrmsDbContext.Roles.WhereOrThrowAsync(r => r.Name == name);
+            return new RoleViewModel { 
+                Id = role.Id,
+                Name = role.Name ?? "",
+                Description = role.Description
+            };
+        }
+
+        public async Task CreateRoleAsync(RoleViewModel rvm)
+        {
+            hrmsDbContext.Roles.Add(new Role { Name = rvm.Name, Description = rvm.Description });
             await hrmsDbContext.SaveChangesAsync();
+        }
+
+        public async Task<RoleViewModel?> UpdateRoleAsync(int id, RoleViewModel rvm)
+        {
+            var r = await hrmsDbContext.Roles.FindAsync(id);
+            if (r == null)
+            {
+                logger.LogInformation($"Role with id: {id} not found");
+                return null;
+            }
+
+            hrmsDbContext.Entry(r).CurrentValues.SetValues(rvm);
+            await hrmsDbContext.SaveChangesAsync();
+            return new RoleViewModel
+            {
+                Id = r.Id,
+                Name = r.Name ?? "",
+                Description = r.Description
+            };
         }
 
         public async Task<int?> DeleteRoleByIdAsync(int id)
@@ -34,16 +87,6 @@ namespace TimeManager.Backend.Services
             hrmsDbContext.Roles.Remove(r);
             await hrmsDbContext.SaveChangesAsync();
             return id;
-        }
-
-        public async Task<Role> GetRoleByIdAsync(int id)
-        {
-            return await hrmsDbContext.Roles.FindOrThrowAsync(id);
-        }
-
-        public async Task<Role> GetRoleByNameAsync(string name)
-        {
-            return await hrmsDbContext.Roles.WhereOrThrowAsync(r => r.Name == name);
         }
 
         public async Task<IEnumerable<SelectListItem>> GetRoleOptionsAsync(int selectedId = 0)
@@ -57,41 +100,5 @@ namespace TimeManager.Backend.Services
                 }).ToListAsync();
             return roles;
         }
-
-        public async Task<IEnumerable<RoleViewModel>> GetRolesAsync()
-        {
-            var roles = await hrmsDbContext.Roles
-                .Where(r => r.Name != AppConstants.SUPER_ADMIN_ROLE)
-                .Select(r => new RoleViewModel
-                    {
-                        Id = r.Id,
-                        Name = r.Name ?? "Default",
-                    })
-                .ToListAsync();
-            return roles;
-        }
-
-        public async Task<Role?> UpdateRoleAsync(int id, RoleDto roleDto)
-        {
-            var r = await hrmsDbContext.Roles.FindAsync(id);
-            if (r == null)
-            {
-                logger.LogWarning($"Role with id: {id} not found");
-                return null;
-            }
-
-            hrmsDbContext.Entry(r).CurrentValues.SetValues(roleDto);
-            await hrmsDbContext.SaveChangesAsync();
-            return r;
-        }
-    }
-
-    public class RoleDto
-    {
-        [Required(ErrorMessage = "Name is required")]
-        public string Name { get; set; } = string.Empty;
-
-        [StringLength(100, ErrorMessage = "Description cannot exceed 100 characters")]
-        public string? Description { get; set; } = string.Empty;
     }
 }

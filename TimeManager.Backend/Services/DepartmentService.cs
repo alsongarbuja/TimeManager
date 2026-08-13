@@ -15,6 +15,7 @@ namespace TimeManager.Backend.Services
         Task<DepartmentViewModel?> UpdateDepartmentAsync(int id, DepartmentViewModel dvm);
         Task<int?> DeleteDepartmentByIdAsync(int id);
         Task<IEnumerable<SelectListItem>> GetDepartmentOptionsAsync(int selectedId = 0);
+        Task<IEnumerable<SelectListItem>> GetDepartmentOptionsMultiAsync(IEnumerable<int> selectedIds);
     }
 
     public class DepartmentService(HrmsDbContext context, ILogger<Department> logger) : IDepartmentService
@@ -83,6 +84,17 @@ namespace TimeManager.Backend.Services
                 Text = d.Name,
                 Value = d.Id.ToString(),
                 Selected = d.Id == selectedItem,
+            }).ToListAsync();
+            return data;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetDepartmentOptionsMultiAsync(IEnumerable<int> selectedIds)
+        {
+            var data = await context.Department.Select(d => new SelectListItem
+            {
+                Text = d.Name,
+                Value = d.Id.ToString(),
+                Selected = selectedIds.Contains(d.Id),
             }).ToListAsync();
             return data;
         }

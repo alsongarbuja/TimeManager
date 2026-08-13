@@ -1,9 +1,15 @@
-﻿@model TimeManager.Backend.ViewModels.SuperAdminDashboardSetupViewModel;
+﻿@using TimeManager.Backend.ViewModels;
+@model TimeManager.Backend.ViewModels.SuperAdminDashboardSetupViewModel;
 
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Dashboard";
 }
+
+@section scripts {
+    <script src="/js/passwordtoggle.js" defer></script>
+}
+
 
 <style>
     .admin-banners-container {
@@ -125,6 +131,6 @@
 @section modalcontent {
     <div>
         <button class="btn-modal btn-modal-close"><i class="ri-close-circle-line"></i></button>
-        @* <partial name="AddSuperAdminFormModal" /> *@
+        <partial name="AddSuperAdminFormModal" model="new RegisterSuperAdminModel()" />
     </div>
 }

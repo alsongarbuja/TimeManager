@@ -44,7 +44,8 @@ namespace TimeManager.Backend.Controllers.User
         {
             var model = new RegisterViewModel
             {
-                AvailableRoles = (await roleService.GetRoleOptionsAsync())
+                AvailableRoles = (await roleService.GetRoleOptionsAsync()),
+                Departments = (await departmentService.GetDepartmentOptionsAsync()),
             };
             return View(model);
         }
@@ -75,6 +76,17 @@ namespace TimeManager.Backend.Controllers.User
                 {
                     var role = await roleService.GetRoleByIdAsync(rvm.Role) ?? throw new KeyNotFoundException("Role not found for the given Id");
                     await userManager.AddToRoleAsync(user, role.Name!);
+
+                    foreach (var dI in rvm.DepartmentIds)
+                    {
+                        await userDepartmentPivotService.AddUserToDepartmentAsync(user.Id, (int)dI, role.Name == AppConstants.ADMIN_ROLE);
+
+                        if (role.Name == AppConstants.ADMIN_ROLE)
+                        {
+                            break;
+                        }
+                    }
+                    
                     TempData["success"] = "User added successfully";
                     return RedirectToAction(nameof(Index));
                 } catch (KeyNotFoundException ex)
@@ -189,6 +201,12 @@ namespace TimeManager.Backend.Controllers.User
                 {
                     continue;
                 }
+                // TODO: DO Something About The Admin Role in the department
+                //var user = await context.Users.FindAsync(id);
+                //if (user != null)
+                //{
+                //    bool isUserAdmin = await userService.
+                //}
                 toAddUdpData.Add(new UserDepartmentPivot { 
                     DepartmentId = departmentId,
                     UserId = id,
@@ -210,12 +228,15 @@ namespace TimeManager.Backend.Controllers.User
                 throw new KeyNotFoundException("User or Role is not found");
             }
 
+            var deptIds = await userDepartmentPivotService.GetDepartmentIdsByUserId(user.Id);
+
             var model = new RegisterViewModel
             {
                 Id = user.Id,
                 Email = user.Email ?? "",
                 Role = role.Id,
-                AvailableRoles = (await roleService.GetRoleOptionsAsync(role.Id))
+                AvailableRoles = (await roleService.GetRoleOptionsAsync(role.Id)),
+                Departments = (await departmentService.GetDepartmentOptionsMultiAsync(deptIds))
             };
             return View(model);
         }

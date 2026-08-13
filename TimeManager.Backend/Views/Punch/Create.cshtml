@@ -11,7 +11,7 @@
 <form asp-controller="Punch" asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
-    <custom-select asp-for="EmployeeId" asp-items="Model.Employees" />
+    <custom-select asp-for="EmployeeId" asp-items="Model.Employees" searchable />
     <custom-input asp-for="ClockInTime" max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
     <custom-input asp-for="ClockOutTime" max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
 

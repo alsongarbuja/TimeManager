@@ -66,11 +66,6 @@ namespace TimeManager.Backend.Services
 
         public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId, int selectedId = 0)
         {
-            //var currUser = await userManager.GetUserAsync(httpContextAccessor.HttpContext!.User);
-            //var currUserRole = await userManager.GetRolesAsync(currUser!);
-
-            //var isSuperUser = currUserRole.Contains(AppConstants.SUPER_ADMIN_ROLE);
-
             IEnumerable<SelectListItem> users = [];
 
             if (departmentId == null)
@@ -172,6 +167,14 @@ namespace TimeManager.Backend.Services
                     logger.LogError(passwordUpdated.Errors.First().Description);
                     return null;
                 }
+            }
+
+            bool isSuccess = await userDepartmentPivotService.UpdateUserDepartmentAsync(u.Id, rvm.DepartmentIds);
+
+            if (!isSuccess)
+            {
+                logger.LogError("Error while updating user department pivot");
+                return null;
             }
             
             return u;

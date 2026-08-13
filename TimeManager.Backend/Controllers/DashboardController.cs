@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using TimeManager.Backend.Extensions;
+using U = TimeManager.Backend.Models.AuthManagement.User;
 using TimeManager.Backend.Services;
+using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers
 {
-    public class DashboardController(IDashboardService dashboardService) : Controller
+    public class DashboardController(
+        IDashboardService dashboardService,
+        UserManager<U> userManager
+    ) : Controller
     {
         public async Task<IActionResult> Index()
         {
@@ -18,6 +24,40 @@ namespace TimeManager.Backend.Controllers
         {
             var data = await dashboardService.GetSuperAdminSetupDashboardCheckData();
             return View(data);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SuperAdminAdd(RegisterSuperAdminModel rsvm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(new RegisterSuperAdminModel
+                {
+                    Email = rsvm.Email,
+                    Password = rsvm.Password,
+                    ConfirmPassword = rsvm.ConfirmPassword,
+                });
+            }
+
+            var user = new U { UserName = rsvm.Email.Split("@")[0], Email = rsvm.Email, EmailConfirmed = true };
+            var result = await userManager.CreateAsync(user, rsvm.Password!);
+
+            if (result.Succeeded)
+            {
+                try
+                {
+                    await userManager.AddToRoleAsync(user, rsvm.Role);
+                    TempData["success"] = "User added successfully";
+                    return RedirectToAction(nameof(Setup));
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    TempData["error"] = ex.Message;
+                }
+            }
+
+            return RedirectToAction(nameof(Setup));
         }
     }
 }

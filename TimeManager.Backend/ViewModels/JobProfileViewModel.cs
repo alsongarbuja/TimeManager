@@ -34,7 +34,6 @@ namespace TimeManager.Backend.ViewModels
         public string EmployeeString { get; set; } = string.Empty;
         public TimeOnly ShiftStartTime { get; set; }
 
-        public IEnumerable<SelectListItem> ProfileTemplates { get; set; } = [];
         public IEnumerable<SelectListItem> Employees { get; set; } = [];
     }
 }

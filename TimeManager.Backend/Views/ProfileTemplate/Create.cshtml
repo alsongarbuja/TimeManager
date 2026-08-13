@@ -11,7 +11,7 @@
 <form asp-controller="ProfileTemplate" asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
-    <custom-select asp-for="UnitId" asp-items="@Model.Units" />
+    <custom-select asp-for="UnitId" asp-items="@Model.Units" searchable />
     <custom-select asp-for="RoleId" asp-items="@Model.Roles" />
     <custom-select asp-for="EmployeeTypeId" asp-items="@Model.EmployeeTypes" />
     <custom-select asp-for="PayFrequencyId" asp-items="@Model.PayFrequencies" />

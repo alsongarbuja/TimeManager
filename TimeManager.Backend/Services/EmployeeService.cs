@@ -24,7 +24,7 @@ namespace TimeManager.Backend.Services
         Task<int> CreateEmployeeAsync(EmployeeDto employeeDto);
         Task<Employee?> UpdateEmployeeAsync(int id, EmployeeDto employeeDto);
         Task<int?> DeleteEmployeeByIdAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync(int selectedId = 0);
+        Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync(int? departmentId, int selectedId = 0);
         Task<Employee?> GetEmployeeByUserIdAsync(int id);
         Task<IEnumerable<JobProfile>> GetJobProfilesByUserIdAsync(int id);
     }
@@ -80,9 +80,17 @@ namespace TimeManager.Backend.Services
             return employee;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync(int selectedId = 0)
+        public async Task<IEnumerable<SelectListItem>> GetEmployeeOptionAsync(int? departmentId, int selectedId = 0)
         {
-            var employees = await hrmsDbContext.Employee.Select(e => new SelectListItem
+            Expression<Func<Employee, bool>>? whereExpression = e => true;
+            if (departmentId != null)
+            {
+                var userIds = await userDepartmentPivotService.GetUserIdsByDepartmentId((int)departmentId);
+
+                whereExpression = (e => userIds.Contains(e.UserId));
+            }
+
+            var employees = await hrmsDbContext.Employee.Where(whereExpression).Select(e => new SelectListItem
             {
                 Text = $"{e.FirstName} {e.LastName}",
                 Value = e.Id.ToString(),

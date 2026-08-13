@@ -544,3 +544,707 @@ input::-ms-reveal {
     color: #374151;
     white-space: nowrap;
 }
+
+/* ========================== Select (Multi) ===========================*/
+/* --- Wrapper & Main Control Box --- */
+.ts-wrapper.multi .ts-control {
+    border: 1px solid var(--neutral-border);
+    border-radius: var(--radius-md);
+    padding: 0.375rem 0.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: var(--transition-base);
+}
+
+/* Focus state */
+.ts-wrapper.multi.focus .ts-control {
+    border-color: var(--brand-indigo);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(79, 103, 228, 0.15);
+}
+
+.ts-wrapper.multi .ts-control input {
+    color: var(--text-main);
+}
+
+    .ts-wrapper.multi .ts-control input::placeholder {
+        color: #9CA3AF;
+    }
+
+/* --- Selected Tags (Items) --- */
+.ts-wrapper.multi .ts-control > div.item {
+    background-color: var(--neutral-bg-light);
+    color: var(--text-main);
+    border: 1px solid var(--neutral-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 2px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+    /* Hover state for remove button inside items */
+    .ts-wrapper.multi .ts-control > div.item .remove {
+        color: var(--text-muted);
+        border-left: 1px solid var(--neutral-border);
+        margin-left: 4px;
+        padding-left: 4px;
+    }
+
+        .ts-wrapper.multi .ts-control > div.item .remove:hover {
+            color: var(--danger);
+            background-color: transparent;
+        }
+
+/* --- Dropdown Menu --- */
+.ts-dropdown {
+    border: 1px solid var(--neutral-border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    margin-top: 4px;
+}
+
+    /* Dropdown Options */
+    .ts-dropdown .dropdown-input-wrap {
+        padding: 8px;
+        border-bottom: 1px solid var(--neutral-border);
+    }
+
+    .ts-dropdown .dropdown-input {
+        border: 1px solid var(--neutral-border);
+        border-radius: 4px;
+        padding: 4px 8px;
+    }
+
+    .ts-dropdown .option {
+        padding: 8px 12px;
+        color: var(--text-main);
+        cursor: pointer;
+    }
+
+        /* Active/Hover option */
+        .ts-dropdown .option.active {
+            background-color: var(--brand-indigo);
+            color: #ffffff;
+        }
+/*.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    background-color: var(--primary);
+    color: #ffffff;
+    transition: var(--transition-base);
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+    .btn:hover {
+        background-color: var(--primary-hover);
+    }
+
+    .btn:disabled {
+        background-color: #F3F4F6;
+        color: #9CA3AF;
+        border-color: #E5E7EB;
+        opacity: 1;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+.btn-secondary {
+    background-color: #ffffff;
+    color: #374151;
+    border-color: var(--neutral-border);
+}
+
+    .btn-secondary:hover {
+        background-color: #F9FAFB;
+        border-color: #9CA3AF;
+    }
+
+.btn-danger {
+    background-color: var(--danger);
+    color: #ffffff;
+}
+
+    .btn-danger:hover {
+        background-color: var(--danger-hover);
+    }
+
+.btn-info {
+    background-color: #3B82F6;
+    color: #ffffff;
+}
+
+    .btn-info:hover {
+        background-color: #2563EB;
+    }*/
+
+/* ==================================================================== 2. Form Inputs & Select Tag Helpers ==================================================================== */
+/*.form-group {
+    position: relative;
+    width: 100%;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.375rem;
+}
+
+.form-required {
+    color: var(--danger);
+}
+
+.form-input-wrapper {
+    border-radius: var(--radius-md);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.form-input {
+    appearance: none;
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    background-color: #ffffff;
+    border: 1px solid var(--neutral-border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: var(--transition-base);
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+    .form-input::placeholder {
+        color: #9CA3AF;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--brand-indigo);
+        box-shadow: 0 0 0 3px rgba(79, 103, 228, 0.15);
+    }
+
+.form-input-error {
+    border-color: var(--danger) !important;
+}
+
+    .form-input-error:focus {
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+    }
+
+.form-input-helper-text {
+    display: block;
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.form-error {
+    margin-top: 0.375rem;
+    font-size: 0.875rem;
+    color: var(--danger);
+}*/
+
+/* TomSelect / Select Customization */
+/*.tm-select-wrapper .ts-control {
+    background-color: #ffffff;
+    border: 1px solid var(--neutral-border);
+    border-radius: var(--radius-md);
+    min-height: 42px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.tm-select-wrapper.focus .ts-control {
+    border-color: var(--brand-indigo);
+    box-shadow: 0 0 0 3px rgba(79, 103, 228, 0.15);
+}
+
+.tm-select-wrapper .ts-dropdown {
+    background: #ffffff;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--neutral-border);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}*/
+
+/* Password Toggle & Clear Buttons */
+/*.password-toggle-wrapper,
+.datetime-clear-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+    .password-toggle-wrapper .form-input {
+        padding-right: 2.75rem;
+    }
+
+.password-toggle-btn,
+.datetime-clear-btn {
+    position: absolute;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    color: var(--text-muted);
+    transition: color 0.15s;
+}
+
+.password-toggle-btn {
+    right: 0.8275rem;
+}
+
+.datetime-clear-btn {
+    right: 2rem;
+}
+
+    .password-toggle-btn:hover,
+    .datetime-clear-btn:hover {
+        color: var(--text-main);
+    }
+
+input::-ms-reveal {
+    display: none;
+}*/
+
+/* ==================================================================== 3. Layout & Grid Utilities ==================================================================== */
+/*.grid-col-2 {
+    grid-column: span 2;
+}*/
+
+/* ==================================================================== 4. Modals & Notifications (Toasts) ==================================================================== */
+/*.toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.125rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toast-success {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
+}
+
+.toast-error {
+    background-color: var(--error-bg);
+    color: var(--error-text);
+    border: 1px solid var(--error-border);
+}
+
+.toast button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    margin-left: auto;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+}
+
+    .toast button:hover {
+        opacity: 1;
+    }
+
+@keyframes slideIn {
+    from {
+        transform: translateY(1rem);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-overlay {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: 100vw;
+    height: 100dvh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay-visible {
+    display: flex;
+}
+
+.modal-wrapper {
+    background: #ffffff;
+    position: relative;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content a {
+    display: block;
+    margin-block-end: 0.75rem;
+    text-decoration: none;
+    text-align: right;
+    color: var(--brand-indigo);
+}
+
+.modal-content > form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-modal {
+    background: transparent !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--neutral-border) !important;
+}
+
+    .btn-modal:hover {
+        background: #F3F4F6 !important;
+    }
+
+.btn-modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: transparent;
+    border: none !important;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+    border-radius: var(--radius-sm);
+}
+
+    .btn-modal-close:hover {
+        background: #F3F4F6 !important;
+        color: var(--text-main) !important;
+    }*/
+
+/* ==================================================================== 5. Action Cell Partial View ==================================================================== */
+/*.table-actions {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+.btn-action-delete,
+.btn-action-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-sm);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition: filter 0.15s;
+}
+
+.btn-action-delete {
+    background-color: var(--danger);
+}
+
+    .btn-action-delete:hover {
+        filter: brightness(0.9);
+    }
+
+.btn-action-edit {
+    background-color: var(--brand-indigo);
+}
+
+    .btn-action-edit:hover {
+        filter: brightness(0.9);
+    }*/
+
+/* ==================================================================== 6. Report Stats & Dashboards ==================================================================== */
+/*.report-page-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.report-page-stat-card {
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-left: 3px solid var(--brand-indigo);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.report-page-stat-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.report-page-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-main);
+    line-height: 1;
+}
+
+@media (max-width: 640px) {
+    .report-page-stats {
+        grid-template-columns: 1fr;
+    }
+}*/
+
+/* ==================================================================== 7. Tables & Reports ==================================================================== */
+/*.report-page-table-card {
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.report-page-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.report-page-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.report-page-th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--neutral-bg-light);
+    border-bottom: 1px solid #E5E7EB;
+    white-space: nowrap;
+}
+
+.report-page-th-week {
+    min-width: 80px;
+}
+
+.report-page-th-weekend {
+    background: #F3F4F6;
+    color: #9CA3AF;
+}
+
+.report-page-th-total {
+    text-align: right;
+    color: var(--brand-indigo);
+    min-width: 80px;
+}
+
+.report-page-table tbody tr {
+    border-bottom: 1px solid #F3F4F6;
+    transition: background-color 0.1s;
+}
+
+    .report-page-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .report-page-table tbody tr:hover {
+        background: var(--neutral-bg-light);
+    }
+
+.report-page-foot-row {
+    border-top: 2px solid #E5E7EB;
+}
+
+.report-page-foot-spacer {
+    padding: 0.875rem 1rem;
+}
+
+.report-page-foot-total {
+    padding: 0.875rem 1rem;
+    text-align: right;
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--brand-indigo);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+.week-label {
+    padding: 0.875rem 1rem;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    color: #374151;
+}
+
+.report-page-table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+.hours-value {
+    display: block;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.hours-type {
+    display: inline-block;
+    margin-top: 3px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1.4;
+}
+
+    .hours-type.reg {
+        background: #ECFDF5;
+        color: #065F46;
+    }
+
+    .hours-type.hol {
+        background: #FFFBEB;
+        color: #92400E;
+    }
+
+    .hours-type.ot {
+        background: #FEF2F2;
+        color: #991B1B;
+    }
+
+.no-entry {
+    color: #D1D5DB;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.total-cell {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: #374151;
+    white-space: nowrap;
+}*/
+
+/* ========================== Select ===========================*/
+/* --- Wrapper & Main Control Box --- */
+/*.ts-wrapper.multi.ts-control {
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 6px 8px;
+    background-color: #fff;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}*/
+
+/* Focus state */
+/*.ts-wrapper.multi.focus .ts-control {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}*/
+
+/* --- Selected Tags (Items) --- */
+/*.ts-wrapper.multi .ts-control > div.item {
+    background-color: #e9ecef;
+    color: #495057;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 2px;
+    font-size: 0.875rem;
+}*/
+
+    /* Hover state for remove button inside items */
+    /*.ts-wrapper.multi .ts-control > div.item .remove {
+        color: #6c757d;
+        border-left: 1px solid #dee2e6;
+        margin-left: 4px;
+        padding-left: 4px;
+    }
+
+        .ts-wrapper.multi .ts-control > div.item .remove:hover {
+            color: #dc3545;
+            background-color: transparent;
+        }*/
+
+/* --- Dropdown Menu --- */
+/*.ts-dropdown {
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+    background-color: #fff;
+    margin-top: 4px;
+}*/
+
+    /* Dropdown Options */
+    /*.ts-dropdown .dropdown-input-wrap {
+        padding: 8px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .ts-dropdown .dropdown-input {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 4px 8px;
+    }
+
+    .ts-dropdown .option {
+        padding: 8px 12px;
+        color: #212529;
+    }*/
+
+        /* Active/Hover option */
+        /*.ts-dropdown .option.active {
+            background-color: #0d6efd;
+            color: #fff;
+        }*/

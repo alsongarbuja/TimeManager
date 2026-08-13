@@ -19,7 +19,7 @@ namespace TimeManager.Backend.Services
         Task CreateProfileTemplateAsync(ProfileTemplateViewModel pvm);
         Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm);
         Task<int?> DeleteProfileTemplateAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync(int selectedId = 0);
+        Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync(int? departmentId, int selectedId = 0);
     }
 
     public class ProfileTemplateService(HrmsDbContext hrmsDbContext) : IProfileTemplateService
@@ -50,9 +50,19 @@ namespace TimeManager.Backend.Services
             return await hrmsDbContext.ProfileTemplate.FindOrThrowAsync(id);
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync(int selectedId = 0)
+        public async Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync(int? departmentId, int selectedId = 0)
         {
-            var profileTemplates = await hrmsDbContext.ProfileTemplate.Select(pt => new SelectListItem
+            var builder = new ExpressionBuilder<ProfileTemplate>();
+            var whereExpression = departmentId == null
+                ? pt => true
+                : builder.BuildPredicate(new FilterCondition
+                {
+                    PropertyName = "Unit.DepartmentId",
+                    Operator = FilterOperator.Equals,
+                    Value = departmentId.ToString()
+                });
+
+            var profileTemplates = await hrmsDbContext.ProfileTemplate.Where(whereExpression).Select(pt => new SelectListItem
             {
                 Text = $"{pt.Unit.Name} ({pt.Unit.Index}) / {pt.Role.Name}",
                 Value = pt.Id.ToString(),

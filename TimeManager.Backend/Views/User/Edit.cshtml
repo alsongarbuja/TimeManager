@@ -15,6 +15,7 @@
     <custom-select asp-for="Role" asp-items="@Model.AvailableRoles" />
     <custom-input asp-for="Password" />
     <custom-input asp-for="ConfirmPassword" />
+    <custom-select asp-for="DepartmentIds" asp-items="@Model.Departments" searchable multiple />
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

@@ -101,13 +101,6 @@ namespace TimeManager.Backend.Controllers
 
                 if (role.Contains(AppConstants.ADMIN_ROLE))
                 {
-                    var employee = await employeeService.GetEmployeeByUserIdAsync(user.Id);
-                    if (employee == null)
-                    {
-                        TempData["error"] = "Employee data was not found for the User";
-                        return View(model);
-                    }
-
                     var deptIds = await userDepartmentPivotService.GetDepartmentIdsByUserId(user.Id);
 
                     HttpContext.Session.SetInt32("DepartmentId", deptIds.ElementAt(0));

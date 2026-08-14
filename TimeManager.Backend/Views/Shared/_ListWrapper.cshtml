@@ -1,9 +1,10 @@
 ﻿@{
     Layout = "_AdminLayout";
     var headers = ViewData["Headers"] as List<string>;
-    bool hasCreate = ViewData["HasCreate"] as bool? ?? true;
     var controller = ViewData["Controller"] as string;
-    var hasAction = ViewData["HasAction"] as string;
+    bool hasCreate = ViewData["HasCreate"] as bool? ?? true;
+    bool hasAction = ViewData["HasAction"] as bool? ?? true;
+    int dataCount = ViewData["DataCount"] as int? ?? 0;
 
     // Pagination Related ViewData
     bool hasPagination = ViewData["HasPagination"] as bool? ?? false;
@@ -212,7 +213,7 @@
                                     }
                                 </th>
                             }
-                            @if (hasAction != "false")
+                            @if (hasAction)
                             {
                                 <th class="table-header-cell table-header-cell-inner">
                                     Action
@@ -222,7 +223,18 @@
                     </thead>
 
                     <tbody class="table-body">
-                        @RenderBody()
+                        @if (dataCount <= 0)
+                        {
+                            <tr>
+                                <td colspan="@(headers.Count + 2)"
+                                    class="table-empty-cell">
+                                    No data available
+                                </td>
+                            </tr>   
+                        } else
+                        {
+                            @RenderBody()
+                        }
                     </tbody>
 
                 </table>

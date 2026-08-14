@@ -11,9 +11,10 @@
     ViewData["Headers"] = Headers;
     ViewData["ModuleTitle"] = "Pay Period";
     ViewData["ModuleDesc"] = "Manage the pay periods in the system";
-    ViewData["HasAction"] = "false";
+    ViewData["HasAction"] = false;
     ViewData["Controller"] = "PayPeriod";
     ViewData["HasCreate"] = false;
+    ViewData["DataCount"] = Model.Data.Count();
 
     ViewData["HasPagination"] = true;
     ViewData["OrderingKeys"] = OrderingKeys;
@@ -23,25 +24,13 @@
     int offset = (Model.PageNumber - 1) * Model.PageSize;
 }
 
-@if (Model.Data.Count() <= 0)
+@foreach (var d in Model.Data)
 {
-    <tr>
-        <td colspan="@(Headers.Count + 2)"
-            class="table-empty-cell">
-            No data available
-        </td>
+    <tr class="table-row">
+        <sn-cell counter-name="PayPeriod" start="@offset" />
+        <td class="table-cell">@d.StartDate</td>
+        <td class="table-cell table-desc">@d.EndDate</td>
     </tr>
-}
-else
-{
-    foreach (var d in Model.Data)
-    {
-        <tr class="table-row">
-            <sn-cell counter-name="PayPeriod" start="@offset" />
-            <td class="table-cell">@d.StartDate</td>
-            <td class="table-cell table-desc">@d.EndDate</td>
-        </tr>
-    }
 }
 
 @section CustomCreate {

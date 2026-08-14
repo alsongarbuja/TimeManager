@@ -11,6 +11,7 @@
     ViewData["ModuleTitle"] = "User";
     ViewData["ModuleDesc"] = "Manage the users in the system";
     ViewData["Controller"] = "User";
+    ViewData["DataCount"] = Model.Data.Data.Count();
 
     ViewData["HasPagination"] = true;
     ViewData["OrderingKeys"] = Headers;
@@ -30,28 +31,16 @@
     }" />
 }
 
-@if (Model.Data.Data.Count() <= 0)
+@foreach (var d in Model.Data.Data)
 {
-    <tr>
-        <td colspan="@Headers.Count"
-            class="table-empty-cell">
-            No data available
-        </td>
+    <tr class="table-row">
+        <sn-cell counter-name="Users" start="@offset" />
+        <td class="table-cell">@d.UserName</td>
+        <td class="table-cell">@d.Email</td>
+        @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+        {
+            Controller = "User",
+            Id = d.Id,
+        })
     </tr>
-}
-else
-{
-    foreach (var d in Model.Data.Data)
-    {
-        <tr class="table-row">
-            <sn-cell counter-name="Users" start="@offset" />
-            <td class="table-cell">@d.UserName</td>
-            <td class="table-cell">@d.Email</td>
-            @await Html.PartialAsync("ActionTd", new ActionTdViewModel
-            {
-                Controller = "User",
-                Id = d.Id,
-            })
-        </tr>
-    }
 }

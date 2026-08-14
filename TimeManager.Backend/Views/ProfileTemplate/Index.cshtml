@@ -13,6 +13,7 @@
     ViewData["ModuleTitle"] = "Profile Group";
     ViewData["ModuleDesc"] = "Manage the profile group in the department";
     ViewData["Controller"] = "ProfileTemplate";
+    ViewData["DataCount"] = Model.Data.Count();
 
     ViewData["HasPagination"] = true;
     ViewData["OrderingKeys"] = OrderingKeys;
@@ -22,30 +23,18 @@
     int offset = (Model.PageNumber - 1) * Model.PageSize;
 }
 
-@if (Model.Data.Count() <= 0)
+@foreach (var d in Model.Data)
 {
-    <tr>
-        <td colspan="@Headers.Count"
-            class="table-empty-cell">
-            No data available
-        </td>
+    <tr class="table-row">
+        <sn-cell counter-name="ProfileTemplate" start="@offset" />
+        <td class="table-cell">@d.Unit</td>
+        <td class="table-cell">@d.Role</td>
+        <td class="table-cell">@d.ShiftStartTime</td>
+        <td class="table-cell">@d.EarlyClockInBufferMin min</td>
+        @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+        {
+            Controller = "ProfileTemplate",
+            Id = d.Id,
+        })
     </tr>
-}
-else
-{
-    foreach (var d in Model.Data)
-    {
-        <tr class="table-row">
-            <sn-cell counter-name="ProfileTemplate" start="@offset" />
-            <td class="table-cell">@d.Unit</td>
-            <td class="table-cell">@d.Role</td>
-            <td class="table-cell">@d.ShiftStartTime</td>
-            <td class="table-cell">@d.EarlyClockInBufferMin min</td>
-            @await Html.PartialAsync("ActionTd", new ActionTdViewModel
-            {
-                Controller = "ProfileTemplate",
-                Id = d.Id,
-            })
-        </tr>
-    }
 }

@@ -14,6 +14,7 @@
     ViewData["ModuleTitle"] = "Employee";
     ViewData["ModuleDesc"] = "Manage the employee data in the system";
     ViewData["Controller"] = "Employee";
+    ViewData["DataCount"] = Model.Data.Count();
 
     ViewData["HasPagination"] = true;
     ViewData["OrderingKeys"] = OrderingKeys;
@@ -41,31 +42,19 @@
 }
 
 
-@if (Model.Data.Count() <= 0)
+@foreach (var d in Model.Data)
 {
-    <tr>
-        <td colspan="@(Headers.Count + 2)"
-            class="table-empty-cell">
-            No data available
-        </td>
+    <tr class="table-row">
+        <sn-cell counter-name="Employee" start="@offset" />
+        <td class="table-cell">@d.UniqueId</td>
+        <td class="table-cell">@d.FirstName @d.LastName</td>
+        <td class="table-cell">@d.Email</td>
+        @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+        {
+            Controller = "Employee",
+            Id = d.Id,
+            HasEdit = true,
+            HasDelete = false,
+        })
     </tr>
-}
-else
-{
-    foreach (var d in Model.Data)
-    {
-        <tr class="table-row">
-            <sn-cell counter-name="Employee" start="@offset" />
-            <td class="table-cell">@d.UniqueId</td>
-            <td class="table-cell">@d.FirstName @d.LastName</td>
-            <td class="table-cell">@d.Email</td>
-            @await Html.PartialAsync("ActionTd", new ActionTdViewModel
-{
-        Controller = "Employee",
-        Id = d.Id,
-        HasEdit = true,
-        HasDelete = false,
-})
-        </tr>
-    }
 }

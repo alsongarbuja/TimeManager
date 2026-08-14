@@ -177,7 +177,7 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "app",
-    pattern: "app/{controller}/{action}/{id?}"
+    pattern: "app/{controller=Dashboard}/{action=Index}/{id?}"
 );
 
 await DataSeeder.SeedDataAsync(app.Services);

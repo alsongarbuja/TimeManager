@@ -1,14 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TimeManager.Backend.ViewModels
+namespace TimeManager.Backend.ViewModels.PartialViews
 {
-    public class BulkCreateModel
+    public class BulkEmployeeCreateViewModel
     {
         [Required(ErrorMessage = "File is required")]
         [Display(Name = "File")]
         public IFormFile ExcelFile { get; set; }
-
-        public required string Controller { get; set; }
-        public required string ExampleFileName { get; set; }
     }
 }

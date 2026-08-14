@@ -34,9 +34,6 @@ namespace TimeManager.Backend.ViewModels
         [Display(Name = "User")]
         public int UserId { get; set; }
 
-        [Display(Name = "Department")]
-        public int? DepartmentId { get; set; }
-
         public IEnumerable<SelectListItem> Departments { get; set; } = [];
         public IEnumerable<SelectListItem> Users { get; set; } = [];
     }

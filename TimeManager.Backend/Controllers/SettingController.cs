@@ -3,29 +3,35 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using TimeManager.Backend.Common;
+using TimeManager.Backend.Extensions;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
 using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers
 {
-    public class SettingController(UserManager<U> userManager, ICacheService cacheService) : Controller
+    public class SettingController(
+        UserManager<U> userManager,
+        ICacheService cacheService,
+        IEmployeeService employeeService
+    ) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var model = new SettingViewModel();
+            int? jobProfileId = HttpContext.Session.GetCurrentUserJobProfileId();
 
-            if (User.IsInRole(AppConstants.ADMIN_ROLE) || User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
+            var userClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(userClaim, out int userId))
             {
-                var userClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (int.TryParse(userClaim, out int userId))
+                if (User.IsInRole(AppConstants.ADMIN_ROLE) || User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
                 {
                     model.Preferences = await cacheService.GetPreferencesAsync(userId);
                 }
             }
 
-            PopulateDropDown(model);
+            await PopulateDropDown(model, userId, jobProfileId);
 
             return View(model);
         }
@@ -88,19 +94,32 @@ namespace TimeManager.Backend.Controllers
 
         private async Task<IActionResult> RebuildIndexViewAndResult(SettingViewModel model)
         {
-            if (User.IsInRole(AppConstants.ADMIN_ROLE))
+            var userClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(userClaim, out int userId))
             {
-                var userClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (int.TryParse(userClaim, out int userId))
+                if (User.IsInRole(AppConstants.ADMIN_ROLE))
                 {
                     model.Preferences = await cacheService.GetPreferencesAsync(userId);
                 }
             }
 
+            await PopulateDropDown(model, userId, model.Profile.ProfileId);
+
             return View("Index", model);
         }
 
-        private void PopulateDropDown(SettingViewModel model) {
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeProfile(SettingViewModel model)
+        {
+            HttpContext.Session.SetInt32("JobProfileId", model.Profile.ProfileId);
+
+            TempData["success"] = "Successfully changed the profile";
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        private async Task PopulateDropDown(SettingViewModel model, int userId, int? jpId) {
             model.LimitOptions = new List<SelectListItem> { 
                 new SelectListItem { Text = "5", Value = "5" },
                 new SelectListItem { Text = "10", Value = "10" },
@@ -123,6 +142,14 @@ namespace TimeManager.Backend.Controllers
                 new SelectListItem { Text = "Employee Name", Value = "employee" },
                 new SelectListItem { Text = "Unit", Value = "profile template" },
             };
+
+            var jobProfiles = (await employeeService.GetJobProfilesByUserIdAsync(userId)).ToList();
+
+            model.Profiles = jobProfiles.Select(jp => new SelectListItem { 
+                Text = $"{jp.ProfileTemplate.Role.Name} / {jp.ProfileTemplate.Unit.Name}",
+                Value = jp.Id.ToString(),
+                Selected = jp.Id == jpId
+            });
         }
     }
 }

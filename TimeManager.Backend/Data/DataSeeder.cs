@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using TimeManager.Backend.Common;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.Services;

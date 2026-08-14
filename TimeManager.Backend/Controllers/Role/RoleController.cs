@@ -6,7 +6,7 @@ using TimeManager.Backend.ViewModels;
 
 namespace TimeManager.Backend.Controllers.Role
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = AppConstants.SUPER_ADMIN_ROLE)]
     public class RoleController(IRoleService roleService) : Controller
     {
         public async Task<IActionResult> Index()
@@ -20,29 +20,25 @@ namespace TimeManager.Backend.Controllers.Role
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(RoleViewModel evm)
+        public async Task<IActionResult> Create(RoleViewModel rvm)
         {
-            if (!ModelState.IsValid) return View(evm);
-            if (evm.Name == AppConstants.SUPER_ADMIN_ROLE)
+            if (!ModelState.IsValid) return View(rvm);
+            if (rvm.Name == AppConstants.SUPER_ADMIN_ROLE)
             {
                 ModelState.AddModelError("Name", "Cannot create this role");
-                return View(evm);
+                return View(rvm);
             }
 
-            var role = await roleService.GetRoleByNameAsync(evm.Name);
+            var role = await roleService.GetRoleByNameAsync(rvm.Name);
             if (role != null)
             {
                 ModelState.AddModelError("Name", "Role already exists");
-                return View(evm);
+                return View(rvm);
             }
 
-            await roleService.CreateRoleAsync(new RoleDto
-            {
-                Name = evm.Name,
-                Description = evm.Description,
-            });
+            await roleService.CreateRoleAsync(rvm);
             TempData["success"] = "Role created";
-            return RedirectToAction(nameof(Index));
+            return View(new RoleViewModel());
         }
 
         [HttpGet]
@@ -59,21 +55,22 @@ namespace TimeManager.Backend.Controllers.Role
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, RoleViewModel evm)
+        public async Task<IActionResult> Edit(int id, RoleViewModel rvm)
         {
-            if (!ModelState.IsValid) return View(evm);
-            var et = await roleService.UpdateRoleAsync(id, new RoleDto
-            {
-                Name = evm.Name,
-                Description = evm.Description,
-            });
-            if (et == null)
+            if (!ModelState.IsValid) return View(rvm);
+            var r = await roleService.UpdateRoleAsync(id, rvm);
+            if (r == null)
             {
                 TempData["error"] = "Role not found";
                 return View();
             }
             TempData["success"] = "Role updated";
-            return RedirectToAction(nameof(Index));
+            return View(new RoleViewModel
+            {
+                Id = r.Id,
+                Name = r.Name ?? "",
+                Description = r.Description
+            });
         }
 
         [HttpPost]

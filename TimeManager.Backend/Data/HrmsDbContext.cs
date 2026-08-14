@@ -23,7 +23,7 @@ namespace TimeManager.Backend.Data
         public DbSet<ProfileTemplate> ProfileTemplate { get; set; }
         public DbSet<JobProfile> JobProfile { get; set; }
         public DbSet<JobHistory> JobHistory { get; set; }
-        //public DbSet<EmployeeDepartment> EmployeeDepartment { get; set; }
+        public DbSet<UserDepartmentPivot> UserDepartmentPivots { get; set; }
 
         // Organization Management Models
         public DbSet<Department> Department { get; set; }

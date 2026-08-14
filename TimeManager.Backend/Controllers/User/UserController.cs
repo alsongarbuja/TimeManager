@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
+using TimeManager.Backend.Models.Employee_Management;
 using TimeManager.Backend.Models.Requests;
 using TimeManager.Backend.Models.Responses;
 using TimeManager.Backend.Services;
@@ -11,14 +14,17 @@ using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers.User
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = AppConstants.SUPER_ADMIN_ROLE)]
     public class UserController(
         UserManager<U> userManager, 
         HrmsDbContext context,
+        IDepartmentService departmentService,
         IUserService userService, 
         IRoleService roleService, 
+        IUserDepartmentPivotService userDepartmentPivotService,
         IConfiguration configuration,
         IExcelService excelService,
+        IEmailVerificationService emailVerificationService,
         ILogger<U> logger
         ) : Controller
     {
@@ -26,7 +32,12 @@ namespace TimeManager.Backend.Controllers.User
         public async Task<IActionResult> Index([FromQuery] PaginationQuery filter)
         {
             PagedResponse<UserViewModel> users = await userService.GetUsersAsync(filter);
-            return View(users);
+            IEnumerable<SelectListItem> departments = await departmentService.GetDepartmentOptionsAsync();
+            return View(new UserOverallViewModel
+            {
+                Data = users,
+                Departments = departments
+            });
         }
 
         [HttpGet]
@@ -34,7 +45,8 @@ namespace TimeManager.Backend.Controllers.User
         {
             var model = new RegisterViewModel
             {
-                AvailableRoles = (await roleService.GetRoleOptionsAsync())
+                AvailableRoles = (await roleService.GetRoleOptionsAsync()),
+                Departments = (await departmentService.GetDepartmentOptionsAsync()),
             };
             return View(model);
         }
@@ -50,13 +62,30 @@ namespace TimeManager.Backend.Controllers.User
                     Role = rvm.Role,
                     Password = rvm.Password,
                     ConfirmPassword = rvm.ConfirmPassword,
-                    AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role))
+                    AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role)),
+                    Departments = (await departmentService.GetDepartmentOptionsAsync()),
+                });
+            }
+
+            var verification = await emailVerificationService.VerifyAsync(rvm.Email);
+            if (!verification.IsValid)
+            {
+                ModelState.AddModelError(nameof(rvm.Email), verification.FailureReason ?? "Invalid email address");
+                return View(new RegisterViewModel
+                {
+                    Email = rvm.Email,
+                    Role = rvm.Role,
+                    Password = rvm.Password,
+                    ConfirmPassword = rvm.ConfirmPassword,
+                    AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role)),
+                    Departments = (await departmentService.GetDepartmentOptionsAsync()),
                 });
             }
 
             var user = new U { UserName = rvm.Email.Split("@")[0], Email = rvm.Email, EmailConfirmed = true };
             var defaultPassword = configuration["Auth:DefaultPassword"] ?? throw new InvalidOperationException("Default password is not configured in the env");
             var toUserPassword = rvm.Password ?? defaultPassword;
+            Console.WriteLine(toUserPassword);
             var result = await userManager.CreateAsync(user, toUserPassword);
 
             if (result.Succeeded)
@@ -65,6 +94,17 @@ namespace TimeManager.Backend.Controllers.User
                 {
                     var role = await roleService.GetRoleByIdAsync(rvm.Role) ?? throw new KeyNotFoundException("Role not found for the given Id");
                     await userManager.AddToRoleAsync(user, role.Name!);
+
+                    foreach (var dI in rvm.DepartmentIds)
+                    {
+                        await userDepartmentPivotService.AddUserToDepartmentAsync(user.Id, (int)dI, role.Name == AppConstants.ADMIN_ROLE);
+
+                        if (role.Name == AppConstants.ADMIN_ROLE)
+                        {
+                            break;
+                        }
+                    }
+                    
                     TempData["success"] = "User added successfully";
                     return RedirectToAction(nameof(Index));
                 } catch (KeyNotFoundException ex)
@@ -75,7 +115,13 @@ namespace TimeManager.Backend.Controllers.User
 
             foreach (var error in result.Errors)
             {
-                ModelState.AddModelError(error.Code, error.Description);
+                if (error.Code == "DuplicateUserName")
+                {
+                    ModelState.AddModelError(nameof(rvm.Email), "Email already exists");
+                } else
+                {
+                    ModelState.AddModelError(error.Code, error.Description);
+                }
             }
 
             return View(new RegisterViewModel
@@ -84,13 +130,14 @@ namespace TimeManager.Backend.Controllers.User
                 Role = rvm.Role,
                 Password = rvm.Password,
                 ConfirmPassword = rvm.ConfirmPassword,
-                AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role))
+                AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role)),
+                Departments = (await departmentService.GetDepartmentOptionsAsync()),
             });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkCreate(IFormFile excelFile)
+        public async Task<IActionResult> BulkCreate(IFormFile excelFile, int departmentId)
         {
             (List<Dictionary<string, string>> d, string? error) = excelService.ParseExcelFileToList(excelFile, ["Email", "Role", "UserName"]);
 
@@ -159,7 +206,6 @@ namespace TimeManager.Backend.Controllers.User
                     }
 
                     await transaction.CommitAsync();
-                    TempData["success"] = $"Successfully imported {addedCount} users";
                 } catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
@@ -167,6 +213,33 @@ namespace TimeManager.Backend.Controllers.User
                     TempData["error"] = "An error occured during bulk import. No changes saved";
                 }
             });
+
+            var existingUserIds = userManager.Users
+                .Where(u => existingEmails.Contains(u.Email))
+                .Select(u => u.Id)
+                .ToHashSet();
+
+            List<UserDepartmentPivot> toAddUdpData = [];
+            foreach (var id in existingUserIds)
+            {
+                if (await context.UserDepartmentPivots.AnyAsync(udp => udp.UserId == id && udp.DepartmentId == departmentId))
+                {
+                    continue;
+                }
+                // TODO: DO Something About The Admin Role in the department
+                //var user = await context.Users.FindAsync(id);
+                //if (user != null)
+                //{
+                //    bool isUserAdmin = await userService.
+                //}
+                toAddUdpData.Add(new UserDepartmentPivot { 
+                    DepartmentId = departmentId,
+                    UserId = id,
+                });
+            }
+            await userDepartmentPivotService.AddUserToDepartmentRangeAsync(toAddUdpData);
+
+            TempData["success"] = $"Successfully imported {addedCount} users & associated {toAddUdpData.Count} users to the selected department";
 
             return RedirectToAction(nameof(Index));
         }
@@ -180,12 +253,15 @@ namespace TimeManager.Backend.Controllers.User
                 throw new KeyNotFoundException("User or Role is not found");
             }
 
+            var deptIds = await userDepartmentPivotService.GetDepartmentIdsByUserId(user.Id);
+
             var model = new RegisterViewModel
             {
                 Id = user.Id,
                 Email = user.Email ?? "",
                 Role = role.Id,
-                AvailableRoles = (await roleService.GetRoleOptionsAsync(role.Id))
+                AvailableRoles = (await roleService.GetRoleOptionsAsync(role.Id)),
+                Departments = (await departmentService.GetDepartmentOptionsMultiAsync(deptIds))
             };
             return View(model);
         }

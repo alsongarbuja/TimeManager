@@ -19,7 +19,7 @@ namespace TimeManager.Backend.Services
         Task CreateProfileTemplateAsync(ProfileTemplateViewModel pvm);
         Task<ProfileTemplate?> UpdateProfileTemplateASync(int id, ProfileTemplateViewModel pvm);
         Task<int?> DeleteProfileTemplateAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync(int selectedId = 0);
+        Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync(int? departmentId, int selectedId = 0);
     }
 
     public class ProfileTemplateService(HrmsDbContext hrmsDbContext) : IProfileTemplateService
@@ -50,9 +50,19 @@ namespace TimeManager.Backend.Services
             return await hrmsDbContext.ProfileTemplate.FindOrThrowAsync(id);
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync(int selectedId = 0)
+        public async Task<IEnumerable<SelectListItem>> GetProfileTemplateOptionAsync(int? departmentId, int selectedId = 0)
         {
-            var profileTemplates = await hrmsDbContext.ProfileTemplate.Select(pt => new SelectListItem
+            var builder = new ExpressionBuilder<ProfileTemplate>();
+            var whereExpression = departmentId == null
+                ? pt => true
+                : builder.BuildPredicate(new FilterCondition
+                {
+                    PropertyName = "Unit.DepartmentId",
+                    Operator = FilterOperator.Equals,
+                    Value = departmentId.ToString()
+                });
+
+            var profileTemplates = await hrmsDbContext.ProfileTemplate.Where(whereExpression).Select(pt => new SelectListItem
             {
                 Text = $"{pt.Unit.Name} ({pt.Unit.Index}) / {pt.Role.Name}",
                 Value = pt.Id.ToString(),
@@ -74,29 +84,19 @@ namespace TimeManager.Backend.Services
                 "role" => pt => pt.Role.Name,
                 _ => null,
             };
+
+            var builder = new ExpressionBuilder<ProfileTemplate>();
+            var whereExpression = departmentId != null
+                ? builder.BuildPredicate(new FilterCondition
+                {
+                    PropertyName = "Unit.DepartmentId",
+                    Operator = FilterOperator.Equals,
+                    Value = departmentId.ToString()
+                })
+                : null;
             
-            if (departmentId == null)
-            {
-                (profileTemplates, totalRecords) = await hrmsDbContext.ProfileTemplate.FindWithPaginationAsync(
-                 pt => new ProfileTemplateViewModel
-                 {
-                     Id = pt.Id,
-                     Unit = $"{pt.Unit.Name} - {pt.Unit.Index}",
-                     Role = pt.Role.Name ?? "Default",
-                     EmployeeType = pt.EmployeeType.Name,
-                     ShiftStartTime = pt.ShiftStartTime,
-                     EarlyClockInBufferMin = pt.EarlyClockInBufferMin,
-                 },
-                 ((pageNumber - 1) * pageSize),
-                 pageSize,
-                 null,
-                 orderExpression,
-                 isOrderDescending
-                    );
-            } else
-            {
-                (profileTemplates, totalRecords) = await hrmsDbContext.ProfileTemplate.FindWithPaginationAsync(
-                    pt => new ProfileTemplateViewModel 
+            (profileTemplates, totalRecords) = await hrmsDbContext.ProfileTemplate.FindWithPaginationAsync(
+                    pt => new ProfileTemplateViewModel
                     {
                         Id = pt.Id,
                         Unit = $"{pt.Unit.Name} - {pt.Unit.Index}",
@@ -107,11 +107,10 @@ namespace TimeManager.Backend.Services
                     },
                     ((pageNumber - 1) * pageSize),
                     pageSize,
-                    pt => pt.Unit.DepartmentId == departmentId,
+                    whereExpression,
                     orderExpression,
                     isOrderDescending
-                    );
-            }
+                );
 
             return new PagedResponse<ProfileTemplateViewModel>(profileTemplates, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }

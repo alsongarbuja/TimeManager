@@ -12,35 +12,25 @@
     ViewData["ModuleTitle"] = "Unit";
     ViewData["ModuleDesc"] = "Manage the unit data in the system";
     ViewData["Controller"] = "Unit";
+    ViewData["DataCount"] = Model.Count();
 }
 
-@if (Model.Count() <= 0)
+
+@foreach (var d in Model)
 {
-    <tr>
-        <td colspan="@Headers.Count"
-            class="table-empty-cell">
-            No data available
-        </td>
+    <tr class="table-row">
+        <sn-cell counter-name="Unit" start="0" />
+        <td class="table-cell">@d.Name</td>
+        @if (User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
+        {
+            <td class="table-cell">@d.DepartmentName</td>
+        }
+        <td class="table-cell">@d.Index</td>
+        <td class="table-cell table-desc">@d.Description</td>
+        @await Html.PartialAsync("ActionTd", new ActionTdViewModel
+        {
+            Controller = "Unit",
+            Id = d.Id,
+        })
     </tr>
-}
-else
-{
-    foreach (var d in Model)
-    {
-        <tr class="table-row">
-            <sn-cell counter-name="Unit" start="0" />
-            <td class="table-cell">@d.Name</td>
-            @if (User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
-            {
-                <td class="table-cell">@d.DepartmentName</td>
-            }
-            <td class="table-cell">@d.Index</td>
-            <td class="table-cell table-desc">@d.Description</td>
-            @await Html.PartialAsync("ActionTd", new ActionTdViewModel
-            {
-                Controller = "Unit",
-                Id = d.Id,
-            })
-        </tr>
-    }
 }

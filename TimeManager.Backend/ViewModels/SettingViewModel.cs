@@ -9,6 +9,10 @@ namespace TimeManager.Backend.ViewModels
         public Preferences Preferences { get; set; } = new();
         public ChangePasswordModel PasswordModel { get; set; } = new();
 
+        public ProfileSetting Profile { get; set; } = new();
+
+        public IEnumerable<SelectListItem> Profiles { get; set; } = []; 
+
         public IEnumerable<SelectListItem> LimitOptions { get; set; } = [];
         public IEnumerable<SelectListItem> PunchesLimitOptions { get; set; } = [];
         public IEnumerable<SelectListItem> EmployeesLimitOptions { get; set; } = [];
@@ -33,5 +37,12 @@ namespace TimeManager.Backend.ViewModels
         [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
 
+    }
+
+    public class ProfileSetting
+    {
+        [Required(ErrorMessage = "Select one profile")]
+        [Display(Name = "Select a profile")]
+        public int ProfileId { get; set; }
     }
 }

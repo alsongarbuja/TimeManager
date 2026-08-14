@@ -14,7 +14,7 @@ namespace TimeManager.Backend.Services
 {
     public interface IKioskService
     {
-        Task<IEnumerable<KioskViewModel>> GetKiosksAsync(int? departmentId);
+        Task<IEnumerable<KioskViewModel>> GetKiosksAsync();
         Task<Kiosk> GetKioskByIdAsync(int id);
         Task<string> CreateKioskAsync(KioskViewModel kvm);
         Task<Kiosk?> UpdateKioskAsync(int id, KioskViewModel kvm);
@@ -96,30 +96,15 @@ namespace TimeManager.Backend.Services
             return options;
         }
 
-        public async Task<IEnumerable<KioskViewModel>> GetKiosksAsync(int? departmentId)
+        public async Task<IEnumerable<KioskViewModel>> GetKiosksAsync()
         {
-            IEnumerable<KioskViewModel> kiosks = [];
-
-            if (departmentId == null)
-            {
-                kiosks = await hrmsDbContext.Kiosk.Select(k => new KioskViewModel
+            IEnumerable<KioskViewModel> kiosks = await hrmsDbContext.Kiosk.Select(k => new KioskViewModel
                 {
                     Id = k.Id,
                     Name = k.Name,
                     DepartmentId = k.DepartmentId,
                     DepartmentName = k.Department.Name,
                 }).ToListAsync();
-            }
-            else
-            {
-                kiosks = await hrmsDbContext.Kiosk.Where(k => k.DepartmentId == departmentId).Select(k => new KioskViewModel
-                {
-                    Id = k.Id,
-                    Name = k.Name,
-                    DepartmentId = k.DepartmentId,
-                    DepartmentName = k.Department.Name,
-                }).ToListAsync();
-            }
 
             return kiosks;
         }

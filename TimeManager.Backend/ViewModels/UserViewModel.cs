@@ -1,8 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using TimeManager.Backend.Models.Responses;
 
 namespace TimeManager.Backend.ViewModels
 {
+    public class UserOverallViewModel
+    {
+        public PagedResponse<UserViewModel> Data { get; set; }
+
+        public IEnumerable<SelectListItem> Departments { get; set; } = [];
+    }
+
     public class UserViewModel
     {
         public int Id { get; set; }
@@ -37,6 +45,31 @@ namespace TimeManager.Backend.ViewModels
         [Required(ErrorMessage = "Role is required"), Display(Name = "Role")]
         public int Role { get; set; }
 
+        [Display(Name = "Departments")]
+        public List<int> DepartmentIds { get; set; } = [];
+
         public IEnumerable<SelectListItem> AvailableRoles { get; set; } = [];
+        public IEnumerable<SelectListItem> Departments { get; set; } = [];
+    }
+
+    public class RegisterSuperAdminModel
+    {
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Display(Name = "Password")]
+        [MinLength(8, ErrorMessage = "Password must be atleast 8 characters long")]
+        [StringLength(100, ErrorMessage = "Password cannot be more than 100 characters long")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).+$",
+    ErrorMessage = "Password must have at least one uppercase letter, one lowercase letter, one digit, and one special character.")]
+        [DataType(DataType.Password)]
+        public string? Password { get; set; }
+
+        [Display(Name = "Confirm Password")]
+        [DataType(DataType.Password)]
+        [Compare("Password", ErrorMessage = "Passwords do not match.")]
+        public string? ConfirmPassword { get; set; }
+
+        public bool IsAddModalOpen { get; set; }
     }
 }

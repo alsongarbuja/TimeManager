@@ -55,6 +55,7 @@
             <custom-select asp-for="UnitId"
                            asp-items="@Model.Units"
                            placeholder="-- Select Unit --"
+                           searchable
                            required="true" />
 
             @await Html.PartialAsync("Button", new TimeManager.Backend.ViewModels.PartialViews.ButtonViewModel
@@ -80,6 +81,7 @@
                 asp-items="@Model.Users"
                 placeholder="-- Select User --"
                 required="true"
+                searchable
             />
 
             @await Html.PartialAsync("Button", new TimeManager.Backend.ViewModels.PartialViews.ButtonViewModel

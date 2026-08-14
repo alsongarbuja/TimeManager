@@ -25,6 +25,9 @@ public class CustomSelectTagHelper : TagHelper
     [HtmlAttributeName("searchable")]
     public bool Searchable { get; set; } = false;
 
+    [HtmlAttributeName("multiple")]
+    public bool Multiple { get; set; } = false;
+
     [ViewContext]
     [HtmlAttributeNotBound]
     public ViewContext ViewContext { get; set; } = default!;
@@ -40,6 +43,19 @@ public class CustomSelectTagHelper : TagHelper
     {
         output.TagName = null;
 
+        bool enhance = Searchable || Multiple;
+
+        var classNames = new List<string> { "form-input" };
+        if (enhance)
+        {
+            classNames.Add("tom-select");
+            classNames.Add("tm-select");
+        }
+        if (!string.IsNullOrWhiteSpace(Classes))
+        {
+            classNames.Add(Classes);
+        }
+
         var select = _generator.GenerateSelect(
             ViewContext,
             For.ModelExplorer,
@@ -47,13 +63,14 @@ public class CustomSelectTagHelper : TagHelper
             For.Name,
             Items,
             null,
-            false,
+            Multiple,
             new
             {
-                @class = $"form-input {(Searchable ? "tom-select tm-select" : "")} {Classes}"
+                @class = string.Join(" ", classNames)
             });
 
         select.Attributes["data-placeholder"] = Placeholder ?? "";
+        select.Attributes["data-searchable"] = Searchable ? "true" : "false";
 
         if (Required ?? For.Metadata.IsRequired)
             select.Attributes["required"] = "required";

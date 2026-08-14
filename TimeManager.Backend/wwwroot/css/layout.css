@@ -15,7 +15,7 @@
     z-index: 40;
     width: 16rem;
     height: 100dvh;
-    background-color: #0B0F19; /* Deep, rich modern dark slate */
+    background-color: #0B0F19;
     color: #F9FAFB;
     display: flex;
     flex-direction: column;
@@ -113,8 +113,6 @@
     .sidebar-link.is-active {
         background-color: var(--brand-indigo);
         color: #ffffff;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(79, 103, 228, 0.3);
     }
 
 .sidebar-link-icon {

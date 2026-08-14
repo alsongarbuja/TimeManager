@@ -16,11 +16,11 @@ namespace TimeManager.Backend.Services
     public interface IUserService
     {
         Task<PagedResponse<UserViewModel>> GetUsersAsync(PaginationQuery filter);
-        Task<(User? User, Role? Role)> GetUserByIdAsync(int id);
+        Task<(User? User, RoleViewModel? Role)> GetUserByIdAsync(int id);
         //Task CreateUserAsync(UserViewModel uvm);
         Task<User?> UpdateUserAsync(int id, RegisterViewModel rvm);
         Task<int?> DeleteUserByIdAsync(int id);
-        Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int selectedId = 0);
+        Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId, int selectedId = 0);
     }
 
     public class UserService(
@@ -28,6 +28,7 @@ namespace TimeManager.Backend.Services
         IHttpContextAccessor httpContextAccessor,
         UserManager<User> userManager,
         IRoleService roleService,
+        IUserDepartmentPivotService userDepartmentPivotService,
         //IConfiguration configuration,
         ILogger<User> logger
         ) : IUserService
@@ -48,7 +49,7 @@ namespace TimeManager.Backend.Services
             return id;
         }
 
-        public async Task<(User? User, Role? Role)> GetUserByIdAsync(int id)
+        public async Task<(User? User, RoleViewModel? Role)> GetUserByIdAsync(int id)
         {
             var user = await userManager.FindByIdAsync(id.ToString());
             if (user == null)
@@ -63,16 +64,11 @@ namespace TimeManager.Backend.Services
             return (user, role);
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int selectedId = 0)
+        public async Task<IEnumerable<SelectListItem>> GetUserOptionsAsync(int? departmentId, int selectedId = 0)
         {
-            var currUser = await userManager.GetUserAsync(httpContextAccessor.HttpContext!.User);
-            var currUserRole = await userManager.GetRolesAsync(currUser!);
-
-            var isSuperUser = currUserRole.Contains(AppConstants.SUPER_ADMIN_ROLE);
-
             IEnumerable<SelectListItem> users = [];
 
-            if (isSuperUser)
+            if (departmentId == null)
             {
                 users = await hrmsDbContext.Users
                 .Where(u => !hrmsDbContext.UserRoles
@@ -88,11 +84,9 @@ namespace TimeManager.Backend.Services
                 .ToListAsync();
             } else
             {
+                var getUserIds = await userDepartmentPivotService.GetUserIdsByDepartmentId((int)departmentId);
                 users = await hrmsDbContext.Users
-                    .Where(u => !hrmsDbContext.UserRoles
-                    .Join(hrmsDbContext.Roles, ur => ur.RoleId, r => r.Id, 
-                        (ur, r) => new { ur.UserId, r.Name })
-                    .Any(ur => ur.UserId == u.Id && (ur.Name == AppConstants.SUPER_ADMIN_ROLE || ur.Name == "Admin")))
+                    .Where(u => getUserIds.Contains(u.Id))
                     .Select(u => new SelectListItem
                         {
                             Text = u.UserName,
@@ -173,6 +167,14 @@ namespace TimeManager.Backend.Services
                     logger.LogError(passwordUpdated.Errors.First().Description);
                     return null;
                 }
+            }
+
+            bool isSuccess = await userDepartmentPivotService.UpdateUserDepartmentAsync(u.Id, rvm.DepartmentIds);
+
+            if (!isSuccess)
+            {
+                logger.LogError("Error while updating user department pivot");
+                return null;
             }
             
             return u;

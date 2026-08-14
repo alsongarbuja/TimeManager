@@ -7,6 +7,7 @@ namespace TimeManager.Backend.Utility
         public string PropertyName { get; set; } = string.Empty;
         public FilterOperator Operator { get; set; }
         public string? Value { get; set; }
+        public List<string>? Values { get; set; }
     }
 
     public enum FilterOperator
@@ -19,7 +20,8 @@ namespace TimeManager.Backend.Utility
         LessThanOrEqual,
         Contains,
         StartsWith,
-        EndsWith
+        EndsWith,
+        In,
     }
 
     public class ExpressionBuilder<T>
@@ -41,6 +43,11 @@ namespace TimeManager.Backend.Utility
             foreach (var propName in filter.PropertyName.Split("."))
             {
                 property = Expression.Property(property, propName);
+            }
+
+            if (filter.Operator == FilterOperator.In)
+            {
+                return BuildInExpression(property, filter.Values ?? new List<string>());
             }
             
             var constant = BuildConstantExpression(filter.Value, property.Type);
@@ -85,6 +92,26 @@ namespace TimeManager.Backend.Utility
             }
 
             return combinedExpression == null ? null : Expression.Lambda<Func<T, bool>>(combinedExpression, parameter);
+        }
+
+        private Expression BuildInExpression(Expression property, IEnumerable<string> values)
+        {
+            var underlyingType = Nullable.GetUnderlyingType(property.Type) ?? property.Type;
+
+            var listType = typeof(List<>).MakeGenericType(underlyingType);
+            var typedList = (System.Collections.IList)Activator.CreateInstance(listType);
+
+            foreach (var v in values)
+                typedList.Add(Convert.ChangeType(v, underlyingType));
+
+            var constant = Expression.Constant(typedList, listType);
+            var containsMethod = listType.GetMethod("Contains", new[] { underlyingType });
+
+            Expression propertyExpression = property.Type == underlyingType
+                ? property
+                : Expression.Convert(property, underlyingType);
+
+            return Expression.Call(constant, containsMethod, propertyExpression);
         }
 
         private Expression BuildContainsExpression(Expression property, object? value)

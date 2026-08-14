@@ -61,9 +61,10 @@ namespace TimeManager.Backend.Controllers.JobProfile
         [HttpGet]
         public async Task<IActionResult> AddJobHistoryRow(int index)
         {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             var model = new JobHistoryRowViewModel
             {
-                ProfileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync()
+                ProfileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync(departmentId)
             };
 
             ViewData.TemplateInfo.HtmlFieldPrefix = $"JobHistories[{index}]";
@@ -74,10 +75,10 @@ namespace TimeManager.Backend.Controllers.JobProfile
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             JobProfileViewModel pvm = new()
             {
-                Employees = (await employeeService.GetEmployeeOptionAsync()),
-                ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync())
+                Employees = (await employeeService.GetEmployeeOptionAsync(departmentId)),
             };
             return View(pvm);
         }
@@ -86,13 +87,13 @@ namespace TimeManager.Backend.Controllers.JobProfile
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(JobProfileViewModel pvm)
         {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             if (pvm.JobHistories.Count <= 0)
             {
                 TempData["error"] = "Please add atleast one job history to continue";
                 return View(new JobProfileViewModel
                 {
-                    Employees = (await employeeService.GetEmployeeOptionAsync()),
-                    ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync())
+                    Employees = (await employeeService.GetEmployeeOptionAsync(departmentId)),
                 });
             }
 
@@ -108,8 +109,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
                 TempData["error"] = "Error while creating the job profile.";
                 return View(new JobProfileViewModel
                 {
-                    Employees = (await employeeService.GetEmployeeOptionAsync()),
-                    ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync())
+                    Employees = (await employeeService.GetEmployeeOptionAsync(departmentId)),
                 });
             }
 
@@ -117,8 +117,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
             TempData["success"] = "Job Profile successfully created";
             return View(new JobProfileViewModel
             {
-                Employees = (await employeeService.GetEmployeeOptionAsync()),
-                ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync())
+                Employees = (await employeeService.GetEmployeeOptionAsync(departmentId)),
             });
         }
 
@@ -269,15 +268,15 @@ namespace TimeManager.Backend.Controllers.JobProfile
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            int? departmentId = HttpContext.Session.GetDepartmentId();
             var pt = await jobProfileService.GetJobProfileByIdAsync(id);
             if (pt == null) return NotFound();
             var jobHistories = await jobHistoryService.GetJobHistoriesByProfileId(id);
-            var profileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync();
+            var profileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync(departmentId);
             JobProfileViewModel pvm = new()
             {
                 Id = id,
-                Employees = (await employeeService.GetEmployeeOptionAsync(pt.EmployeeId)),
-                ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync(pt.ProfileTemplateId)),
+                Employees = (await employeeService.GetEmployeeOptionAsync(departmentId, pt.EmployeeId)),
                 EmployeeId = pt.EmployeeId,
                 ProfileTemplateId = pt.ProfileTemplateId,
                 EarlyBuffer = pt.EarlyBuffer,
@@ -303,12 +302,12 @@ namespace TimeManager.Backend.Controllers.JobProfile
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, JobProfileViewModel pvm)
         {
-            var profileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync();
+            int? departmentId = HttpContext.Session.GetDepartmentId();
+            var profileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync(departmentId);
             
             async Task PopulateViewDropdownsAsync()
             {
                 pvm.Employees = await employeeService.GetEmployeeOptionAsync(pvm.EmployeeId);
-                pvm.ProfileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync(pvm.ProfileTemplateId);
 
                 foreach (var jh in pvm.JobHistories)
                 {
@@ -365,7 +364,6 @@ namespace TimeManager.Backend.Controllers.JobProfile
             {
                 Id = id,
                 Employees = (await employeeService.GetEmployeeOptionAsync(jp.EmployeeId)),
-                ProfileTemplates = (await profileTemplateService.GetProfileTemplateOptionAsync(jp.ProfileTemplateId)),
                 EmployeeId = jp.EmployeeId,
                 ProfileTemplateId = jp.ProfileTemplateId,
                 EarlyBuffer = jp.EarlyBuffer,

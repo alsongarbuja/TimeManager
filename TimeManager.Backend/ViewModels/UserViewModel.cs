@@ -70,6 +70,6 @@ namespace TimeManager.Backend.ViewModels
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string? ConfirmPassword { get; set; }
 
-        public string Role { get; set; }
+        public bool IsAddModalOpen { get; set; }
     }
 }

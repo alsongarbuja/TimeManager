@@ -1,15 +1,9 @@
-﻿@using TimeManager.Backend.ViewModels;
-@model TimeManager.Backend.ViewModels.SuperAdminDashboardSetupViewModel;
+﻿@model TimeManager.Backend.ViewModels.SuperAdminDashboardSetupViewModel;
 
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Dashboard";
 }
-
-@section scripts {
-    <script src="/js/passwordtoggle.js" defer></script>
-}
-
 
 <style>
     .admin-banners-container {
@@ -103,7 +97,10 @@
         <div class="admin-banner banner-warning">
             <div class="banner-content">
                 <p class="banner-text">Add a super admin user.</p>
-                <button class="banner-btn btn-modal banner-btn-warning">Add</button>
+                <a 
+                    asp-controller="Dashboard" 
+                    asp-action="SuperAdminAdd" 
+                    class="banner-btn banner-btn-warning">Add</a>
             </div>
         </div>
     }
@@ -113,7 +110,9 @@
         <div class="admin-banner banner-danger">
             <div class="banner-content">
                 <p class="banner-text">Remove default super admin.</p>
-                <form>
+                <form asp-controller="Dashboard" asp-action="RemoveDefaultSA">
+                    @Html.AntiForgeryToken()
+
                     <button class="banner-btn banner-btn-danger">Remove</button>
                 </form>
             </div>
@@ -127,10 +126,3 @@
         </div>
     </div>
 </div>
-
-@section modalcontent {
-    <div>
-        <button class="btn-modal btn-modal-close"><i class="ri-close-circle-line"></i></button>
-        <partial name="AddSuperAdminFormModal" model="new RegisterSuperAdminModel()" />
-    </div>
-}

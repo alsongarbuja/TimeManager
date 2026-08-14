@@ -17,7 +17,7 @@
                 return string.Equals(compareContextLink.Split("?")[0].ToLower(), dataLinkParts[0]+"/".ToLower(), StringComparison.OrdinalIgnoreCase);
             } else
             {
-                return string.Equals(contextLinkParts[2].Split("?")[0].ToLower(), dataLinkParts[0].ToLower(), StringComparison.OrdinalIgnoreCase);
+                return string.Equals(contextLinkParts[contextLinkParts.Length - 1].Split("?")[0].ToLower(), dataLinkParts[0].ToLower(), StringComparison.OrdinalIgnoreCase);
             }
         }
 

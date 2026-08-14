@@ -116,8 +116,7 @@ namespace TimeManager.Backend.Controllers
 
             TempData["success"] = "Successfully changed the profile";
 
-            //TODO: Change to dashboard page redirection
-            return await RebuildIndexViewAndResult(model);
+            return RedirectToAction("Index", "Dashboard");
         }
 
         private async Task PopulateDropDown(SettingViewModel model, int userId, int? jpId) {

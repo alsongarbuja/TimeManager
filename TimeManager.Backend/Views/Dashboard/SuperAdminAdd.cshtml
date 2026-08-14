@@ -1,15 +1,18 @@
-﻿@using TimeManager.Backend.Common;
-@model TimeManager.Backend.ViewModels.RegisterSuperAdminModel;
+﻿@model TimeManager.Backend.ViewModels.RegisterSuperAdminModel;
 
 @{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Dashboard - Add superadmin";
+}
+
+@section scripts {
+    <script src="/js/passwordtoggle.js" defer></script>
 }
 
 <div>
     <h3>Add a super admin</h3>
     <form asp-controller="Dashboard" asp-action="SuperAdminAdd" method="post" class="space-y-6">
         @Html.AntiForgeryToken()
-
-        <input type="hidden" value="@AppConstants.SUPER_ADMIN_ROLE" name="Role"  />
 
         <custom-input asp-for="Email" />
         <custom-input asp-for="Password"required="true" />

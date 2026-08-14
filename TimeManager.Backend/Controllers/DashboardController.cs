@@ -4,6 +4,7 @@ using TimeManager.Backend.Extensions;
 using U = TimeManager.Backend.Models.AuthManagement.User;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.ViewModels;
+using TimeManager.Backend.Common;
 
 namespace TimeManager.Backend.Controllers
 {
@@ -24,6 +25,12 @@ namespace TimeManager.Backend.Controllers
         {
             var data = await dashboardService.GetSuperAdminSetupDashboardCheckData();
             return View(data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SuperAdminAdd()
+        {
+            return View();
         }
 
         [HttpPost]
@@ -47,7 +54,7 @@ namespace TimeManager.Backend.Controllers
             {
                 try
                 {
-                    await userManager.AddToRoleAsync(user, rsvm.Role);
+                    await userManager.AddToRoleAsync(user, AppConstants.SUPER_ADMIN_ROLE);
                     TempData["success"] = "User added successfully";
                     return RedirectToAction(nameof(Setup));
                 }
@@ -57,6 +64,15 @@ namespace TimeManager.Backend.Controllers
                 }
             }
 
+            return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveDefaultSA()
+        {
+            await dashboardService.RemoveDefaultSuperAdmin();
+            
             return RedirectToAction(nameof(Setup));
         }
     }

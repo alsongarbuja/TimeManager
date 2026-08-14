@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using TimeManager.Backend.Common;
+using TimeManager.Backend.Data;
 using TimeManager.Backend.ViewModels;
 using U = TimeManager.Backend.Models.AuthManagement.User;
 
@@ -9,13 +10,15 @@ namespace TimeManager.Backend.Services
     {
         Task<DashboardViewModel> GetCurrentUserDashboardData(int profileId);
         Task<SuperAdminDashboardSetupViewModel> GetSuperAdminSetupDashboardCheckData();
+        Task RemoveDefaultSuperAdmin();
     }
 
     public class DashboardService(
         IPunchServices punchServices,
         IReportService reportSerice,
         UserManager<U> userManager,
-        IConfiguration configuration
+        IConfiguration configuration,
+        HrmsDbContext context
         ) : IDashboardService
     {
         public async Task<DashboardViewModel> GetCurrentUserDashboardData(int profileId)
@@ -51,6 +54,22 @@ namespace TimeManager.Backend.Services
                 HasDefaultSuperAdmin = hasDefaultSuperAdmin,
                 HasNewSuperAdmin = hasNewSuperAdmin,
             };
+        }
+
+        public async Task RemoveDefaultSuperAdmin()
+        {
+            var defaultSuperAdminUserEmail = configuration["SeedSettings:SuperAdminEmail"];
+            var superAdminUsers = await userManager.GetUsersInRoleAsync(AppConstants.SUPER_ADMIN_ROLE);
+
+            foreach (var u in superAdminUsers)
+            {
+                if (u.Email == defaultSuperAdminUserEmail)
+                {
+                    context.Users.Remove(u);
+                }
+            }
+
+            await context.SaveChangesAsync();
         }
     }
 }

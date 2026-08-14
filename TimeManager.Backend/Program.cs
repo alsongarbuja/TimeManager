@@ -10,6 +10,7 @@ using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.Shared;
+using DnsClient;
 
 DotNetEnv.Env.Load();
 
@@ -81,6 +82,8 @@ builder.Services.AddScoped<IJobHistoryService, JobHistoryService>();
 builder.Services.AddScoped<IExcelService, ExcelService>();
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IUserDepartmentPivotService, UserDepartmentPivotService>();
+builder.Services.AddSingleton<ILookupClient>(new LookupClient());
+builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 
 builder.Services.AddAuthentication()
     .AddJwtBearer("Kiosk", options =>

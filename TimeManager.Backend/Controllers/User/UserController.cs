@@ -24,6 +24,7 @@ namespace TimeManager.Backend.Controllers.User
         IUserDepartmentPivotService userDepartmentPivotService,
         IConfiguration configuration,
         IExcelService excelService,
+        IEmailVerificationService emailVerificationService,
         ILogger<U> logger
         ) : Controller
     {
@@ -61,13 +62,30 @@ namespace TimeManager.Backend.Controllers.User
                     Role = rvm.Role,
                     Password = rvm.Password,
                     ConfirmPassword = rvm.ConfirmPassword,
-                    AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role))
+                    AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role)),
+                    Departments = (await departmentService.GetDepartmentOptionsAsync()),
+                });
+            }
+
+            var verification = await emailVerificationService.VerifyAsync(rvm.Email);
+            if (!verification.IsValid)
+            {
+                ModelState.AddModelError(nameof(rvm.Email), verification.FailureReason ?? "Invalid email address");
+                return View(new RegisterViewModel
+                {
+                    Email = rvm.Email,
+                    Role = rvm.Role,
+                    Password = rvm.Password,
+                    ConfirmPassword = rvm.ConfirmPassword,
+                    AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role)),
+                    Departments = (await departmentService.GetDepartmentOptionsAsync()),
                 });
             }
 
             var user = new U { UserName = rvm.Email.Split("@")[0], Email = rvm.Email, EmailConfirmed = true };
             var defaultPassword = configuration["Auth:DefaultPassword"] ?? throw new InvalidOperationException("Default password is not configured in the env");
             var toUserPassword = rvm.Password ?? defaultPassword;
+            Console.WriteLine(toUserPassword);
             var result = await userManager.CreateAsync(user, toUserPassword);
 
             if (result.Succeeded)
@@ -97,7 +115,13 @@ namespace TimeManager.Backend.Controllers.User
 
             foreach (var error in result.Errors)
             {
-                ModelState.AddModelError(error.Code, error.Description);
+                if (error.Code == "DuplicateUserName")
+                {
+                    ModelState.AddModelError(nameof(rvm.Email), "Email already exists");
+                } else
+                {
+                    ModelState.AddModelError(error.Code, error.Description);
+                }
             }
 
             return View(new RegisterViewModel
@@ -106,7 +130,8 @@ namespace TimeManager.Backend.Controllers.User
                 Role = rvm.Role,
                 Password = rvm.Password,
                 ConfirmPassword = rvm.ConfirmPassword,
-                AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role))
+                AvailableRoles = (await roleService.GetRoleOptionsAsync(rvm.Role)),
+                Departments = (await departmentService.GetDepartmentOptionsAsync()),
             });
         }
 

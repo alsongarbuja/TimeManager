@@ -10,6 +10,7 @@ namespace TimeManager.Backend.Controllers
 {
     public class DashboardController(
         IDashboardService dashboardService,
+        IEmailVerificationService emailVerificationService,
         UserManager<U> userManager
     ) : Controller
     {
@@ -45,6 +46,13 @@ namespace TimeManager.Backend.Controllers
                     Password = rsvm.Password,
                     ConfirmPassword = rsvm.ConfirmPassword,
                 });
+            }
+
+            var verification = await emailVerificationService.VerifyAsync(rsvm.Email);
+            if (!verification.IsValid)
+            {
+                ModelState.AddModelError(nameof(rsvm.Email), verification.FailureReason ?? "Invalid email address");
+                return View(rsvm);
             }
 
             var user = new U { UserName = rsvm.Email.Split("@")[0], Email = rsvm.Email, EmailConfirmed = true };

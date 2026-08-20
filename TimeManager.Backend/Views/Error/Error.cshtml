@@ -2,7 +2,7 @@
 
 @{
     Layout = "_MainLayout";
-    ViewData["Title"] = "Page Not Found";
+    ViewData["Title"] = "Error";
 }
 
 @section styles {
@@ -10,14 +10,14 @@
 }
 
 <div class="main-container">
-    <h2 class="title-text">Oops! 404 - Resource Not Found</h2>
-    <p class="desc-text">The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
-    
+    <h2 class="title-text">Oops! - Error</h2>
+    <p class="desc-text">There is some error in the system please try again or contact IT.</p>
     @if (User.IsInRole(AppConstants.SUPER_ADMIN_ROLE))
     {
         <a href="/app/dashboard/setup" class="btn">Go back to Dashboard</a>
-    } else
-    {    
+    }
+    else
+    {
         <a href="/app/dashboard" class="btn">Go Back to Dashboard</a>
     }
 </div>

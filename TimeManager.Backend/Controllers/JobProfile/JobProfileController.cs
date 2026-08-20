@@ -307,11 +307,13 @@ namespace TimeManager.Backend.Controllers.JobProfile
             
             async Task PopulateViewDropdownsAsync()
             {
-                pvm.Employees = await employeeService.GetEmployeeOptionAsync(pvm.EmployeeId);
+                pvm.Employees = await employeeService.GetEmployeeOptionAsync(departmentId, pvm.EmployeeId);
 
                 foreach (var jh in pvm.JobHistories)
                 {
-                    jh.ProfileTemplates = profileTemplates;
+                    jh.ProfileTemplates = await profileTemplateService.GetProfileTemplateOptionAsync(departmentId, jh.ProfileTemplateId);
+                    jh.JoinDate = jh.JoinDate.ToLocalTime();
+                    jh.EndDate = jh.EndDate?.ToLocalTime();
                 }
             }
 
@@ -349,9 +351,7 @@ namespace TimeManager.Backend.Controllers.JobProfile
             }
 
             var pt = pvm.JobHistories.FirstOrDefault(j => j.EndDate == null);
-            pvm.ProfileTemplateId = pt != null ? pt.ProfileTemplateId : pvm.JobHistories[pvm.JobHistories.Count - 1].ProfileTemplateId;
-
-            await PopulateViewDropdownsAsync();
+            pvm.ProfileTemplateId = pt != null ? pt.ProfileTemplateId : pvm.JobHistories[^1].ProfileTemplateId;
 
             var jp = await jobProfileService.UpdateJobProfileASync(id, pvm);
             if (jp == null)
@@ -359,11 +359,12 @@ namespace TimeManager.Backend.Controllers.JobProfile
                 TempData["error"] = "Unexpected error occured. No job profile found";
                 return View(pvm);
             }
+            await PopulateViewDropdownsAsync();
             TempData["success"] = "Job profile successfully updated";
             return View(new JobProfileViewModel
             {
                 Id = id,
-                Employees = (await employeeService.GetEmployeeOptionAsync(jp.EmployeeId)),
+                Employees = (await employeeService.GetEmployeeOptionAsync(departmentId, jp.EmployeeId)),
                 EmployeeId = jp.EmployeeId,
                 ProfileTemplateId = jp.ProfileTemplateId,
                 EarlyBuffer = jp.EarlyBuffer,

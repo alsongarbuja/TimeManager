@@ -97,7 +97,7 @@ else
     private ElementReference myIdeo;
     private string errorMessage = "";
 
-    private bool isCheckingSession = true;
+    private bool isCheckingSession = false;
     private bool isAvailable = true;
     private bool isSubmitting = false;
 
@@ -115,6 +115,7 @@ else
     private class ClockInOutModel
     {
         public string UniqueId { get; set; } = "";
+        public int DepartmentId { get; set; } = 1;
     }
     private ClockInOutModel cioModel = new();
 
@@ -129,18 +130,18 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            var hasSession = await KioskSession.RestoreSessionAsync();
-            if (!hasSession)
-            {
-                Navigation.NavigateTo("/provision", replace: true);
-                return;
-            }
+        // if (firstRender)
+        // {
+        //     var hasSession = await KioskSession.RestoreSessionAsync();
+        //     if (!hasSession)
+        //     {
+        //         Navigation.NavigateTo("/provision", replace: true);
+        //         return;
+        //     }
 
-            isCheckingSession = false;
-            StateHasChanged();
-        }
+        //     isCheckingSession = false;
+        //     StateHasChanged();
+        // }
         if (!isCheckingSession && !isSubmitting)
         {
             await myIdeo.FocusAsync();
@@ -177,7 +178,10 @@ else
             errorMessage = "";
             StateHasChanged();
 
-            var res = await Http.PostAsJsonAsync("api/punch", new { UniqueId = cioModel.UniqueId });
+            var res = await Http.PostAsJsonAsync("api/punch", new { UniqueId = cioModel.UniqueId, DepartmentId = cioModel.DepartmentId });
+
+            // Console.WriteLine(res.StatusCode);
+            // Console.WriteLine(res.RequestMessage);
 
             if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {

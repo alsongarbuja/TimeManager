@@ -19,17 +19,18 @@ namespace TimeManager.Backend.Controllers.PunchManagement
     ) : ControllerBase
     {
 
-        [Authorize(AuthenticationSchemes = "Kiosk")]
-        //[AllowAnonymous]
+        //[Authorize(AuthenticationSchemes = "Kiosk")]
+        [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<PunchEntry>> ClockInOut([FromBody] PunchEntryDto punchEntryDto) {
-            var departmentIdClaim = User.FindFirstValue("department_id");
-            if (departmentIdClaim is null || !int.TryParse(departmentIdClaim, out int departmentId))
-            {
-                return Unauthorized(new { message = "Invalid or missing Kiosk session" });
-            }
+            //var departmentIdClaim = User.FindFirstValue("department_id");
+            //if (departmentIdClaim is null || !int.TryParse(departmentIdClaim, out int departmentId))
+            //{
+            //    Console.WriteLine("Unauthorized");
+            //    return Unauthorized(new { message = "Invalid or missing Kiosk session" });
+            //}
 
-            var jp = await GetJobProfileQuery(ctx, punchEntryDto.UniqueId, departmentId);
+            var jp = await GetJobProfileQuery(ctx, punchEntryDto.UniqueId, punchEntryDto.DepartmentId);
 
             if (jp == null)
             {
@@ -72,7 +73,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
                         ClockIn = DateTime.UtcNow,
                         JobProfileId = (int)jp.Id!
                     });
-                    msg = "Succefully clocked in!!";
+                    msg = "Successfully clocked in!!";
                 }
                 else
                 {
@@ -83,7 +84,7 @@ namespace TimeManager.Backend.Controllers.PunchManagement
             {
                 logger.LogInformation("Clock out was successful");
                 punchEntry.ClockOut = DateTime.UtcNow;
-                msg = "Succefully clocked out!!";
+                msg = "Successfully clocked out!!";
                 isClockedOut = true;
             }
 

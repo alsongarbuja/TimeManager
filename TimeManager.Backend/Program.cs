@@ -1,3 +1,5 @@
+using DnsClient;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +12,6 @@ using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.AuthManagement;
 using TimeManager.Backend.Services;
 using TimeManager.Backend.Shared;
-using DnsClient;
 
 DotNetEnv.Env.Load();
 
@@ -113,12 +114,35 @@ builder.Services.AddAuthentication()
                 {
                     context.Fail("Kiosk token is no longer valid");
                 }
+            },
+
+            OnChallenge = async context =>
+            {
+                context.HandleResponse();
+
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+
+                var payload = new
+                {
+                    message = "Kiosk session is invalid or has expired. Please re-provision this kiosk.",
+                    isClockedOut = false,
+                    status = "Unauthorized",
+                    time = DateTime.UtcNow.ToString("o"),
+                    greeting = ""
+                };
+
+                await context.Response.WriteAsJsonAsync(payload);
             }
         };
     });
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminPolicy", policy => policy.RequireRole(AppConstants.SUPER_ADMIN_ROLE, AppConstants.ADMIN_ROLE));
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(@"C:\TimeClockKeys"))
+    .SetApplicationName("TimeClock");
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

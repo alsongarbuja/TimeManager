@@ -8,23 +8,23 @@
         Title = "General",
         ByRole = AppConstants.AllRoles(),
         LinkData = [
-            new LinkProps {
-                Text = "Dashboard",
-                Url = "dashboard/setup",
-                IconClass = "ri-layout-grid-line",
-                Roles = [AppConstants.SUPER_ADMIN_ROLE],
-            },
-        new LinkProps {
-        Text = "Dashboard",
-        Url = "dashboard",
-        IconClass = "ri-layout-grid-line",
-        Roles = AppConstants.EmployeeRoles(),
-        },
+            // new LinkProps {
+            //     Text = "Dashboard",
+            //     Url = "dashboard/setup",
+            //     IconClass = "ri-layout-grid-line",
+            //     Roles = [AppConstants.SUPER_ADMIN_ROLE],
+            // },
+        // new LinkProps {
+        // Text = "Dashboard",
+        // Url = "dashboard",
+        // IconClass = "ri-layout-grid-line",
+        // Roles = AppConstants.EmployeeRoles(),
+        // },
         new LinkProps {
         Text = "Report",
         Url = "report",
         IconClass = "ri-file-chart-line",
-        Roles = [AppConstants.ADMIN_ROLE],
+        Roles = [AppConstants.ADMIN_ROLE, AppConstants.SUPER_ADMIN_ROLE],
         },
         new LinkProps {
         Text = "Settings",
@@ -37,25 +37,25 @@
 
                       new LinkGroup {
                             Title = "Administration",
-                            ByRole = [AppConstants.SUPER_ADMIN_ROLE],
+                            ByRole = [AppConstants.SUPER_ADMIN_ROLE, AppConstants.ADMIN_ROLE],
                             LinkData = [
-                                 new LinkProps {
-                                    Text = "Department",
-                                    Url = "department",
-                                    IconClass = "ri-building-4-line",
-                                    Roles = [AppConstants.SUPER_ADMIN_ROLE]
-                                 },
-                                new LinkProps {
-                                    Text = "Roles",
-                                    Url = "role",
-                                    IconClass = "ri-group-3-line",
-                                    Roles = [AppConstants.SUPER_ADMIN_ROLE]
-                                },
+                                //  new LinkProps {
+                                //     Text = "Department",
+                                //     Url = "department",
+                                //     IconClass = "ri-building-4-line",
+                                //     Roles = [AppConstants.SUPER_ADMIN_ROLE]
+                                //  },
+                                // new LinkProps {
+                                //     Text = "Roles",
+                                //     Url = "role",
+                                //     IconClass = "ri-group-3-line",
+                                //     Roles = [AppConstants.SUPER_ADMIN_ROLE]
+                                // },
                                 new LinkProps {
                                     Text = "Users",
                                     Url = "user",
                                     IconClass = "ri-user-line",
-                                    Roles = [AppConstants.SUPER_ADMIN_ROLE]
+                                    Roles = [AppConstants.SUPER_ADMIN_ROLE, AppConstants.ADMIN_ROLE]
                                 },
                             ],
 },
@@ -72,12 +72,12 @@
         IconClass = "ri-archive-drawer-line",
         Roles = AppConstants.AdminRoles(),
         },
-        new LinkProps {
-        Text = "Kiosk",
-        Url = "kiosk",
-        IconClass = "ri-computer-line",
-        Roles = [AppConstants.SUPER_ADMIN_ROLE]
-        },
+        // new LinkProps {
+        // Text = "Kiosk",
+        // Url = "kiosk",
+        // IconClass = "ri-computer-line",
+        // Roles = [AppConstants.SUPER_ADMIN_ROLE]
+        // },
         new LinkProps {
         Text = "Punches",
         Url = "punch",
@@ -89,21 +89,21 @@
         Text = "Pay Period",
         Url = "payperiod",
         IconClass = "ri-calendar-2-line",
-        Roles = [AppConstants.SUPER_ADMIN_ROLE]
+        Roles = [AppConstants.SUPER_ADMIN_ROLE, AppConstants.ADMIN_ROLE]
         },
 
-        new LinkProps {
-        Text = "Employee Type",
-        Url = "employeetype",
-        IconClass = "ri-group-line",
-        Roles = [AppConstants.SUPER_ADMIN_ROLE]
-        },
-        new LinkProps {
-        Text = "Pay Frequency",
-        Url = "payfrequency",
-        IconClass = "ri-bill-line",
-        Roles = [AppConstants.SUPER_ADMIN_ROLE]
-        },
+        // new LinkProps {
+        // Text = "Employee Type",
+        // Url = "employeetype",
+        // IconClass = "ri-group-line",
+        // Roles = [AppConstants.SUPER_ADMIN_ROLE]
+        // },
+        // new LinkProps {
+        // Text = "Pay Frequency",
+        // Url = "payfrequency",
+        // IconClass = "ri-bill-line",
+        // Roles = [AppConstants.SUPER_ADMIN_ROLE]
+        // },
         ],
         },
 

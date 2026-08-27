@@ -18,7 +18,8 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        var hasSession = await KioskSession.RestoreSessionAsync();
-        Navigation.NavigateTo(hasSession ? "/punch" : "/provision", replace: true);
+        Navigation.NavigateTo("/punch");
+        // var hasSession = await KioskSession.RestoreSessionAsync();
+        // Navigation.NavigateTo(hasSession ? "/punch" : "/provision", replace: true);
     }
 }

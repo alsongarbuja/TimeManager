@@ -21,8 +21,8 @@ namespace TimeManager.Backend.Controllers.Department
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DepartmentViewModel departmentViewModel)
         {
-            if (!ModelState.IsValid) return View(departmentViewModel);
-            await departmentService.CreateDepartmentAsync(departmentViewModel);
+            //if (!ModelState.IsValid) return View(departmentViewModel);
+            //await departmentService.CreateDepartmentAsync(departmentViewModel);
             TempData["Success"] = "Department created";
             return View(new DepartmentViewModel());
         }
@@ -44,21 +44,21 @@ namespace TimeManager.Backend.Controllers.Department
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, DepartmentViewModel dvm)
         {
-            if (!ModelState.IsValid) return View(dvm);
-            var d = await departmentService.UpdateDepartmentAsync(id, dvm);
+            //if (!ModelState.IsValid) return View(dvm);
+            //var d = await departmentService.UpdateDepartmentAsync(id, dvm);
 
-            if (d == null)
-            {
-                TempData["error"] = "Error while updating the data";
-                return View(dvm);
-            }
+            //if (d == null)
+            //{
+            //    TempData["error"] = "Error while updating the data";
+            //    return View(dvm);
+            //}
 
             TempData["success"] = "Successfully edited the department";
             return View(new DepartmentViewModel
             {
-                Id = d.Id,
-                Name = d.Name,
-                Description = d.Description
+                Id = dvm.Id,
+                Name = dvm.Name,
+                Description = dvm.Description
             });
         }
 
@@ -66,14 +66,14 @@ namespace TimeManager.Backend.Controllers.Department
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                await departmentService.DeleteDepartmentByIdAsync(id);
+            //try
+            //{
+            //    await departmentService.DeleteDepartmentByIdAsync(id);
                 TempData["success"] = "Successfully removed the department";
-            } catch (KeyNotFoundException ex)
-            {
-                TempData["error"] = ex.Message;
-            }
+            //} catch (KeyNotFoundException ex)
+            //{
+            //    TempData["error"] = ex.Message;
+            //}
 
             return RedirectToAction(nameof(Index));
         }

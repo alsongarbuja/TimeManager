@@ -14,7 +14,7 @@ using U = TimeManager.Backend.Models.AuthManagement.User;
 
 namespace TimeManager.Backend.Controllers.User
 {
-    [Authorize(Roles = AppConstants.SUPER_ADMIN_ROLE)]
+    [Authorize(Roles = AppConstants.SUPER_ADMIN_ROLE+","+AppConstants.ADMIN_ROLE)]
     public class UserController(
         UserManager<U> userManager, 
         HrmsDbContext context,
@@ -67,6 +67,8 @@ namespace TimeManager.Backend.Controllers.User
                 });
             }
 
+            Console.WriteLine("DepartmentIds " + rvm.DepartmentIds.ElementAt(0));
+
             var verification = await emailVerificationService.VerifyAsync(rvm.Email);
             if (!verification.IsValid)
             {
@@ -85,7 +87,6 @@ namespace TimeManager.Backend.Controllers.User
             var user = new U { UserName = rvm.Email.Split("@")[0], Email = rvm.Email, EmailConfirmed = true };
             var defaultPassword = configuration["Auth:DefaultPassword"] ?? throw new InvalidOperationException("Default password is not configured in the env");
             var toUserPassword = rvm.Password ?? defaultPassword;
-            Console.WriteLine(toUserPassword);
             var result = await userManager.CreateAsync(user, toUserPassword);
 
             if (result.Succeeded)

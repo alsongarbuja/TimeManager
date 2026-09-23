@@ -128,7 +128,7 @@ namespace TimeManager.Backend.Services
                 report.TotalHours = Math.Round(report.TotalHours + hours, 2);
                 report.TotalWorkedHours = Math.Round(report.TotalWorkedHours + hours, 2);
 
-                bool isWeekTwo = (punch.ClockIn - payPeriod.StartDate).Days > 7;
+                bool isWeekTwo = (punch.ClockIn - payPeriod.StartDate).Days >= 7;
 
                 var targetWeek = isWeekTwo ? report.WeekTwo : report.WeekOne;
 

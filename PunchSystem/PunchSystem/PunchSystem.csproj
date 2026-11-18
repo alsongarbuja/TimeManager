@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PunchSystem.Client\PunchSystem.Client.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.15" />
   </ItemGroup>
 
 </Project>

@@ -10,6 +10,8 @@
         public const string TEMP_EMPLOYEE_ROLE = "Temp Employee";
         public const string STUDENT_ROLE = "Student Employee";
 
+        public const string BUSINESS_TIMEZONE_ID = "Central Standard Time";
+
         public static string[] AllRoles() 
         {
             return [

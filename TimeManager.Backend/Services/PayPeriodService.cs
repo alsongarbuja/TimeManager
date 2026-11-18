@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
@@ -25,6 +26,8 @@ namespace TimeManager.Backend.Services
         PayPeriodUtility payPeriodUtility
         ) : IPayPeriodService
     {
+        private static readonly TimeZoneInfo BusinessTz = TimeZoneInfo.FindSystemTimeZoneById(AppConstants.BUSINESS_TIMEZONE_ID);
+
         public async Task<IEnumerable<SelectListItem>> GetPayPeriodOptionsAsync()
         {
             var currentPp = await payPeriodUtility.GetCurrentPayPeriod();
@@ -33,14 +36,25 @@ namespace TimeManager.Backend.Services
                 logger.LogError("Current Pay period is not calculated properly");
                 return [];
             }
-            var payPeriods = await context.PayPeriod.Where(pp => pp.StartDate <= currentPp.StartDate).OrderByDescending(pp => pp.StartDate).Select(pp => new SelectListItem
-            {
-                Value = pp.Id.ToString(),
-                Text = $"{pp.StartDate:MMM d, yyyy} - {pp.EndDate:MMM d, yyyy}",
-                Selected = pp.Id == currentPp.Id
-            }).ToListAsync();
 
-            return payPeriods;
+            var rawPayPeriods = await context.PayPeriod
+                .Where(pp => pp.StartDate <= currentPp.StartDate)
+                .OrderByDescending(pp => pp.StartDate)
+                .Select(pp => new { pp.Id, pp.StartDate, pp.EndDate })
+                .ToListAsync();
+
+            return rawPayPeriods.Select(pp =>
+            {
+                var localStart = TimeZoneInfo.ConvertTime(pp.StartDate, BusinessTz);
+                var localEnd = TimeZoneInfo.ConvertTime(pp.EndDate, BusinessTz);
+
+                return new SelectListItem
+                {
+                    Value = pp.Id.ToString(),
+                    Text = $"{localStart:MMM d, yyyy} - {localEnd:MMM d, yyyy}",
+                    Selected = pp.Id == currentPp.Id
+                };
+            });
         }
 
         public async Task<PagedResponse<PayPeriodViewModel>> GetPayPeriodsAsync(PaginationQuery filter)
@@ -53,15 +67,15 @@ namespace TimeManager.Backend.Services
             (var payperiods, int totalRecords) = await context.PayPeriod.FindWithPaginationAsync(
                 p => new PayPeriodViewModel
                 {
-                    StartDate = p.StartDate.ToString("MMM d yyyy"),
-                    EndDate = p.EndDate.ToLocalTime().ToString("MMM d yyyy")
+                    StartDate = TimeZoneInfo.ConvertTime(p.StartDate, BusinessTz).ToString("MMM d yyyy"),
+                    EndDate = TimeZoneInfo.ConvertTime(p.EndDate, BusinessTz).ToString("MMM d yyyy")
                 },
                 ((pageNumber - 1) * pageSize),
                 pageSize,
                 null,
                 p => p.StartDate,
                 true
-                );
+            );
 
             return new PagedResponse<PayPeriodViewModel>(payperiods, pageNumber, pageSize, totalRecords, orderBy, isOrderDescending);
         }
@@ -69,7 +83,7 @@ namespace TimeManager.Backend.Services
         public async Task AutoGeneratePayPeriod()
         {
             int numOfPeriods = 30;
-            TimeZoneInfo localTz = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            TimeZoneInfo localTz = BusinessTz;
 
             DateTimeOffset effectiveStartLocalDt;
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Extensions;
 using PP = TimeManager.Backend.Models.Punch_Management.PayPeriod;
@@ -7,8 +8,10 @@ namespace TimeManager.Backend.Controllers.PunchManagement.Utility
 {
     public class PayPeriodUtility(HrmsDbContext hrmsDbContext)
     {
+        private static readonly TimeZoneInfo BusinessTz = TimeZoneInfo.FindSystemTimeZoneById(AppConstants.BUSINESS_TIMEZONE_ID);
+
         public async Task<PP?> GetCurrentPayPeriod() { 
-            DateTimeOffset dateNow = DateTimeOffset.Now.UtcDateTime;
+            DateTimeOffset dateNow = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, BusinessTz);
 
             PP? pp = await hrmsDbContext.PayPeriod.Where(
                 pp => dateNow >= pp.StartDate && dateNow <= pp.EndDate

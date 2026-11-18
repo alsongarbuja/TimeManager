@@ -17,6 +17,11 @@ namespace TimeManager.Backend.Extensions
             return entity ?? throw new KeyNotFoundException($"{typeof(T).Name} for the given query was not found");
         }
 
+        public static async Task<T?> WhereOrDefaultAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> query) where T : class
+        {
+            return await dbSet.FirstOrDefaultAsync(query);
+        }
+
         public static async Task<(List<TResult>, int)> FindWithPaginationAsync<TEntity, TResult>(
             this DbSet<TEntity> dbSet, 
             Expression<Func<TEntity, TResult>> selector,

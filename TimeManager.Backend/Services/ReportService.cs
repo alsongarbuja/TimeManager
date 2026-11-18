@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TimeManager.Backend.Common;
 using TimeManager.Backend.Controllers.PunchManagement.Utility;
 using TimeManager.Backend.Data;
 using TimeManager.Backend.Models.Employee_Management;
@@ -15,6 +16,7 @@ namespace TimeManager.Backend.Services
 
     public class ReportService(HrmsDbContext hrmsDbContext, PayPeriodUtility payPeriodUtility, ILogger<JobProfile> logger) : IReportService
     {
+        private static readonly TimeZoneInfo BusinessTz = TimeZoneInfo.FindSystemTimeZoneById(AppConstants.BUSINESS_TIMEZONE_ID);
         public async Task<ReportGeneratedViewModel?> GenerateReportByJobProfileId(int id, int payPeriodId = 0)
         {
             JobProfile? jp = await hrmsDbContext.JobProfile.AsNoTracking().Include(jp => jp.Employee).Include(jp => jp.ProfileTemplate).ThenInclude(pt => pt.Unit).AsSplitQuery().FirstOrDefaultAsync(j => j.Id == id);
@@ -117,25 +119,28 @@ namespace TimeManager.Backend.Services
                 UnitIndex = jobProfile.ProfileTemplate.Unit.Index.ToString(),
             };
 
-            foreach(var punch in punchEntries)
+            DateTime localPeriodStartDate = TimeZoneInfo.ConvertTime(payPeriod.StartDate, BusinessTz).Date;
+
+            foreach (var punch in punchEntries)
             {
                 if (punch.ClockOut == null)
                     continue;
 
-                var dayOfWeek = punch.ClockIn.DayOfWeek.ToString();
+                DateTime localClockIn = TimeZoneInfo.ConvertTime(punch.ClockIn, BusinessTz);
+                var dayOfWeek = localClockIn.DayOfWeek.ToString();
                 var hours = Math.Round((punch.ClockOut.Value - punch.ClockIn).TotalHours, 2);
 
                 report.TotalHours = Math.Round(report.TotalHours + hours, 2);
                 report.TotalWorkedHours = Math.Round(report.TotalWorkedHours + hours, 2);
 
-                bool isWeekTwo = (punch.ClockIn - payPeriod.StartDate).Days >= 7;
-
+                bool isWeekTwo = (localClockIn.Date - localPeriodStartDate).Days >= 7;
                 var targetWeek = isWeekTwo ? report.WeekTwo : report.WeekOne;
 
                 if (targetWeek.TryGetValue(dayOfWeek, out var existingDayInWeek))
                 {
-                    existingDayInWeek.Hours += hours;
-                } else
+                    existingDayInWeek.Hours = Math.Round(existingDayInWeek.Hours + hours, 2);
+                }
+                else
                 {
                     targetWeek[dayOfWeek] = new DayReport
                     {
@@ -147,5 +152,51 @@ namespace TimeManager.Backend.Services
 
             return report;
         }
+        //private static ReportGeneratedViewModel BuildReport(JobProfile jobProfile, IEnumerable<PunchEntry> punchEntries, PayPeriod payPeriod)
+        //{
+        //    var report = new ReportGeneratedViewModel
+        //    {
+        //        Name = $"{jobProfile.Employee.FirstName} {jobProfile.Employee.LastName}",
+        //        JobProfileId = jobProfile.Id,
+        //        TotalHours = 0,
+        //        TotalWorkedHours = 0,
+        //        TotalHolidayHours = 0,
+        //        WeekOne = [],
+        //        WeekTwo = [],
+        //        UnitName = jobProfile.ProfileTemplate.Unit.Name,
+        //        UnitIndex = jobProfile.ProfileTemplate.Unit.Index.ToString(),
+        //    };
+
+        //    foreach (var punch in punchEntries)
+        //    {
+        //        if (punch.ClockOut == null)
+        //            continue;
+
+        //        var dayOfWeek = punch.ClockIn.DayOfWeek.ToString();
+        //        var hours = Math.Round((punch.ClockOut.Value - punch.ClockIn).TotalHours, 2);
+
+        //        report.TotalHours = Math.Round(report.TotalHours + hours, 2);
+        //        report.TotalWorkedHours = Math.Round(report.TotalWorkedHours + hours, 2);
+
+        //        bool isWeekTwo = (punch.ClockIn - payPeriod.StartDate).Days >= 7;
+
+        //        var targetWeek = isWeekTwo ? report.WeekTwo : report.WeekOne;
+
+        //        if (targetWeek.TryGetValue(dayOfWeek, out var existingDayInWeek))
+        //        {
+        //            existingDayInWeek.Hours += hours;
+        //        }
+        //        else
+        //        {
+        //            targetWeek[dayOfWeek] = new DayReport
+        //            {
+        //                Hours = hours,
+        //                Type = "REG",
+        //            };
+        //        }
+        //    }
+
+        //    return report;
+        //}
     }
 }

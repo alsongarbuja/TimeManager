@@ -110,7 +110,7 @@ namespace TimeManager.Backend.Data
 
             foreach (var eT in empTypes)
             {
-                var et = await employeeTypeService.GetEmployeeTypeByNameAsync(eT.Name);
+                var et = await employeeTypeService.GetEmployeeTypeByNameDefaultAsync(eT.Name);
                 if (et == null)
                 {
                     await employeeTypeService.CreateEmployeeTypeAsync(eT);
@@ -125,7 +125,7 @@ namespace TimeManager.Backend.Data
 
             foreach(var pf in pfs)
             {
-                var p = await payFrequencyService.GetPayFrequencyByNameAsync(pf.Name);
+                var p = await payFrequencyService.GetPayFrequencyByNameDefaultAsync(pf.Name);
                 if (p == null)
                 {
                     await payFrequencyService.CreatePayFrequencyAsync(pf);

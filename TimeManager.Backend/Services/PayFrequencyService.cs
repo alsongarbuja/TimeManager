@@ -13,6 +13,7 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<PayFrequencyViewModel>> GetPayFrequenciesAsync();
         Task<PayFrequency> GetPayFrequencyByIdAsync(int id);
         Task<PayFrequency> GetPayFrequencyByNameAsync(string name);
+        Task<PayFrequency?> GetPayFrequencyByNameDefaultAsync(string name);
         Task CreatePayFrequencyAsync(PayFrequencyDto payFrequencyDto);
         Task<PayFrequency?> UpdatePayFrequencyAsync(int id, PayFrequencyDto payFrequencyDto);
         Task<int?> DeletePayFrequencyByIdAsync(int id);
@@ -54,6 +55,11 @@ namespace TimeManager.Backend.Services
         public async Task<PayFrequency> GetPayFrequencyByNameAsync(string name)
         {
             return await hrmsDbContext.PayFrequency.WhereOrThrowAsync(pf => pf.Name.Equals(name));
+        }
+
+        public async Task<PayFrequency?> GetPayFrequencyByNameDefaultAsync(string name)
+        {
+            return await hrmsDbContext.PayFrequency.WhereOrDefaultAsync(pf => pf.Name.Equals(name));
         }
 
         public async Task<IEnumerable<SelectListItem>> GetPayFrequencyOptionsAsync(int selectedId = 0)

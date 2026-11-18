@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using DocumentFormat.OpenXml.InkML;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TimeManager.Backend.Data;
@@ -13,6 +14,7 @@ namespace TimeManager.Backend.Services
         Task<IEnumerable<EmployeeTypeViewModel>> GetEmployeeTypesAsync();
         Task<EmployeeType> GetEmployeeTypeByIdAsync(int id);
         Task<EmployeeType> GetEmployeeTypeByNameAsync(string name);
+        Task<EmployeeType?> GetEmployeeTypeByNameDefaultAsync(string name);
         Task CreateEmployeeTypeAsync(EmployeeTypeDto employeeTypeDto);
         Task<EmployeeType?> UpdateEmployeeTypeAsync(int id, EmployeeTypeDto employeeTypeDto);
         Task<int?> DeleteEmployeeTypeByIdAsync(int id);
@@ -82,6 +84,11 @@ namespace TimeManager.Backend.Services
         public async Task<EmployeeType> GetEmployeeTypeByNameAsync(string name)
         {
             return await hrmsDbContext.EmployeeType.WhereOrThrowAsync(et => et.Name.Equals(name));
+        }
+
+        public async Task<EmployeeType?> GetEmployeeTypeByNameDefaultAsync(string name)
+        {
+           return await hrmsDbContext.EmployeeType.WhereOrDefaultAsync(x => x.Name == name);
         }
     }
 
